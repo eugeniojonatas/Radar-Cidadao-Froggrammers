@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios Legislativos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="logo">PORTAL<span>LEG</span></a>
+        <nav><ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="deputados.html">Deputados</a></li>
+            <li><a href="relatorios.html" class="active">Relatórios</a></li>
+            <li><a href="graficos.html">Gráficos</a></li>
+        </ul></nav>
+    </header>
+
+    <main class="container">
+        <div class="card" style="margin-bottom: 30px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div><label>Tipo de Proposição</label><select style="width:100%; padding:10px;"><option>Projeto de Lei</option></select></div>
+                <div><label>Número</label><input type="text" style="width:100%; padding:10px;"></div>
+                <div><label>Ano</label><input type="text" placeholder="2026" style="width:100%; padding:10px;"></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 20px;">Pesquisar</button>
+        </div>
+
+        <div class="card">
+            <h3>Resultados Encontrados</h3>
+            <div style="margin-top: 20px; padding: 15px; border-left: 4px solid var(--secondary); background: #fff9f0;">
+                <h4>PL nº 452/2026</h4>
+                <p>Proposta de digitalização total dos processos legislativos estaduais.</p>
+                <small>Autor: <strong>Dep. Roberto Santos</strong> | Situação: Em análise</small>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

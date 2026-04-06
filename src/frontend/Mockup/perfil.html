@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil do Deputado | Detalhes</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="logo">PORTAL<span>LEG</span></a>
+        <nav><ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="deputados.html">Deputados</a></li>
+            <li><a href="relatorios.html">Relatórios</a></li>
+            <li><a href="graficos.html">Gráficos</a></li>
+        </ul></nav>
+    </header>
+
+    <main class="container">
+        <div style="display: grid; grid-template-columns: 350px 1fr; gap: 40px;">
+            
+            <aside class="card" style="text-align: center;">
+                <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=300&q=80" style="width: 100%; border-radius: 8px;">
+                <h2 style="margin: 20px 0; color: var(--primary);">Dep. Roberto Santos</h2>
+                <div style="text-align: left;">
+                    <p><strong>Partido:</strong> PTec</p>
+                    <p><strong>E-mail:</strong> roberto.santos@assembleia.leg.br</p>
+                </div>
+            </aside>
+
+            <section class="card">
+                <h3>Assiduidade nas Sessões</h3>
+                <div style="height: 350px;">
+                    <canvas id="chartFrequencia"></canvas>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
