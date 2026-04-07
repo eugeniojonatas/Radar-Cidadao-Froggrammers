@@ -1,0 +1,54 @@
+https://colab.research.google.com/drive/1kmlPHEZtIaF5xB9BESR_Nqsb-bq3Eq3f#scrollTo=-Mm28NbPxCE8
+
+import requests
+import json
+
+def buscar_deputados():
+    url = "https://dadosabertos.camara.leg.br/api/v2/deputados"
+    params = {
+        "idLegislatura": 57,
+        "itens": 100
+    }
+
+    deputados = []
+    pagina = 1
+
+    while True:
+        params["pagina"] = pagina
+        resposta = requests.get(url, params=params)
+
+        if resposta.status_code != 200:
+            print("erro na requisição")
+            return
+
+        dados = resposta.json().get("dados", [])
+
+        if len(dados) == 0:
+            break
+
+        for dep in dados:
+            deputados.append({
+                "id": dep.get("id"),
+                "nome": dep.get("nome"),
+                "partido": dep.get("siglaPartido"),
+                "estado": dep.get("siglaUf"),
+                "email": dep.get("email"),
+                "foto": dep.get("urlFoto")
+            })
+
+        pagina += 1
+
+    print("total:", len(deputados))
+
+    if len(deputados) > 0:
+        with open("deputados_limpos.json", "w", encoding="utf-8") as f:
+            json.dump(deputados, f, indent=4, ensure_ascii=False)
+        print("arquivo salvo")
+    else:
+        print("nenhum dado encontrado")
+
+buscar_deputados()
+
+from google.colab import files
+files.download("deputados_limpos.json")
+
