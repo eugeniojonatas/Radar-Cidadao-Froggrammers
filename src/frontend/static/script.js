@@ -1,10 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    if (typeof Chart === "undefined") return;
+    // Se Chart.js não carregou, evita crash
+    if (typeof Chart === "undefined") {
+        console.warn("Chart.js não encontrado");
+        return;
+    }
 
+    // Configuração global
     Chart.defaults.color = '#7f8c8d';
     Chart.defaults.font.family = "'Segoe UI', sans-serif";
 
+    // =========================
+    // 1. Gráfico de Frequência
+    // =========================
     const ctxFreq = document.getElementById('chartFrequencia');
 
     if (ctxFreq) {
@@ -14,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels: ['2019','2020','2021','2022','2023','2024'],
                 datasets: [{
                     label: 'Presença (%)',
-                    data: [85,92,98,94,90,88],
+                    data: [85, 92, 98, 94, 90, 88],
                     backgroundColor: '#1565c0',
                     borderRadius: 5
                 }]
@@ -35,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // =========================
+    // 2. Gráfico Geral
+    // =========================
     const ctxGeral = document.getElementById('chartGeral');
 
     if (ctxGeral) {
@@ -44,9 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels: ['Jan','Fev','Mar','Abr','Mai','Jun'],
                 datasets: [{
                     label: 'Projetos de Lei',
-                    data: [15,28,42,35,50,48],
+                    data: [15, 28, 42, 35, 50, 48],
                     borderColor: '#ff9800',
-                    backgroundColor: 'rgba(255,152,0,0.1)',
+                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
                     fill: true,
                     tension: 0.4
                 }]
