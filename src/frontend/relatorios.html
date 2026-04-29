@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios | Portal SJC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="logo">PORTAL<span>SJC</span></a>
+        <nav><ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="deputados.html">Deputados</a></li>
+            <li><a href="relatorios.html" class="active">Relatórios</a></li>
+            <li><a href="graficos.html">Gráficos</a></li>
+        </ul></nav>
+    </header>
+
+    <main class="container">
+        <div class="card" style="margin-bottom: 30px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div>
+                    <label>Tipo de Proposição</label>
+                    <select style="width:100%; padding:10px; border-radius:5px;"><option>Cotas Parlamentares</option></select>
+                </div>
+                <div>
+                    <label>ID do Deputado (Número)</label>
+                    <input type="text" id="id-busca" placeholder="Ex: 160976" style="width:100%; padding:10px; border-radius:5px;">
+                </div>
+                <div>
+                    <label>Ano</label>
+                    <input type="text" id="ano-busca" value="2025" style="width:100%; padding:10px; border-radius:5px;">
+                </div>
+            </div>
+            <button onclick="buscarRelatorio()" class="btn btn-primary" style="margin-top: 20px; background: var(--secondary); border:none;">Pesquisar</button>
+        </div>
+
+        <div class="card">
+            <h3 style="color: var(--primary); margin-bottom: 15px;">Resultados do Relatório</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: #f4f4f4;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Descrição da Categoria</th>
+                        <th style="padding: 12px; text-align: right;">Total Gasto</th>
+                    </tr>
+                </thead>
+                <tbody id="resultado-tabela">
+                    <tr><td colspan="2" style="padding: 20px; text-align: center; color: #999;">Insira o ID e clique em Pesquisar.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        async function buscarRelatorio() {
+            const id = document.getElementById('id-busca').value;
+            const ano = document.getElementById('ano-busca').value;
+            if(!id) return alert("Digite o ID!");
+
+            const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&itens=100`);
+            const json = await res.json();
+            
+            let resumo = {};
+            json.dados.forEach(g => {
+                resumo[g.tipoDespesa] = (resumo[g.tipoDespesa] || 0) + g.valorLiquido;
+            });
+
+            document.getElementById('resultado-tabela').innerHTML = Object.keys(resumo).map(cat => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding:12px;">${cat}</td>
+                    <td style="padding:12px; text-align:right; font-weight:bold;">${resumo[cat].toLocaleString('pt-br',{style:'currency',currency:'BRL'})}</td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

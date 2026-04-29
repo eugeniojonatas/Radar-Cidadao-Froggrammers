@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Deputados | Portal SJC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="logo">PORTAL<span>SJC</span></a>
+        <nav><ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="deputados.html" class="active">Deputados</a></li>
+            <li><a href="relatorios.html">Relatórios</a></li>
+            <li><a href="graficos.html">Gráficos</a></li>
+        </ul></nav>
+    </header>
+
+    <main class="container">
+        <h1 style="margin-top: 20px;">Representantes na Câmara Federal</h1>
+        <p id="contagem">Carregando deputados...</p>
+
+        <div class="card" style="margin-bottom: 25px; padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                <div>
+                    <label style="font-weight: bold; color: var(--primary);">Buscar por Nome</label>
+                    <input type="text" id="busca-nome" placeholder="Ex: acacio, adail..." 
+                        style="width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div>
+                    <label style="font-weight: bold; color: var(--primary);">Filtrar por Estado</label>
+                    <select id="filtro-estado" style="width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">Todos os Estados</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: bold; color: var(--primary);">Filtrar por Partido</label>
+                    <select id="filtro-partido" style="width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">Todos os Partidos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="lista-deputados" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px;">
+            </div>
+    </main>
+
+    <script>
+        let todosDeputados = [];
+
+        // Função para remover acentos e deixar minúsculo
+        const normalizar = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+        async function carregarDeputados() {
+            try {
+                // Busca da sua API local no Flask
+                const res = await fetch('/api/deputados');
+                const json = await res.json();
+                todosDeputados = json.dados;
+                
+                popularFiltros(todosDeputados);
+                renderizarCards(todosDeputados);
+            } catch (e) {
+                console.error("Erro ao carregar lista:", e);
+                document.getElementById('contagem').innerText = "Erro ao carregar dados.";
+            }
+        }
+
+        function popularFiltros(dados) {
+            const estados = [...new Set(dados.map(d => d.siglaUf))].sort();
+            const partidos = [...new Set(dados.map(d => d.siglaPartido))].sort();
+            
+            const selEstado = document.getElementById('filtro-estado');
+            const selPartido = document.getElementById('filtro-partido');
+
+            estados.forEach(uf => selEstado.innerHTML += `<option value="${uf}">${uf}</option>`);
+            partidos.forEach(p => selPartido.innerHTML += `<option value="${p}">${p}</option>`);
+        }
+
+        function renderizarCards(lista) {
+            const container = document.getElementById('lista-deputados');
+            document.getElementById('contagem').innerText = `${lista.length} Deputados encontrados`;
+            
+            container.innerHTML = lista.map(d => {
+                // Adicionamos um timestamp na URL da foto para evitar cache e erro de carregamento
+                const urlFoto = d.urlFoto ? `${d.urlFoto}?v=${Date.now()}` : 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png';
+                
+                return `
+                <div class="card" style="text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 8px; background: #f0f0f0; margin-bottom: 10px;">
+                            <img src="${urlFoto}" style="width: 100%; object-fit: cover;" 
+                                 onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
+                        </div>
+                        <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 5px;">${d.nome}</h3>
+                        <p style="color: #666; font-size: 0.85rem;">${d.siglaPartido} - ${d.siglaUf}</p>
+                    </div>
+                    <a href="perfil.html?id=${d.id}" class="btn" style="display: block; margin-top: 15px; text-decoration: none; background: var(--primary); color: white; padding: 10px; border-radius: 5px; font-weight: bold;">Ver Perfil</a>
+                </div>
+            `}).join('');
+        }
+
+        function aplicarFiltros() {
+            const termoBusca = normalizar(document.getElementById('busca-nome').value);
+            const estado = document.getElementById('filtro-estado').value;
+            const partido = document.getElementById('filtro-partido').value;
+
+            const filtrados = todosDeputados.filter(d => {
+                const nomeMatch = normalizar(d.nome).includes(termoBusca);
+                const estadoMatch = estado === "" || d.siglaUf === estado;
+                const partidoMatch = partido === "" || d.siglaPartido === partido;
+                return nomeMatch && estadoMatch && partidoMatch;
+            });
+            renderizarCards(filtrados);
+        }
+
+        document.getElementById('busca-nome').addEventListener('input', aplicarFiltros);
+        document.getElementById('filtro-estado').addEventListener('change', aplicarFiltros);
+        document.getElementById('filtro-partido').addEventListener('change', aplicarFiltros);
+
+        carregarDeputados();
+    </script>
+</body>
+</html>
