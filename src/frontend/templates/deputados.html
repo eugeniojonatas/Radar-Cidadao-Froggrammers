@@ -228,56 +228,32 @@
             atualizarBotaoComparacao();
             renderizarCards(todosDeputados);
         });
-        function gerarComparacao() {
+        async function gerarComparacao() {
             if (selecionados.size < 2) return;
 
-            const selecionadosArray = todosDeputados.filter(d =>
+            const base = todosDeputados.filter(d =>
                 selecionados.has(d.id)
             );
 
+            // estrutura inicial (loading)
+            const selecionadosArray = base.map(d => ({
+                ...d,
+                gastosTotais: "Carregando..."
+            }));
+
             const container = document.getElementById("conteudo-comparacao");
+            container.innerHTML = gerarTabela(selecionadosArray);
 
-            container.innerHTML = `
-                <table style="width:100%; border-collapse: collapse; text-align:center;">
-                    
-                    <thead>
-                        <tr>
-                            <th style="padding:10px; border:1px solid #ddd;">Campo</th>
-                            ${selecionadosArray.map(d => `
-                                <th style="padding:10px; border:1px solid #ddd;">
-                                    <img src="${d.urlFoto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}"
-                                        style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><br>
-                                    ${d.nome}
-                                </th>
-                            `).join('')}
-                        </tr>
-                    </thead>
+            // loop correto (sem forEach async)
+            for (let index = 0; index < base.length; index++) {
+                const d = base[index];
 
-                    <tbody>
-                        <tr>
-                            <td style="padding:10px; border:1px solid #ddd;"><strong>Partido</strong></td>
-                            ${selecionadosArray.map(d => `
-                                <td style="padding:10px; border:1px solid #ddd;">${d.siglaPartido}</td>
-                            `).join('')}
-                        </tr>
+                buscarGastosTotais(d.id, (soma) => {
+                    selecionadosArray[index].gastosTotais = soma;
 
-                        <tr>
-                            <td style="padding:10px; border:1px solid #ddd;"><strong>Estado</strong></td>
-                            ${selecionadosArray.map(d => `
-                                <td style="padding:10px; border:1px solid #ddd;">${d.siglaUf}</td>
-                            `).join('')}
-                        </tr>
-
-                        <tr>
-                            <td style="padding:10px; border:1px solid #ddd;"><strong>ID</strong></td>
-                            ${selecionadosArray.map(d => `
-                                <td style="padding:10px; border:1px solid #ddd;">${d.id}</td>
-                            `).join('')}
-                        </tr>
-                    </tbody>
-
-                </table>
-            `;
+                    container.innerHTML = gerarTabela(selecionadosArray);
+                });
+            }
 
             document.getElementById("modal-comparacao").style.display = "flex";
         }
@@ -292,25 +268,6 @@
             }
         });
 
-        function atualizarBotaoComparacao() {
-            const btn = document.getElementById("btn-gerar-comparacao");
-
-            if (!btn) return;
-
-            const qtd = selecionados.size;
-
-            if (qtd >= 2) {
-                btn.disabled = false;
-                btn.style.background = "#2e7d32"; // verde
-                btn.style.cursor = "pointer";
-                btn.style.opacity = "1";
-            } else {
-                btn.disabled = true;
-                btn.style.background = "#9e9e9e"; // cinza
-                btn.style.cursor = "not-allowed";
-                btn.style.opacity = "0.6";
-            }
-        }
         function atualizarBotaoComparacao() {
             const btn = document.getElementById("btn-gerar-comparacao");
 
@@ -343,6 +300,90 @@
             setTimeout(() => {
                 toast.classList.remove("show");
             }, 2500);
+        }
+        
+        async function buscarGastosTotais(id, onUpdate) {
+            let soma = 0;
+            const anos = [2026, 2025];
+
+            for (let ano of anos) {
+                let pagina = 1;
+
+                while (true) {
+                    const res = await fetch(
+                        `https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&pagina=${pagina}&itens=100`
+                    );
+
+                    const json = await res.json();
+
+                    if (!json.dados || json.dados.length === 0) break;
+
+                    for (let g of json.dados) {
+                        soma += g.valorLiquido || 0;
+                    }
+
+                    pagina++;
+
+                    if (onUpdate) onUpdate(soma);
+                }
+            }
+
+            return soma;
+        }
+
+        function gerarTabela(lista) {
+            return `
+                <table style="width:100%; border-collapse: collapse; text-align:center;">
+
+                    <thead>
+                        <tr>
+                            <th style="padding:10px; border:1px solid #ddd;">Campo</th>
+
+                            ${lista.map(d => `
+                                <th style="padding:10px; border:1px solid #ddd;">
+                                    <img src="${d.urlFoto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}"
+                                        style="width:70px; height:70px; border-radius:8px; object-fit:cover;"><br>
+                                    ${d.nome}
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><strong>Partido</strong></td>
+                            ${lista.map(d => `<td>${d.siglaPartido || '-'}</td>`).join('')}
+                        </tr>
+
+                        <tr>
+                            <td><strong>UF</strong></td>
+                            ${lista.map(d => `<td>${d.siglaUf || '-'}</td>`).join('')}
+                        </tr>
+
+                        <tr>
+                            <td><strong>ID</strong></td>
+                            ${lista.map(d => `<td>${d.id}</td>`).join('')}
+                        </tr>
+
+                        <tr>
+                            <td><strong>Gastos Totais</strong></td>
+                            ${lista.map(d => `
+                                <td>
+                                    ${typeof d.gastosTotais === "number"
+                                        ? d.gastosTotais.toLocaleString('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL'
+                                        })
+                                        : d.gastosTotais}
+                                </td>
+                            `).join('')}
+                        </tr>
+
+                    </tbody>
+
+                </table>
+            `;
         }
 
     </script>
