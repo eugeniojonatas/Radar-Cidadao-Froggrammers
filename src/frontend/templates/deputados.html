@@ -231,18 +231,47 @@
 
             const container = document.getElementById("conteudo-comparacao");
 
-            container.innerHTML = selecionadosArray.map(d => `
-                <div class="card" style="text-align:center;">
-                    <img src="${d.urlFoto}"
-                        style="width:100%; max-height:180px; object-fit:contain; border-radius:8px; margin-bottom:10px; background:#f5f5f5;"
-                        onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
+            container.innerHTML = `
+                <table style="width:100%; border-collapse: collapse; text-align:center;">
+                    
+                    <thead>
+                        <tr>
+                            <th style="padding:10px; border:1px solid #ddd;">Campo</th>
+                            ${selecionadosArray.map(d => `
+                                <th style="padding:10px; border:1px solid #ddd;">
+                                    <img src="${d.urlFoto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}"
+                                        style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><br>
+                                    ${d.nome}
+                                </th>
+                            `).join('')}
+                        </tr>
+                    </thead>
 
-                    <h3 style="color:var(--primary);">${d.nome}</h3>
-                    <p>${d.siglaPartido} - ${d.siglaUf}</p>
-                    <hr>
-                    <p><strong>ID:</strong> ${d.id}</p>
-                </div>
-            `).join('');
+                    <tbody>
+                        <tr>
+                            <td style="padding:10px; border:1px solid #ddd;"><strong>Partido</strong></td>
+                            ${selecionadosArray.map(d => `
+                                <td style="padding:10px; border:1px solid #ddd;">${d.siglaPartido}</td>
+                            `).join('')}
+                        </tr>
+
+                        <tr>
+                            <td style="padding:10px; border:1px solid #ddd;"><strong>Estado</strong></td>
+                            ${selecionadosArray.map(d => `
+                                <td style="padding:10px; border:1px solid #ddd;">${d.siglaUf}</td>
+                            `).join('')}
+                        </tr>
+
+                        <tr>
+                            <td style="padding:10px; border:1px solid #ddd;"><strong>ID</strong></td>
+                            ${selecionadosArray.map(d => `
+                                <td style="padding:10px; border:1px solid #ddd;">${d.id}</td>
+                            `).join('')}
+                        </tr>
+                    </tbody>
+
+                </table>
+            `;
 
             document.getElementById("modal-comparacao").style.display = "flex";
         }
