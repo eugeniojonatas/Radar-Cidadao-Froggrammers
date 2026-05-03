@@ -73,21 +73,15 @@ const btnGerar = document.getElementById("btn-gerar-comparacao");
 const modal = document.getElementById("modal-comparacao");
 const conteudo = document.getElementById("conteudo-comparacao");
 
-// 🔥 FUNÇÃO CORRIGIDA (resolve teu erro)
+// CARREGAR API
 async function carregarDeputados() {
     try {
         const res = await fetch('/api/deputados');
         const json = await res.json();
 
-        // SUPORTA os dois formatos de API
         todosDeputados = Array.isArray(json) ? json : json.dados || [];
 
-        if (todosDeputados.length === 0) {
-            contagem.innerText = "Nenhum deputado encontrado";
-            return;
-        }
-
-        contagem.innerText = `${todosDeputados.length} deputados carregados`;
+        contagem.innerText = `${todosDeputados.length} deputados`;
 
         popularFiltros(todosDeputados);
         renderizarCards(todosDeputados);
@@ -98,13 +92,13 @@ async function carregarDeputados() {
     }
 }
 
-// 🔥 EVITA DUPLICAÇÃO
+// FILTROS
 function popularFiltros(dados) {
     filtroEstado.innerHTML = '<option value="">Estado</option>';
     filtroPartido.innerHTML = '<option value="">Partido</option>';
 
-    const estados = [...new Set(dados.map(d => d.uf))].sort();
-    const partidos = [...new Set(dados.map(d => d.partido))].sort();
+    const estados = [...new Set(dados.map(d => d.siglaUf))].sort();
+    const partidos = [...new Set(dados.map(d => d.siglaPartido))].sort();
 
     estados.forEach(uf => {
         filtroEstado.innerHTML += `<option value="${uf}">${uf}</option>`;
@@ -115,17 +109,19 @@ function popularFiltros(dados) {
     });
 }
 
+// CARDS
 function renderizarCards(lista) {
     const container = document.getElementById('lista-deputados');
 
     container.innerHTML = lista.map(d => `
         <div class="card" style="border:${selecionados.has(d.id) ? '2px solid orange' : '1px solid #ddd'}">
 
-            <img src="${d.foto}" 
+            <img src="${d.urlFoto}" 
+                 style="width:100%; height:260px; object-fit:cover; border-radius:8px;"
                  onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
 
             <h3>${d.nome}</h3>
-            <p>${d.partido} - ${d.uf}</p>
+            <p>${d.siglaPartido} - ${d.siglaUf}</p>
 
             ${
                 modoComparacao
@@ -147,8 +143,8 @@ function aplicarFiltros() {
 
     const filtrados = todosDeputados.filter(d =>
         d.nome.toLowerCase().includes(nome) &&
-        (estado === "" || d.uf === estado) &&
-        (partido === "" || d.partido === partido)
+        (estado === "" || d.siglaUf === estado) &&
+        (partido === "" || d.siglaPartido === partido)
     );
 
     contagem.innerText = `${filtrados.length} deputados`;
@@ -203,7 +199,6 @@ function atualizarBotao() {
 
     btnGerar.disabled = qtd < 2;
     btnGerar.style.opacity = qtd < 2 ? "0.5" : "1";
-    btnGerar.style.cursor = qtd < 2 ? "not-allowed" : "pointer";
 }
 
 // COMPARAÇÃO
@@ -213,7 +208,7 @@ btnGerar.onclick = () => {
     const lista = todosDeputados.filter(d => selecionados.has(d.id));
 
     conteudo.innerHTML = `
-        <table>
+        <table style="width:100%; text-align:center;">
             <thead>
                 <tr>
                     <th>Campo</th>
@@ -223,11 +218,11 @@ btnGerar.onclick = () => {
             <tbody>
                 <tr>
                     <td><strong>Partido</strong></td>
-                    ${lista.map(d => `<td>${d.partido}</td>`).join('')}
+                    ${lista.map(d => `<td>${d.siglaPartido}</td>`).join('')}
                 </tr>
                 <tr>
                     <td><strong>UF</strong></td>
-                    ${lista.map(d => `<td>${d.uf}</td>`).join('')}
+                    ${lista.map(d => `<td>${d.siglaUf}</td>`).join('')}
                 </tr>
                 <tr>
                     <td><strong>ID</strong></td>
