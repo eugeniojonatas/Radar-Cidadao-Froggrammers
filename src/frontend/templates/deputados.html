@@ -14,8 +14,50 @@
         }
         .toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 5px; }
         .toast.show { visibility: visible; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px 0; }
-        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: #fff; }
+        
+        /* ALTERAÇÃO: Grid fixo em 4 colunas */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
+            padding: 20px 0; 
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 1024px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: #fff; transition: 0.3s; }
+        .card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* Estilo para o link/botão "Ver Perfil" */
+        .btn-perfil {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            background-color: #0d47a1;
+            color: white !important;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-perfil:hover {
+            background-color: #08306b;
+        }
+
+        .btn-selecionar-modo {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 
@@ -38,26 +80,26 @@
     </nav>
 </header>
 
-<main class="container" style="padding: 20px;">
+<main class="container" style="padding: 20px 5%;">
     <h1>Representantes na Câmara Federal</h1>
     <p id="contagem">Carregando deputados...</p>
 
-    <div class="filter-bar" style="background:#f4f4f4; padding:20px; border-radius:8px; margin-bottom:20px;">
-        <input type="text" id="busca-nome" placeholder="Buscar deputado..." style="padding:8px;">
+    <div class="filter-bar" style="background:#f4f4f4; padding:20px; border-radius:8px; margin-bottom:20px; display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="busca-nome" placeholder="Buscar deputado..." style="padding:8px; flex: 1; border: 1px solid #ccc; border-radius: 4px;">
 
-        <select id="filtro-estado" style="padding:8px;">
+        <select id="filtro-estado" style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
             <option value="">Todos Estados</option>
         </select>
 
-        <select id="filtro-partido" style="padding:8px;">
+        <select id="filtro-partido" style="padding:8px; border: 1px solid #ccc; border-radius: 4px;">
             <option value="">Todos Partidos</option>
         </select>
 
-        <button id="btn-modo" onclick="toggleModoComparacao()" style="padding:8px 15px; cursor:pointer;">
+        <button id="btn-modo" onclick="toggleModoComparacao()" style="padding:10px 15px; cursor:pointer; background: #333; color: white; border: none; border-radius: 4px;">
             Comparar Deputados
         </button>
 
-        <button id="btn-gerar-comparacao" disabled style="display:none; padding:8px 15px; background:#ff9800; border:none; color:white; font-weight:bold;">
+        <button id="btn-gerar-comparacao" disabled style="display:none; padding:10px 15px; background:#ff9800; border:none; color:white; font-weight:bold; border-radius: 4px;">
             Gerar Comparação [0/4]
         </button>
     </div>
@@ -65,7 +107,7 @@
     <div id="lista-deputados" class="grid"></div>
 </main>
 
-<!-- MODAL -->
+<!-- MODAL COMPARACAO -->
 <div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:2000;">
     <div style="background:white; padding:20px; border-radius:10px; width:95%; max-width:900px; position:relative; overflow-x:auto;">
         <button onclick="fecharModal()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">X</button>
@@ -79,7 +121,6 @@ let selecionados = new Set();
 let modoComparacao = false;
 let todosDeputados = [];
 
-// Elementos
 const elLista = document.getElementById("lista-deputados");
 const elContagem = document.getElementById("contagem");
 const elBusca = document.getElementById("busca-nome");
@@ -99,7 +140,6 @@ function normalizarDeputado(d) {
 
 async function carregarDeputados() {
     try {
-        // Tenta buscar da sua API, se falhar vai para a API oficial da Câmara
         let res = await fetch('/api/deputados').catch(() => fetch('https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome'));
         const json = await res.json();
         const lista = Array.isArray(json) ? json : (json.dados || []);
@@ -108,7 +148,7 @@ async function carregarDeputados() {
         popularFiltros();
         renderizarCards(todosDeputados);
     } catch (err) {
-        elContagem.innerText = "Erro ao carregar dados. Verifique sua conexão.";
+        elContagem.innerText = "Erro ao carregar dados.";
         console.error(err);
     }
 }
@@ -116,7 +156,6 @@ async function carregarDeputados() {
 function popularFiltros() {
     const estados = [...new Set(todosDeputados.map(d => d.uf))].sort();
     const partidos = [...new Set(todosDeputados.map(d => d.partido))].sort();
-
     estados.forEach(e => { if(e !== "-") elUf.innerHTML += `<option value="${e}">${e}</option>`; });
     partidos.forEach(p => { if(p !== "-") elPartido.innerHTML += `<option value="${p}">${p}</option>`; });
 }
@@ -126,14 +165,14 @@ function renderizarCards(lista) {
     elLista.innerHTML = lista.map(d => `
         <div class="card" style="text-align:center; border:${selecionados.has(d.id) ? '3px solid #ff9800' : '1px solid #ddd'}">
             <img src="${d.foto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}" 
-                 style="width:100px; height:130px; object-fit:cover; border-radius:4px; background:#eee;">
-            <h3 style="font-size:1rem; margin:10px 0 5px;">${d.nome}</h3>
+                 style="width:120px; height:150px; object-fit:cover; border-radius:4px; background:#eee;">
+            <h3 style="font-size:1rem; margin:10px 0 5px; color: #0d47a1;">${d.nome}</h3>
             <p style="color:#666; font-size:0.9rem;">${d.partido} - ${d.uf}</p>
             ${modoComparacao 
-                ? `<button class="btn-selecionar" data-id="${d.id}" style="padding:5px 10px; cursor:pointer; background:${selecionados.has(d.id) ? '#ff9800' : '#eee'}; border:1px solid #ccc;">
+                ? `<button class="btn-selecionar-modo btn-selecionar" data-id="${d.id}" style="background:${selecionados.has(d.id) ? '#ff9800' : '#eee'}; color:${selecionados.has(d.id) ? 'white' : '#333'};">
                     ${selecionados.has(d.id) ? "Selecionado" : "Selecionar"}
                    </button>`
-                : `<a href="/perfil.html?id=${d.id}" style="color:#0d47a1; text-decoration:none; font-weight:bold;">Ver Perfil</a>`
+                : `<a href="/perfil.html?id=${d.id}" class="btn-perfil">Ver Perfil</a>`
             }
         </div>
     `).join("");
@@ -143,7 +182,6 @@ function aplicarFiltros() {
     const nome = elBusca.value.toLowerCase();
     const uf = elUf.value;
     const partido = elPartido.value;
-
     const filtrados = todosDeputados.filter(d =>
         d.nome.toLowerCase().includes(nome) &&
         (uf === "" || d.uf === uf) &&
@@ -152,7 +190,6 @@ function aplicarFiltros() {
     renderizarCards(filtrados);
 }
 
-// Eventos de Filtro
 elBusca.addEventListener('input', aplicarFiltros);
 elUf.addEventListener('change', aplicarFiltros);
 elPartido.addEventListener('change', aplicarFiltros);
@@ -168,7 +205,6 @@ function toggleModoComparacao() {
 document.addEventListener("click", e => {
     const btn = e.target.closest(".btn-selecionar");
     if (!btn || !modoComparacao) return;
-
     const id = Number(btn.dataset.id);
     if (selecionados.has(id)) {
         selecionados.delete(id);
@@ -205,10 +241,8 @@ async function buscarGastos(id, callback) {
 function gerarComparacao() {
     const base = todosDeputados.filter(d => selecionados.has(d.id));
     const lista = base.map(d => ({ ...d, gastos: "Carregando..." }));
-
     atualizarTabela(lista);
     document.getElementById("modal").style.display = "flex";
-
     lista.forEach((d, i) => {
         buscarGastos(d.id, valor => {
             lista[i].gastos = valor;
@@ -220,20 +254,20 @@ function gerarComparacao() {
 function atualizarTabela(lista) {
     document.getElementById("comparacao").innerHTML = `
         <table border="1" style="width:100%; border-collapse:collapse; text-align:center;">
-            <tr style="background:#eee;">
+            <tr style="background:#0d47a1; color: white;">
                 <th style="padding:10px;">Critério</th>
                 ${lista.map(d => `<th style="padding:10px;">${d.nome}</th>`).join('')}
             </tr>
             <tr>
                 <td><b>Foto</b></td>
-                ${lista.map(d => `<td><img src="${d.foto}" style="width:60px;"></td>`).join('')}
+                ${lista.map(d => `<td><img src="${d.foto}" style="width:60px; border-radius:4px;"></td>`).join('')}
             </tr>
             <tr>
                 <td><b>Partido/UF</b></td>
                 ${lista.map(d => `<td>${d.partido} - ${d.uf}</td>`).join('')}
             </tr>
             <tr>
-                <td><b>Gastos (25/26)</b></td>
+                <td><b>Gastos (2025/2026)</b></td>
                 ${lista.map(d => `<td>${typeof d.gastos === "number" ? d.gastos.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : d.gastos}</td>`).join('')}
             </tr>
         </table>
@@ -241,7 +275,6 @@ function atualizarTabela(lista) {
 }
 
 function fecharModal() { document.getElementById("modal").style.display = "none"; }
-
 function toast(msg) {
     const t = document.getElementById("toast");
     t.innerText = msg;
