@@ -27,8 +27,8 @@
                 <div>
                     <label>Tipo de Busca</label>
                     <select id="tipo-busca" style="width:100%; padding:10px; border-radius:5px;">
+                        <option value="proposicoes">Proposições (Leis/Projetos)</option>
                         <option value="despesas">Cotas Parlamentares (Gastos)</option>
-                        <option value="proposicoes">Proposições (Projetos/Leis)</option>
                     </select>
                 </div>
 
@@ -53,14 +53,14 @@
         </div>
 
         <div class="card">
-            <h3 id="titulo-sessao" style="color: var(--primary); margin-bottom: 10px;">Resultados do Relatório</h3>
-            <p id="total-geral" style="margin-bottom:15px; font-weight:bold;"></p>
+            <h3 id="titulo-sessao" style="color: var(--primary); margin-bottom: 10px;">Resultados</h3>
+            <p id="total-geral" style="margin-bottom:15px; font-weight:bold; color: #333;"></p>
 
             <table style="width:100%; border-collapse:collapse;">
                 <thead style="background:#f4f4f4;">
                     <tr id="cabecalho-tabela">
-                        <th id="th-1" style="padding:12px; text-align:left;">Categoria</th>
-                        <th id="th-2" style="padding:12px; text-align:right;">Total</th>
+                        <th id="th-desc" style="padding:12px; text-align:left;">Descrição</th>
+                        <th id="th-info" style="padding:12px; text-align:right;">Informação</th>
                     </tr>
                 </thead>
                 <tbody id="resultado-tabela">
@@ -77,7 +77,6 @@
 <script>
     let mapaDeputados = {};
 
-    // Carrega a lista de deputados para o datalist
     async function carregarSugestoes() {
         const datalist = document.getElementById('lista-deputados');
         try {
@@ -108,42 +107,69 @@
 
         const tabela = document.getElementById('resultado-tabela');
         const totalEl = document.getElementById('total-geral');
-        const th1 = document.getElementById('th-1');
-        const th2 = document.getElementById('th-2');
+        const thDesc = document.getElementById('th-desc');
+        const thInfo = document.getElementById('th-info');
 
-        tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Carregando dados...</td></tr>`;
+        tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Buscando dados na Câmara...</td></tr>`;
         totalEl.innerHTML = "";
 
         try {
-            if (tipoBusca === "despesas") {
-                // LÓGICA DE GASTOS (COTAS)
-                th1.innerText = "Categoria";
-                th2.innerText = "Total";
-                
-                let pagina = 1;
-                let todosGastos = [];
+            if (tipoBusca === "proposicoes") {
+                thDesc.innerText = "Descrição da Proposição";
+                thInfo.innerText = "Link Oficial";
 
+                const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/proposicoes?idDeputadoAutor=${id}&ano=${ano}&ordem=DESC&ordenarPor=id`);
+                const json = await res.json();
+
+                if (!json.dados || json.dados.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma proposição encontrada em ${ano}.</td></tr>`;
+                    return;
+                }
+
+                totalEl.innerHTML = `Proposições encontradas: ${json.dados.length}`;
+                
+                tabela.innerHTML = json.dados.map(p => `
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:12px;">
+                            <span style="display:block; font-weight:bold; color:var(--primary);">${p.siglaTipo} ${p.numero}/${p.ano}</span>
+                            <span style="font-size:0.85em; color:#555;">${p.ementa || 'Sem ementa disponível'}</span>
+                        </td>
+                        <td style="padding:12px; text-align:right; white-space:nowrap;">
+                            <a href="https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=${p.id}" target="_blank" 
+                               style="color:white; background:var(--secondary); text-decoration:none; font-size:12px; padding:6px 12px; border-radius:4px; font-weight:bold; display:inline-block;">
+                               Detalhes ↗
+                            </a>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } else {
+                thDesc.innerText = "Categoria de Despesa";
+                thInfo.innerText = "Valor Total";
+
+                let pagina = 1;
+                let todos = [];
                 while (true) {
                     const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&pagina=${pagina}&itens=100`);
                     const json = await res.json();
                     if (!json.dados || !json.dados.length) break;
-                    todosGastos = todosGastos.concat(json.dados);
+                    todos = todos.concat(json.dados);
                     pagina++;
                     if (pagina > 20) break; 
                 }
 
-                if (!todosGastos.length) {
-                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhum gasto encontrado para este ano.</td></tr>`;
+                if (!todos.length) {
+                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhum gasto encontrado.</td></tr>`;
                     return;
                 }
 
                 let resumo = {};
-                todosGastos.forEach(g => {
+                todos.forEach(g => {
                     resumo[g.tipoDespesa] = (resumo[g.tipoDespesa] || 0) + g.valorLiquido;
                 });
 
                 const total = Object.values(resumo).reduce((a, b) => a + b, 0);
-                totalEl.innerHTML = "Total gasto: " + total.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                totalEl.innerHTML = "Total gasto no ano: " + total.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
 
                 const ordenado = Object.entries(resumo).sort((a, b) => b[1] - a[1]);
                 tabela.innerHTML = ordenado.map(([cat, valor]) => `
@@ -154,36 +180,9 @@
                         </td>
                     </tr>
                 `).join('');
-
-            } else {
-                // LÓGICA DE PROPOSIÇÕES (LEIS/PROJETOS)
-                th1.innerText = "Ementa (Assunto)";
-                th2.innerText = "Identificação";
-
-                const urlProposicoes = `https://dadosabertos.camara.leg.br/api/v2/proposicoes?idDeputadoAutor=${id}&ano=${ano}&ordem=DESC&ordenarPor=id`;
-                const res = await fetch(urlProposicoes);
-                const json = await res.json();
-
-                if (!json.dados || !json.dados.length) {
-                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma proposição encontrada para este deputado em ${ano}.</td></tr>`;
-                    return;
-                }
-
-                totalEl.innerHTML = `Total de Proposições encontradas: ${json.dados.length}`;
-
-                tabela.innerHTML = json.dados.map(p => `
-                    <tr style="border-bottom:1px solid #eee;">
-                        <td style="padding:12px; font-size: 0.9em;">${p.ementa || "Sem ementa disponível"}</td>
-                        <td style="padding:12px; text-align:right; font-weight:bold; white-space: nowrap;">
-                            ${p.siglaTipo} ${p.numero}/${p.ano}
-                        </td>
-                    </tr>
-                `).join('');
             }
-
         } catch (e) {
-            console.error(e);
-            tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:red;">Erro ao carregar dados da Câmara</td></tr>`;
+            tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:red;">Erro ao conectar com o serviço da Câmara.</td></tr>`;
         }
     }
 </script>
