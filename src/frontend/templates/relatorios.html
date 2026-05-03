@@ -23,7 +23,6 @@
     <main class="container">
         <div class="card" style="margin-bottom: 30px;">
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                
                 <div>
                     <label>Tipo de Busca</label>
                     <select id="tipo-busca" style="width:100%; padding:10px; border-radius:5px;">
@@ -34,7 +33,7 @@
 
                 <div>
                     <label>Nome do Deputado</label>
-                    <input type="text" id="nome-busca" list="lista-deputados" placeholder="Carregando nomes..."
+                    <input type="text" id="nome-busca" list="lista-deputados" placeholder="Carregando lista..."
                         style="width:100%; padding:10px; border-radius:5px;" autocomplete="off">
                     <datalist id="lista-deputados"></datalist>
                 </div>
@@ -46,21 +45,21 @@
                 </div>
             </div>
 
-            <button onclick="buscarRelatorio()" class="btn"
+            <button id="btn-pesquisar" onclick="buscarRelatorio()" class="btn"
                 style="margin-top:20px; background: var(--secondary); border:none; cursor:pointer;">
                 Pesquisar
             </button>
         </div>
 
         <div class="card">
-            <h3 style="color: var(--primary); margin-bottom: 10px;">Resultados</h3>
+            <h3 id="titulo-resultados" style="color: var(--primary); margin-bottom: 10px;">Resultados</h3>
             <p id="total-geral" style="margin-bottom:15px; font-weight:bold; color: #333;"></p>
 
             <table style="width:100%; border-collapse:collapse;">
                 <thead style="background:#f4f4f4;">
                     <tr id="cabecalho-tabela">
-                        <th style="padding:12px; text-align:left;">Descrição</th>
-                        <th style="padding:12px; text-align:right;">Informação</th>
+                        <th id="col-desc" style="padding:12px; text-align:left;">Descrição</th>
+                        <th id="col-info" style="padding:12px; text-align:right;">Informação</th>
                     </tr>
                 </thead>
                 <tbody id="resultado-tabela">
@@ -77,112 +76,104 @@
 <script>
     let mapaDeputados = {};
 
-    // Função para carregar deputados com tratamento de erro
+    // Função de carregamento ultra-resiliente
     async function carregarSugestoes() {
+        const input = document.getElementById('nome-busca');
         const datalist = document.getElementById('lista-deputados');
-        const inputBusca = document.getElementById('nome-busca');
         
         try {
-            const res = await fetch("https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome");
-            if (!res.ok) throw new Error();
-            const json = await res.json();
+            // Usando HTTPS explícito para evitar erro de Mixed Content no Render
+            const response = await fetch("https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome");
+            const data = await response.json();
             
-            datalist.innerHTML = "";
-            json.dados.forEach(dep => {
-                const opt = document.createElement('option');
-                opt.value = dep.nome;
-                datalist.appendChild(opt);
-                mapaDeputados[dep.nome.toLowerCase()] = dep.id;
-            });
-            inputBusca.placeholder = "Digite o nome...";
-        } catch (e) { 
-            console.error("Erro ao carregar lista:", e); 
-            inputBusca.placeholder = "Erro ao carregar nomes (tente atualizar).";
+            if (data.dados) {
+                datalist.innerHTML = "";
+                data.dados.forEach(dep => {
+                    const option = document.createElement('option');
+                    option.value = dep.nome;
+                    datalist.appendChild(option);
+                    mapaDeputados[dep.nome.toUpperCase()] = dep.id;
+                });
+                input.placeholder = "Digite o nome...";
+                console.log("Deputados carregados.");
+            }
+        } catch (error) {
+            console.error("Erro na API:", error);
+            input.placeholder = "Erro ao carregar nomes. Tente recarregar a página.";
         }
     }
 
-    carregarSugestoes();
+    window.onload = carregarSugestoes;
 
     async function buscarRelatorio() {
-        const nomeInput = document.getElementById('nome-busca').value.trim().toLowerCase();
+        const nome = document.getElementById('nome-busca').value.trim().toUpperCase();
         const ano = document.getElementById('ano-busca').value;
-        const tipoBusca = document.getElementById('tipo-busca').value;
-        const id = mapaDeputados[nomeInput];
+        const tipo = document.getElementById('tipo-busca').value;
+        const id = mapaDeputados[nome];
 
         if (!id) {
-            alert("Por favor, selecione um deputado da lista.");
+            alert("Selecione um deputado válido da lista.");
             return;
         }
 
         const tabela = document.getElementById('resultado-tabela');
-        const totalEl = document.getElementById('total-geral');
-        const headerDesc = document.querySelector('#cabecalho-tabela th:first-child');
-        const headerInfo = document.querySelector('#cabecalho-tabela th:last-child');
-
-        tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Buscando dados na Câmara...</td></tr>`;
-        totalEl.innerHTML = "";
+        const totalTexto = document.getElementById('total-geral');
+        
+        tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Buscando dados...</td></tr>`;
 
         try {
-            if (tipoBusca === "proposicoes") {
-                headerDesc.innerText = "Título da Proposição";
-                headerInfo.innerText = "Tipo / Ano";
+            if (tipo === "proposicoes") {
+                document.getElementById('col-desc').innerText = "Ementa (Assunto)";
+                document.getElementById('col-info').innerText = "Proposição";
 
                 const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/proposicoes?idDeputadoAutor=${id}&ano=${ano}&ordem=DESC&ordenarPor=id`);
                 const json = await res.json();
 
-                if (!json.dados || !json.dados.length) {
-                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma proposição encontrada para ${ano}.</td></tr>`;
+                if (!json.dados || json.dados.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma lei ou projeto encontrado em ${ano}.</td></tr>`;
                     return;
                 }
 
-                totalEl.innerHTML = `Total de Proposições: ${json.dados.length}`;
+                totalTexto.innerText = `Total de Proposições: ${json.dados.length}`;
                 tabela.innerHTML = json.dados.map(p => `
                     <tr style="border-bottom:1px solid #eee;">
-                        <td style="padding:12px;">${p.ementa || 'Sem ementa disponível'}</td>
-                        <td style="padding:12px; text-align:right; font-weight:bold;">${p.siglaTipo} ${p.numero}/${p.ano}</td>
+                        <td style="padding:12px; font-size: 14px;">${p.ementa}</td>
+                        <td style="padding:12px; text-align:right; white-space:nowrap;"><strong>${p.siglaTipo} ${p.numero}/${p.ano}</strong></td>
                     </tr>
                 `).join('');
 
             } else {
-                headerDesc.innerText = "Categoria de Gasto";
-                headerInfo.innerText = "Valor Total";
+                document.getElementById('col-desc').innerText = "Tipo de Gasto";
+                document.getElementById('col-info').innerText = "Valor Líquido";
 
-                let pagina = 1;
-                let todos = [];
-                while (true) {
-                    const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&pagina=${pagina}&itens=100`);
-                    const json = await res.json();
-                    if (!json.dados || !json.dados.length) break;
-                    todos = todos.concat(json.dados);
-                    pagina++;
-                    if (pagina > 15) break; // Limite de segurança
-                }
+                const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&ordem=DESC`);
+                const json = await res.json();
 
-                if (!todos.length) {
-                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhum gasto encontrado para ${ano}.</td></tr>`;
+                if (!json.dados || json.dados.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Sem gastos registrados em ${ano}.</td></tr>`;
                     return;
                 }
 
+                // Agrupamento por categoria
                 let resumo = {};
-                todos.forEach(g => {
-                    resumo[g.tipoDespesa] = (resumo[g.tipoDespesa] || 0) + g.valorLiquido;
+                json.dados.forEach(d => {
+                    resumo[d.tipoDespesa] = (resumo[d.tipoDespesa] || 0) + d.valorLiquido;
                 });
 
-                const total = Object.values(resumo).reduce((a, b) => a + b, 0);
-                totalEl.innerHTML = "Total gasto em " + ano + ": " + total.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                const totalSoma = Object.values(resumo).reduce((a, b) => a + b, 0);
+                totalTexto.innerText = `Total gasto em ${ano}: ${totalSoma.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}`;
 
-                const ordenado = Object.entries(resumo).sort((a, b) => b[1] - a[1]);
-                tabela.innerHTML = ordenado.map(([cat, valor]) => `
-                    <tr style="border-bottom:1px solid #eee;">
-                        <td style="padding:12px;">${cat}</td>
-                        <td style="padding:12px; text-align:right; font-weight:bold;">${valor.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}</td>
-                    </tr>
-                `).join('');
+                tabela.innerHTML = Object.entries(resumo)
+                    .sort((a,b) => b[1] - a[1])
+                    .map(([cat, val]) => `
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:12px;">${cat}</td>
+                            <td style="padding:12px; text-align:right; font-weight:bold;">${val.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}</td>
+                        </tr>
+                    `).join('');
             }
-
-        } catch (e) {
-            console.error(e);
-            tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:red;">Erro ao conectar com a API da Câmara. Tente novamente mais tarde.</td></tr>`;
+        } catch (err) {
+            tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:red;">Erro ao acessar dados da Câmara.</td></tr>`;
         }
     }
 </script>
