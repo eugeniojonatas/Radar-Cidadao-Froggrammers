@@ -5,56 +5,18 @@
     <title>Deputados | Radar Cidadão SJC</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        .navbar { position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 5px; z-index: 3000; }
         .toast.show { visibility: visible; }
-        
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 20px; 
-            padding: 20px 0; 
-        }
-
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 20px 0; }
         @media (max-width: 1024px) { .grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
-
         .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: #fff; transition: 0.3s; }
         .card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-        .btn-perfil {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 20px;
-            background-color: #0d47a1;
-            color: white !important;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-perfil:hover { background-color: #08306b; }
-
-        .btn-selecionar-modo {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 20px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            border: 1px solid #ccc;
-        }
+        .btn-perfil { display: inline-block; margin-top: 10px; padding: 8px 20px; background-color: #0d47a1; color: white !important; text-decoration: none; font-weight: bold; border-radius: 5px; transition: 0.2s; border: none; cursor: pointer; }
+        .btn-selecionar-modo { display: inline-block; margin-top: 10px; padding: 8px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; border: 1px solid #ccc; }
     </style>
 </head>
-
 <body>
 
 <div id="toast" class="toast"></div>
@@ -88,7 +50,6 @@
         <button id="btn-modo" onclick="toggleModoComparacao()" style="padding:10px 15px; cursor:pointer; background: #333; color: white; border: none; border-radius: 4px;">
             Comparar Deputados
         </button>
-        <!-- ADICIONADO ONCLICK AQUI -->
         <button id="btn-gerar-comparacao" onclick="gerarComparacao()" disabled style="display:none; padding:10px 15px; background:#ff9800; border:none; color:white; font-weight:bold; border-radius: 4px;">
             Gerar Comparação [0/4]
         </button>
@@ -210,30 +171,37 @@ function atualizarBotao() {
     elBtnGerar.style.cursor = selecionados.size < 2 ? "not-allowed" : "pointer";
 }
 
+// LÓGICA DE GASTOS MELHORADA: PERCORRE TODAS AS PÁGINAS SEM EXCEÇÃO
 async function calcularGastoTotalRigoroso(id) {
     let total = 0;
     const anos = [2025, 2026];
 
     for (let ano of anos) {
+        // Buscamos 100 itens por vez (máximo da API) para ser mais rápido
         let url = `https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&itens=100&ordem=ASC&ordenarPor=ano`;
         
         while (url) {
             try {
                 const res = await fetch(url);
+                if (!res.ok) throw new Error("Erro na rede");
                 const json = await res.json();
                 
-                if (json.dados) {
-                    json.dados.forEach(d => total += d.valorLiquido || 0);
+                if (json.dados && json.dados.length > 0) {
+                    json.dados.forEach(d => {
+                        total += (d.valorLiquido || 0);
+                    });
                 }
 
+                // Verifica se existe link para a PRÓXIMA página (fundamental para gastos altos)
                 const nextLink = json.links ? json.links.find(l => l.rel === 'next') : null;
                 url = nextLink ? nextLink.href : null;
                 
-                if (url) await new Promise(r => setTimeout(r, 100));
+                // Delay para não ser bloqueado por excesso de requisições
+                if (url) await new Promise(r => setTimeout(r, 50));
 
             } catch (e) {
-                console.error("Erro ao buscar página de gastos:", e);
-                url = null; 
+                console.error(`Erro ao processar gastos do ano ${ano}:`, e);
+                url = null; // Interrompe o loop do ano em caso de erro crítico
             }
         }
     }
@@ -242,15 +210,17 @@ async function calcularGastoTotalRigoroso(id) {
 
 async function gerarComparacao() {
     const base = todosDeputados.filter(d => selecionados.has(d.id));
+    // Inicializa a tabela com estado de carregamento
     const listaParaExibir = base.map(d => ({ ...d, gastos: "Calculando..." }));
     
     atualizarTabela(listaParaExibir);
     document.getElementById("modal").style.display = "flex";
     
+    // Processa cada deputado da comparação
     for (let i = 0; i < listaParaExibir.length; i++) {
         const valorFinal = await calcularGastoTotalRigoroso(listaParaExibir[i].id);
         listaParaExibir[i].gastos = valorFinal;
-        atualizarTabela(listaParaExibir);
+        atualizarTabela(listaParaExibir); // Atualiza a UI em tempo real
     }
 }
 
@@ -270,7 +240,7 @@ function atualizarTabela(lista) {
                 ${lista.map(d => `<td>${d.partido} - ${d.uf}</td>`).join('')}
             </tr>
             <tr>
-                <td><b>Total Gasto (25/26)</b><br><small>Soma rigorosa de todas as notas</small></td>
+                <td><b>Total Gasto (25/26)</b><br><small>Soma de todas as páginas da API</small></td>
                 ${lista.map(d => `
                     <td style="font-weight:${typeof d.gastos === 'number' ? 'bold' : 'normal'}; color:${typeof d.gastos === 'number' ? '#d32f2f' : '#666'}">
                         ${typeof d.gastos === 'number' ? d.gastos.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : d.gastos}
