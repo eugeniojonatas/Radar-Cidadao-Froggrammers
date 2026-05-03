@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Perfil Parlamentar | Radar Cidadão</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 <header class="navbar">
     <a href="/" class="logo">RADAR<span>CIDADÃO</span></a>
-
     <nav>
         <ul class="nav-links">
             <li><a href="/">Home</a></li>
@@ -25,135 +23,140 @@
 <div style="display:grid; grid-template-columns:320px 1fr; gap:30px; margin-top:20px;">
 
 <aside>
-<div class="card" style="text-align:center; position:sticky; top:20px;">
-
-<div style="min-height:250px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-    <img id="dep-foto" style="width:100%; border-radius:8px; display:none;">
-    <span id="txt-foto">Carregando foto...</span>
-</div>
-
-<h2 id="dep-nome" style="margin:15px 0; color:var(--primary);">
-    Carregando...
-</h2>
-
-<div style="text-align:left; padding:10px; background:#f9f9f9; border-radius:5px;">
-    <p><strong>Partido:</strong> <span id="dep-partido">-</span></p>
-    <p><strong>UF:</strong> <span id="dep-uf">-</span></p>
-</div>
-
-</div>
+    <div class="card" style="text-align:center; position:sticky; top:20px;">
+        <div style="min-height:250px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+            <img id="dep-foto" style="width:100%; border-radius:8px; display:none;">
+            <span id="txt-foto">Carregando foto...</span>
+        </div>
+        <h2 id="dep-nome" style="margin:15px 0; color:var(--primary);">Carregando...</h2>
+        <div style="text-align:left; padding:10px; background:#f9f9f9; border-radius:5px;">
+            <p><strong>Partido:</strong> <span id="dep-partido">-</span></p>
+            <p><strong>UF:</strong> <span id="dep-uf">-</span></p>
+        </div>
+    </div>
 </aside>
 
 <section>
-
-<div class="card" style="margin-bottom:25px; border-left:5px solid var(--secondary); display:flex; justify-content:space-between;">
-    <div>
-        <h3 style="font-size:0.8rem;">Total Acumulado (2025-2026)</h3>
-        <h2 id="dep-total" style="font-size:2.5rem;">R$ 0,00</h2>
+    <div class="card" style="margin-bottom:25px; border-left:5px solid var(--secondary); display:flex; justify-content:space-between;">
+        <div>
+            <h3 style="font-size:0.8rem;">Total Acumulado (2025-2026)</h3>
+            <h2 id="dep-total" style="font-size:2.5rem;">R$ 0,00</h2>
+        </div>
+        <div id="status-carregamento" style="font-size:0.8rem;">Iniciando...</div>
     </div>
 
-    <div id="status-carregamento" style="font-size:0.8rem;">
-        Iniciando...
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3>Extrato de Despesas</h3>
+            <!-- Novo Filtro -->
+            <select id="filtro-tipo" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="todos">Todos os tipos de gastos</option>
+            </select>
+        </div>
+
+        <div style="max-height:600px; overflow:auto;">
+            <table style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Despesa</th>
+                        <th style="text-align:right;">Valor</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-gastos"></tbody>
+            </table>
+        </div>
     </div>
-</div>
-
-<div class="card">
-<h3>Extrato de Despesas</h3>
-
-<div style="max-height:600px; overflow:auto;">
-<table style="width:100%;">
-<thead>
-<tr>
-<th>Data</th>
-<th>Despesa</th>
-<th style="text-align:right;">Valor</th>
-</tr>
-</thead>
-
-<tbody id="tabela-gastos"></tbody>
-</table>
-</div>
-
-</div>
-
 </section>
 </div>
 </main>
 
 <script>
-const id = new URLSearchParams(window.location.search).get('id')
+const id = new URLSearchParams(window.location.search).get('id');
+let todosOsGastos = []; // Armazena a lista original para filtrar localmente
 
 async function init() {
-    if (!id) return
-
-    await carregarPerfil()
-    await carregarGastos()
+    if (!id) return;
+    await carregarPerfil();
+    await carregarGastos();
 }
 
 async function carregarPerfil() {
-    const img = document.getElementById("dep-foto")
-    const txt = document.getElementById("txt-foto")
-
+    const img = document.getElementById("dep-foto");
+    const txt = document.getElementById("txt-foto");
     try {
-        const res = await fetch(`/api/deputado/${id}`)
-        const d = await res.json()
-
-        document.getElementById("dep-nome").innerText = d.nome || "Sem nome"
-        document.getElementById("dep-partido").innerText = d.partido || "-"
-        document.getElementById("dep-uf").innerText = d.uf || "-"
-
+        const res = await fetch(`/api/deputado/${id}`);
+        const d = await res.json();
+        document.getElementById("dep-nome").innerText = d.nome || "Sem nome";
+        document.getElementById("dep-partido").innerText = d.partido || "-";
+        document.getElementById("dep-uf").innerText = d.uf || "-";
         if (d.foto) {
-            img.src = d.foto
-            img.style.display = "block"
-            txt.style.display = "none"
+            img.src = d.foto;
+            img.style.display = "block";
+            txt.style.display = "none";
         } else {
-            txt.innerText = "Sem foto"
+            txt.innerText = "Sem foto";
         }
-
     } catch {
-        txt.innerText = "Erro ao carregar"
+        txt.innerText = "Erro ao carregar";
     }
 }
 
 async function carregarGastos() {
-    const status = document.getElementById("status-carregamento")
-
+    const status = document.getElementById("status-carregamento");
     try {
-        const res = await fetch(`/api/gastos/${id}`)
-        const lista = await res.json()
+        const res = await fetch(`/api/gastos/${id}`);
+        todosOsGastos = await res.json();
 
-        status.innerText = "Processando..."
+        status.innerText = "Processando...";
 
-        // 🔥 ordena corretamente por data
-        lista.sort((a,b)=>{
-            return new Date(b.dataDocumento) - new Date(a.dataDocumento)
-        })
+        todosOsGastos.sort((a,b) => new Date(b.dataDocumento) - new Date(a.dataDocumento));
 
-        renderTabela(lista)
+        popularFiltro(todosOsGastos);
+        renderTabela(todosOsGastos);
 
-        status.innerText = "Finalizado"
-        status.style.color = "green"
-
+        status.innerText = "Finalizado";
+        status.style.color = "green";
     } catch {
-        status.innerText = "Erro"
-        status.style.color = "red"
+        status.innerText = "Erro";
+        status.style.color = "red";
     }
 }
 
-function renderTabela(lista) {
-    const tabela = document.getElementById("tabela-gastos")
-    const totalEl = document.getElementById("dep-total")
+// Preenche o <select> com os tipos únicos de despesas
+function popularFiltro(lista) {
+    const filtro = document.getElementById("filtro-tipo");
+    const tipos = [...new Set(lista.map(g => g.tipoDespesa))].sort();
+    
+    tipos.forEach(tipo => {
+        if (tipo) {
+            const option = document.createElement("option");
+            option.value = tipo;
+            option.innerText = tipo;
+            filtro.appendChild(option);
+        }
+    });
 
-    let total = 0
+    filtro.addEventListener("change", (e) => {
+        const selecionado = e.target.value;
+        const listaFiltrada = selecionado === "todos" 
+            ? todosOsGastos 
+            : todosOsGastos.filter(g => g.tipoDespesa === selecionado);
+        renderTabela(listaFiltrada);
+    });
+}
+
+function renderTabela(lista) {
+    const tabela = document.getElementById("tabela-gastos");
+    const totalEl = document.getElementById("dep-total");
+    let total = 0;
 
     tabela.innerHTML = lista.map(g => {
-
-        const valor = g.valorDocumento || 0
-        total += valor
-
+        const valor = g.valorDocumento || 0;
+        total += valor;
         const data = g.dataDocumento
             ? g.dataDocumento.split("T")[0].split("-").reverse().join("/")
-            : "-"
+            : "-";
 
         return `
         <tr>
@@ -163,15 +166,13 @@ function renderTabela(lista) {
                 ${valor.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}
             </td>
         </tr>
-        `
-    }).join("")
+        `;
+    }).join("");
 
-    totalEl.innerText =
-        total.toLocaleString('pt-br',{style:'currency',currency:'BRL'})
+    totalEl.innerText = total.toLocaleString('pt-br',{style:'currency',currency:'BRL'});
 }
 
-init()
+init();
 </script>
-
 </body>
 </html>
