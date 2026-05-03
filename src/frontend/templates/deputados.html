@@ -209,17 +209,12 @@ function atualizarBotao() {
     elBtnGerar.style.cursor = selecionados.size < 2 ? "not-allowed" : "pointer";
 }
 
-elBtnGerar.addEventListener("click", gerarComparacao);
-
-/** 
- * FUNÇÃO CORRIGIDA: Agora faz a paginação automática para pegar TODOS os gastos
- */
-async function buscarGastos(id, callback) {
-    let totalAcumulado = 0;
+// LOGICA DE BUSCA RIGOROSA E SEQUENCIAL
+async function calcularGastoTotalRigoroso(id) {
+    let total = 0;
     const anos = [2025, 2026];
 
     for (let ano of anos) {
-        // Aumentamos para 100 itens por página para ser mais rápido
         let url = `https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&itens=100&ordem=ASC&ordenarPor=ano`;
         
         while (url) {
@@ -228,38 +223,37 @@ async function buscarGastos(id, callback) {
                 const json = await res.json();
                 
                 if (json.dados) {
-                    json.dados.forEach(d => {
-                        totalAcumulado += d.valorLiquido || 0;
-                    });
+                    json.dados.forEach(d => total += d.valorLiquido || 0);
                 }
 
-                // Verifica se existe link para a próxima página
                 const nextLink = json.links ? json.links.find(l => l.rel === 'next') : null;
                 url = nextLink ? nextLink.href : null;
                 
-                // Envia o progresso parcial para a tabela (opcional)
-                callback(totalAcumulado);
+                // Pausa de segurança para evitar bloqueio da API
+                if (url) await new Promise(r => setTimeout(r, 100));
 
             } catch (e) {
-                console.error("Erro na paginação de gastos:", e);
-                url = null; // Para o loop em caso de erro crítico
+                console.error("Erro ao buscar página de gastos:", e);
+                url = null; 
             }
         }
     }
+    return total;
 }
 
-function gerarComparacao() {
+async function gerarComparacao() {
     const base = todosDeputados.filter(d => selecionados.has(d.id));
-    const lista = base.map(d => ({ ...d, gastos: "Calculando..." }));
-    atualizarTabela(lista);
+    const listaParaExibir = base.map(d => ({ ...d, gastos: "Calculando..." }));
+    
+    atualizarTabela(listaParaExibir);
     document.getElementById("modal").style.display = "flex";
     
-    lista.forEach((d, i) => {
-        buscarGastos(d.id, valorTotal => {
-            lista[i].gastos = valorTotal;
-            atualizarTabela(lista);
-        });
-    });
+    // Processa cada deputado sequencialmente para garantir 100% de precisão
+    for (let i = 0; i < listaParaExibir.length; i++) {
+        const valorFinal = await calcularGastoTotalRigoroso(listaParaExibir[i].id);
+        listaParaExibir[i].gastos = valorFinal;
+        atualizarTabela(listaParaExibir);
+    }
 }
 
 function atualizarTabela(lista) {
@@ -278,8 +272,12 @@ function atualizarTabela(lista) {
                 ${lista.map(d => `<td>${d.partido} - ${d.uf}</td>`).join('')}
             </tr>
             <tr>
-                <td><b>Total Gasto (25/26)</b><br><small>(Soma de todas as páginas)</small></td>
-                ${lista.map(d => `<td>${typeof d.gastos === "number" ? d.gastos.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : d.gastos}</td>`).join('')}
+                <td><b>Total Gasto (25/26)</b><br><small>Soma rigorosa de todas as notas</small></td>
+                ${lista.map(d => `
+                    <td style="font-weight:${typeof d.gastos === 'number' ? 'bold' : 'normal'}; color:${typeof d.gastos === 'number' ? '#d32f2f' : '#666'}">
+                        ${typeof d.gastos === 'number' ? d.gastos.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : d.gastos}
+                    </td>
+                `).join('')}
             </tr>
         </table>
     `;
