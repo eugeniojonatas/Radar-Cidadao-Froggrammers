@@ -11,7 +11,7 @@
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 5px; }
+        .toast { visibility: hidden; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 5px; z-index: 3000; }
         .toast.show { visibility: visible; }
         
         .grid { 
@@ -88,7 +88,8 @@
         <button id="btn-modo" onclick="toggleModoComparacao()" style="padding:10px 15px; cursor:pointer; background: #333; color: white; border: none; border-radius: 4px;">
             Comparar Deputados
         </button>
-        <button id="btn-gerar-comparacao" disabled style="display:none; padding:10px 15px; background:#ff9800; border:none; color:white; font-weight:bold; border-radius: 4px;">
+        <!-- ADICIONADO ONCLICK AQUI -->
+        <button id="btn-gerar-comparacao" onclick="gerarComparacao()" disabled style="display:none; padding:10px 15px; background:#ff9800; border:none; color:white; font-weight:bold; border-radius: 4px;">
             Gerar Comparação [0/4]
         </button>
     </div>
@@ -209,7 +210,6 @@ function atualizarBotao() {
     elBtnGerar.style.cursor = selecionados.size < 2 ? "not-allowed" : "pointer";
 }
 
-// LOGICA DE BUSCA RIGOROSA E SEQUENCIAL
 async function calcularGastoTotalRigoroso(id) {
     let total = 0;
     const anos = [2025, 2026];
@@ -229,7 +229,6 @@ async function calcularGastoTotalRigoroso(id) {
                 const nextLink = json.links ? json.links.find(l => l.rel === 'next') : null;
                 url = nextLink ? nextLink.href : null;
                 
-                // Pausa de segurança para evitar bloqueio da API
                 if (url) await new Promise(r => setTimeout(r, 100));
 
             } catch (e) {
@@ -248,7 +247,6 @@ async function gerarComparacao() {
     atualizarTabela(listaParaExibir);
     document.getElementById("modal").style.display = "flex";
     
-    // Processa cada deputado sequencialmente para garantir 100% de precisão
     for (let i = 0; i < listaParaExibir.length; i++) {
         const valorFinal = await calcularGastoTotalRigoroso(listaParaExibir[i].id);
         listaParaExibir[i].gastos = valorFinal;
