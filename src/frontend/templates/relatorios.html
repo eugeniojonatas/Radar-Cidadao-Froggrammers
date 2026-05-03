@@ -54,13 +54,13 @@
 
         <div class="card">
             <h3 style="color: var(--primary); margin-bottom: 10px;">Resultados</h3>
-            <p id="total-geral" style="margin-bottom:15px; font-weight:bold;"></p>
+            <p id="total-geral" style="margin-bottom:15px; font-weight:bold; color: #333;"></p>
 
             <table style="width:100%; border-collapse:collapse;">
                 <thead style="background:#f4f4f4;">
                     <tr id="cabecalho-tabela">
-                        <th style="padding:12px; text-align:left;">Informação</th>
-                        <th style="padding:12px; text-align:right;">Detalhes</th>
+                        <th style="padding:12px; text-align:left;">Descrição</th>
+                        <th style="padding:12px; text-align:right;">Ação / Valor</th>
                     </tr>
                 </thead>
                 <tbody id="resultado-tabela">
@@ -77,6 +77,7 @@
 <script>
     let mapaDeputados = {};
 
+    // Carrega a lista de deputados para o autocomplete e mapeia NOME -> ID
     async function carregarSugestoes() {
         const datalist = document.getElementById('lista-deputados');
         try {
@@ -87,6 +88,7 @@
                 const opt = document.createElement('option');
                 opt.value = dep.nome;
                 datalist.appendChild(opt);
+                // Armazenamos o ID usando o nome em minúsculo como chave
                 mapaDeputados[dep.nome.toLowerCase()] = dep.id;
             });
         } catch (e) { console.error("Erro ao carregar lista:", e); }
@@ -95,34 +97,36 @@
     carregarSugestoes();
 
     async function buscarRelatorio() {
-        const nomeInput = document.getElementById('nome-busca').value.trim().toLowerCase();
+        const inputRaw = document.getElementById('nome-busca').value.trim();
+        const nomeChave = inputRaw.toLowerCase();
         const ano = document.getElementById('ano-busca').value;
         const tipoBusca = document.getElementById('tipo-busca').value;
-        const id = mapaDeputados[nomeInput];
+        const id = mapaDeputados[nomeChave];
 
         if (!id) {
-            alert("Por favor, selecione um deputado da lista.");
+            alert("Por favor, selecione um nome válido da lista de deputados.");
             return;
         }
 
         const tabela = document.getElementById('resultado-tabela');
         const totalEl = document.getElementById('total-geral');
         
-        tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Carregando dados...</td></tr>`;
+        // Reset visual para nova busca
+        tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Buscando dados de ${inputRaw}...</td></tr>`;
         totalEl.innerHTML = "";
 
         try {
             if (tipoBusca === "proposicoes") {
-                // Busca de PROPOSIÇÕES (idPauta ou idDeputadoAutor)
+                // Busca de PROPOSIÇÕES filtrando pelo ID específico do autor
                 const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/proposicoes?idDeputadoAutor=${id}&ano=${ano}&ordem=DESC&ordenarPor=id`);
                 const json = await res.json();
                 
-                if (!json.dados.length) {
-                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma proposição encontrada para este ano.</td></tr>`;
+                if (!json.dados || json.dados.length === 0) {
+                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma proposição encontrada para ${inputRaw} em ${ano}.</td></tr>`;
                     return;
                 }
 
-                totalEl.innerHTML = `Total: ${json.dados.length} proposição(ões) em ${ano}`;
+                totalEl.innerHTML = `Proposições encontradas para ${inputRaw}: ${json.dados.length}`;
                 
                 tabela.innerHTML = json.dados.map(p => `
                     <tr style="border-bottom:1px solid #eee;">
@@ -131,13 +135,16 @@
                             <span style="font-size:0.9em; color:#555;">${p.ementa}</span>
                         </td>
                         <td style="padding:12px; text-align:right; white-space:nowrap;">
-                            <a href="https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=${p.id}" target="_blank" style="color:var(--secondary); text-decoration:none; font-weight:bold;">Ver Trâmite ↗</a>
+                            <a href="https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=${p.id}" target="_blank" 
+                               style="color:var(--secondary); text-decoration:none; font-weight:bold; border: 1px solid var(--secondary); padding: 5px 10px; border-radius: 4px;">
+                               Detalhes ↗
+                            </a>
                         </td>
                     </tr>
                 `).join('');
 
             } else {
-                // Busca de DESPESAS (Mantendo sua lógica original)
+                // Busca de DESPESAS (Cotas) para o ID selecionado
                 let pagina = 1;
                 let todos = [];
                 while (true) {
@@ -150,7 +157,7 @@
                 }
 
                 if (!todos.length) {
-                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma despesa encontrada.</td></tr>`;
+                    tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center;">Nenhuma despesa encontrada para ${inputRaw} em ${ano}.</td></tr>`;
                     return;
                 }
 
@@ -160,7 +167,7 @@
                 });
 
                 const total = Object.values(resumo).reduce((a, b) => a + b, 0);
-                totalEl.innerHTML = "Total gasto: " + total.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                totalEl.innerHTML = `Gasto Total de ${inputRaw}: ` + total.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
 
                 const ordenado = Object.entries(resumo).sort((a, b) => b[1] - a[1]);
                 tabela.innerHTML = ordenado.map(([cat, valor]) => `
@@ -175,7 +182,7 @@
 
         } catch (e) {
             console.error(e);
-            tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:red;">Erro ao carregar dados da API</td></tr>`;
+            tabela.innerHTML = `<tr><td colspan="2" style="padding:20px; text-align:center; color:red;">Erro ao conectar com a API da Câmara.</td></tr>`;
         }
     }
 </script>
