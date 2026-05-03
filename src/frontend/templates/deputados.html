@@ -6,9 +6,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
+<body>
+
 <div id="toast" class="toast"></div>
 
-<body>
 <header class="navbar">
     <a href="/" class="logo">PORTAL<span>SJC</span></a>
     <nav>
@@ -53,7 +54,7 @@
                     Comparar Deputados
                 </button>
 
-                <button id="btn-gerar-comparacao" onclick="gerarComparacao()"
+                <button id="btn-gerar-comparacao"
                     style="display:none; padding:10px; background:#0d47a1; color:white; border:none;">
                     Gerar Comparação [0/8]
                 </button>
@@ -61,7 +62,9 @@
         </div>
     </div>
 
-    <div id="lista-deputados" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;"></div>
+    <div id="lista-deputados"
+        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;">
+    </div>
 </main>
 
 <script>
@@ -69,18 +72,18 @@ let selecionados = new Set();
 let modoComparacao = false;
 let todosDeputados = [];
 
-// 🔥 NORMALIZAÇÃO (resolve TODOS os bugs de campo)
+// 🔥 NORMALIZAÇÃO FORTE (resolve TUDO)
 function normalizarDeputado(d) {
     return {
         id: d.id,
-        nome: d.nome,
-        partido: d.siglaPartido || d.partido || "N/A",
-        uf: d.siglaUf || d.uf || "N/A",
+        nome: d.nome || "Sem nome",
+        partido: d.siglaPartido || d.partido || "-",
+        uf: d.siglaUf || d.uf || "-",
         foto: d.urlFoto || d.foto || ""
     };
 }
 
-// 🔥 CARREGAMENTO CORRIGIDO
+// 🔥 CARREGAR API
 async function carregarDeputados() {
     try {
         const res = await fetch('/api/deputados');
@@ -107,6 +110,9 @@ function popularFiltros() {
     const selEstado = document.getElementById("filtro-estado");
     const selPartido = document.getElementById("filtro-partido");
 
+    selEstado.innerHTML = '<option value="">Todos</option>';
+    selPartido.innerHTML = '<option value="">Todos</option>';
+
     estados.forEach(e => selEstado.innerHTML += `<option>${e}</option>`);
     partidos.forEach(p => selPartido.innerHTML += `<option>${p}</option>`);
 }
@@ -115,22 +121,29 @@ function popularFiltros() {
 function renderizarCards(lista) {
     document.getElementById("contagem").innerText = `${lista.length} deputados`;
 
-    document.getElementById("lista-deputados").innerHTML = lista.map(d => `
+    document.getElementById("lista-deputados").innerHTML = lista.map(d => {
+        const foto = d.foto && d.foto !== ""
+            ? d.foto
+            : "https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png";
+
+        return `
         <div class="card" style="text-align:center; border:${selecionados.has(d.id) ? '2px solid orange' : '1px solid #ddd'}">
 
-            <img src="${d.foto}" style="width:100%; height:200px; object-fit:cover;"
-                onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
+            <img src="${foto}" style="width:100%; height:200px; object-fit:cover; border-radius:8px;">
 
             <h3>${d.nome}</h3>
             <p>${d.partido} - ${d.uf}</p>
 
             ${
                 modoComparacao
-                ? `<button class="btn-selecionar" data-id="${d.id}">Selecionar</button>`
+                ? `<button class="btn-selecionar" data-id="${d.id}">
+                        ${selecionados.has(d.id) ? "Selecionado" : "Selecionar"}
+                   </button>`
                 : `<a href="/perfil.html?id=${d.id}">Ver Perfil</a>`
             }
         </div>
-    `).join("");
+        `;
+    }).join("");
 }
 
 // FILTRO
@@ -152,18 +165,23 @@ document.getElementById("busca-nome").addEventListener("input", aplicarFiltros);
 document.getElementById("filtro-estado").addEventListener("change", aplicarFiltros);
 document.getElementById("filtro-partido").addEventListener("change", aplicarFiltros);
 
-// COMPARAÇÃO (mantida igual)
+// COMPARAÇÃO
 function toggleModoComparacao() {
     modoComparacao = !modoComparacao;
 
-    document.getElementById("btn-gerar-comparacao").style.display =
-        modoComparacao ? "inline-block" : "none";
+    const btnModo = document.getElementById("btn-modo");
+    const btnGerar = document.getElementById("btn-gerar-comparacao");
+
+    btnModo.innerText = modoComparacao ? "Voltar" : "Comparar Deputados";
+    btnGerar.style.display = modoComparacao ? "inline-block" : "none";
 
     if (!modoComparacao) selecionados.clear();
 
+    atualizarBotao();
     renderizarCards(todosDeputados);
 }
 
+// SELEÇÃO
 document.addEventListener("click", e => {
     if (!modoComparacao) return;
 
@@ -173,10 +191,31 @@ document.addEventListener("click", e => {
     const id = Number(btn.dataset.id);
 
     if (selecionados.has(id)) selecionados.delete(id);
-    else selecionados.add(id);
+    else {
+        if (selecionados.size >= 8) {
+            toast("Máximo 8 deputados");
+            return;
+        }
+        selecionados.add(id);
+    }
 
+    atualizarBotao();
     renderizarCards(todosDeputados);
 });
+
+function atualizarBotao() {
+    const btn = document.getElementById("btn-gerar-comparacao");
+    btn.innerText = `Gerar Comparação [${selecionados.size}/8]`;
+}
+
+// TOAST
+function toast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.classList.add("show");
+
+    setTimeout(() => t.classList.remove("show"), 2000);
+}
 
 // INIT
 carregarDeputados();
