@@ -10,8 +10,20 @@
 
 <div id="toast" class="toast"></div>
 
-<header class="navbar">
-    <a href="/" class="logo">PORTAL<span>SJC</span></a>
+<!-- 🔥 NAVBAR CORRIGIDA -->
+<header class="navbar" style="display:flex; justify-content:space-between; align-items:center; padding:15px 30px; background:#0d47a1;">
+    <a href="/" class="logo" style="color:white; text-decoration:none; font-weight:bold;">
+        PORTAL<span style="color:#ff9800;">SJC</span>
+    </a>
+
+    <nav>
+        <ul style="display:flex; gap:20px; list-style:none; margin:0;">
+            <li><a href="/" style="color:white;">Home</a></li>
+            <li><a href="/deputados.html" style="color:#ff9800;">Deputados</a></li>
+            <li><a href="/relatorios.html" style="color:white;">Relatórios</a></li>
+            <li><a href="/graficos.html" style="color:white;">Gráficos</a></li>
+        </ul>
+    </nav>
 </header>
 
 <main class="container">
@@ -34,7 +46,7 @@
         </button>
 
         <button id="btn-gerar-comparacao" disabled style="display:none; opacity:0.5; cursor:not-allowed;">
-            Gerar Comparação [0/8]
+            Gerar Comparação [0/4]
         </button>
     </div>
 
@@ -74,21 +86,14 @@ function normalizarDeputado(d) {
 
 // CARREGAR
 async function carregarDeputados() {
-    try {
-        const res = await fetch('/api/deputados');
-        const json = await res.json();
+    const res = await fetch('/api/deputados');
+    const json = await res.json();
 
-        const lista = Array.isArray(json) ? json : json.dados || [];
+    const lista = Array.isArray(json) ? json : json.dados || [];
+    todosDeputados = lista.map(normalizarDeputado);
 
-        todosDeputados = lista.map(normalizarDeputado);
-
-        popularFiltros();
-        renderizarCards(todosDeputados);
-
-    } catch (e) {
-        console.error(e);
-        document.getElementById("contagem").innerText = "Erro ao carregar";
-    }
+    popularFiltros();
+    renderizarCards(todosDeputados);
 }
 
 // FILTROS
@@ -99,9 +104,6 @@ function popularFiltros() {
     const selEstado = document.getElementById("filtro-estado");
     const selPartido = document.getElementById("filtro-partido");
 
-    selEstado.innerHTML = '<option value="">Todos</option>';
-    selPartido.innerHTML = '<option value="">Todos</option>';
-
     estados.forEach(e => selEstado.innerHTML += `<option>${e}</option>`);
     partidos.forEach(p => selPartido.innerHTML += `<option>${p}</option>`);
 }
@@ -110,15 +112,11 @@ function popularFiltros() {
 function renderizarCards(lista) {
     document.getElementById("contagem").innerText = `${lista.length} deputados`;
 
-    document.getElementById("lista-deputados").innerHTML = lista.map(d => {
-        const foto = d.foto || "https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png";
-
-        return `
+    document.getElementById("lista-deputados").innerHTML = lista.map(d => `
         <div class="card" style="text-align:center; border:${selecionados.has(d.id) ? '2px solid orange' : '1px solid #ddd'}">
 
-            <img src="${foto}" 
-                 style="width:100%; height:200px; object-fit:cover;"
-                 onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
+            <img src="${d.foto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}"
+                 style="width:100%; height:200px; object-fit:cover;">
 
             <h3>${d.nome}</h3>
             <p>${d.partido} - ${d.uf}</p>
@@ -131,8 +129,7 @@ function renderizarCards(lista) {
                 : `<a href="/perfil.html?id=${d.id}">Ver Perfil</a>`
             }
         </div>
-        `;
-    }).join("");
+    `).join("");
 }
 
 // FILTRO
@@ -150,18 +147,15 @@ function aplicarFiltros() {
     renderizarCards(filtrados);
 }
 
-document.getElementById("busca-nome").addEventListener("input", aplicarFiltros);
-document.getElementById("filtro-estado").addEventListener("change", aplicarFiltros);
-document.getElementById("filtro-partido").addEventListener("change", aplicarFiltros);
+busca-nome.oninput = aplicarFiltros;
+filtro-estado.onchange = aplicarFiltros;
+filtro-partido.onchange = aplicarFiltros;
 
 // MODO COMPARAÇÃO
 function toggleModoComparacao() {
     modoComparacao = !modoComparacao;
 
-    const btnModo = document.getElementById("btn-modo");
     const btnGerar = document.getElementById("btn-gerar-comparacao");
-
-    btnModo.innerText = modoComparacao ? "Voltar" : "Comparar Deputados";
     btnGerar.style.display = modoComparacao ? "inline-block" : "none";
 
     if (!modoComparacao) selecionados.clear();
@@ -182,8 +176,8 @@ document.addEventListener("click", e => {
     if (selecionados.has(id)) {
         selecionados.delete(id);
     } else {
-        if (selecionados.size >= 8) {
-            toast("Máximo 8 deputados");
+        if (selecionados.size >= 4) {
+            toast("Máximo 4 deputados");
             return;
         }
         selecionados.add(id);
@@ -197,44 +191,37 @@ document.addEventListener("click", e => {
 function atualizarBotao() {
     const btn = document.getElementById("btn-gerar-comparacao");
 
-    btn.innerText = `Gerar Comparação [${selecionados.size}/8]`;
-
-    if (selecionados.size >= 2) {
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-    } else {
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-    }
+    btn.innerText = `Gerar Comparação [${selecionados.size}/4]`;
+    btn.disabled = selecionados.size < 2;
 }
 
-// EVENTO BOTÃO
+// EVENTO
 document.getElementById("btn-gerar-comparacao").addEventListener("click", gerarComparacao);
 
-// 🔥 BUSCAR GASTOS
+// 🔥 GASTOS CORRIGIDO
 async function buscarGastos(id, callback) {
     let total = 0;
-    let pagina = 1;
+    const anos = [2026, 2025];
 
-    while (true) {
-        const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?pagina=${pagina}&itens=100`);
-        const json = await res.json();
+    for (let ano of anos) {
+        let pagina = 1;
 
-        if (!json.dados || json.dados.length === 0) break;
+        while (true) {
+            const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ano=${ano}&pagina=${pagina}&itens=100`);
+            const json = await res.json();
 
-        json.dados.forEach(d => total += d.valorLiquido || 0);
+            if (!json.dados || json.dados.length === 0) break;
 
-        pagina++;
-        callback(total);
+            json.dados.forEach(d => total += d.valorLiquido || 0);
+
+            pagina++;
+            callback(total);
+        }
     }
 }
 
-// 🔥 GERAR COMPARAÇÃO
-async function gerarComparacao() {
-    if (selecionados.size < 2) return;
-
+// GERAR
+function gerarComparacao() {
     const base = todosDeputados.filter(d => selecionados.has(d.id));
 
     const lista = base.map(d => ({
@@ -243,54 +230,31 @@ async function gerarComparacao() {
     }));
 
     atualizarTabela(lista);
-    document.getElementById("modal").style.display = "flex";
+    modal.style.display = "flex";
 
-    for (let i = 0; i < lista.length; i++) {
-        buscarGastos(lista[i].id, (valor) => {
+    lista.forEach((d, i) => {
+        buscarGastos(d.id, valor => {
             lista[i].gastos = valor;
             atualizarTabela(lista);
         });
-    }
+    });
 }
 
-// 🔥 TABELA
+// TABELA
 function atualizarTabela(lista) {
-    document.getElementById("comparacao").innerHTML = `
+    comparacao.innerHTML = `
         <table style="width:100%; text-align:center;">
             <tr>
                 <th>Foto</th>
-                ${lista.map(d => `
-                    <td>
-                        <img src="${d.foto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}"
-                             style="width:70px; height:70px; object-fit:cover; border-radius:8px;">
-                    </td>
-                `).join('')}
+                ${lista.map(d => `<td><img src="${d.foto}" style="width:70px;height:70px;"></td>`).join('')}
             </tr>
-
             <tr>
                 <th>Nome</th>
                 ${lista.map(d => `<td>${d.nome}</td>`).join('')}
             </tr>
-
-            <tr>
-                <th>Partido</th>
-                ${lista.map(d => `<td>${d.partido}</td>`).join('')}
-            </tr>
-
-            <tr>
-                <th>UF</th>
-                ${lista.map(d => `<td>${d.uf}</td>`).join('')}
-            </tr>
-
             <tr>
                 <th>Gastos</th>
-                ${lista.map(d => `
-                    <td>
-                        ${typeof d.gastos === "number"
-                            ? d.gastos.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})
-                            : d.gastos}
-                    </td>
-                `).join('')}
+                ${lista.map(d => `<td>${typeof d.gastos === "number" ? d.gastos.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : d.gastos}</td>`).join('')}
             </tr>
         </table>
     `;
@@ -298,7 +262,7 @@ function atualizarTabela(lista) {
 
 // FECHAR
 function fecharModal() {
-    document.getElementById("modal").style.display = "none";
+    modal.style.display = "none";
 }
 
 // TOAST
