@@ -213,52 +213,99 @@ function atualizarBotao() {
 // EVENTO BOTÃO
 document.getElementById("btn-gerar-comparacao").addEventListener("click", gerarComparacao);
 
-// COMPARAÇÃO
-function gerarComparacao() {
+// 🔥 BUSCAR GASTOS
+async function buscarGastos(id, callback) {
+    let total = 0;
+    let pagina = 1;
+
+    while (true) {
+        const res = await fetch(`https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?pagina=${pagina}&itens=100`);
+        const json = await res.json();
+
+        if (!json.dados || json.dados.length === 0) break;
+
+        json.dados.forEach(d => total += d.valorLiquido || 0);
+
+        pagina++;
+        callback(total);
+    }
+}
+
+// 🔥 GERAR COMPARAÇÃO
+async function gerarComparacao() {
     if (selecionados.size < 2) return;
 
-    const lista = todosDeputados.filter(d => selecionados.has(d.id));
+    const base = todosDeputados.filter(d => selecionados.has(d.id));
 
+    const lista = base.map(d => ({
+        ...d,
+        gastos: "Carregando..."
+    }));
+
+    atualizarTabela(lista);
+    document.getElementById("modal").style.display = "flex";
+
+    for (let i = 0; i < lista.length; i++) {
+        buscarGastos(lista[i].id, (valor) => {
+            lista[i].gastos = valor;
+            atualizarTabela(lista);
+        });
+    }
+}
+
+// 🔥 TABELA
+function atualizarTabela(lista) {
     document.getElementById("comparacao").innerHTML = `
         <table style="width:100%; text-align:center;">
             <tr>
                 <th>Foto</th>
-                ${lista.map(d => `<td><img src="${d.foto}" style="width:70px; height:70px; object-fit:cover;"></td>`).join('')}
+                ${lista.map(d => `
+                    <td>
+                        <img src="${d.foto || 'https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'}"
+                             style="width:70px; height:70px; object-fit:cover; border-radius:8px;">
+                    </td>
+                `).join('')}
             </tr>
+
             <tr>
                 <th>Nome</th>
                 ${lista.map(d => `<td>${d.nome}</td>`).join('')}
             </tr>
+
             <tr>
                 <th>Partido</th>
                 ${lista.map(d => `<td>${d.partido}</td>`).join('')}
             </tr>
+
             <tr>
                 <th>UF</th>
                 ${lista.map(d => `<td>${d.uf}</td>`).join('')}
             </tr>
+
+            <tr>
+                <th>Gastos</th>
+                ${lista.map(d => `
+                    <td>
+                        ${typeof d.gastos === "number"
+                            ? d.gastos.toLocaleString('pt-BR', {style:'currency', currency:'BRL'})
+                            : d.gastos}
+                    </td>
+                `).join('')}
+            </tr>
         </table>
     `;
-
-    document.getElementById("modal").style.display = "flex";
 }
 
-// FECHAR MODAL
+// FECHAR
 function fecharModal() {
     document.getElementById("modal").style.display = "none";
 }
-
-// fechar clicando fora
-document.getElementById("modal").addEventListener("click", e => {
-    if (e.target.id === "modal") fecharModal();
-});
 
 // TOAST
 function toast(msg) {
     const t = document.getElementById("toast");
     t.innerText = msg;
     t.classList.add("show");
-
     setTimeout(() => t.classList.remove("show"), 2000);
 }
 
