@@ -27,7 +27,6 @@
     <h1>Deputados Federais</h1>
     <p id="contagem">Carregando...</p>
 
-    <!-- FILTROS -->
     <div class="card" style="margin-bottom:20px;">
         <input type="text" id="busca-nome" placeholder="Buscar deputado...">
 
@@ -39,16 +38,13 @@
             <option value="">Partido</option>
         </select>
 
-        <button id="btn-modo" onclick="toggleModoComparacao()">
-            Comparar Deputados
-        </button>
+        <button id="btn-modo">Comparar Deputados</button>
 
-        <button id="btn-gerar-comparacao" onclick="gerarComparacao()" style="display:none;">
+        <button id="btn-gerar-comparacao" style="display:none;">
             Gerar Comparação [0/8]
         </button>
     </div>
 
-    <!-- LISTA -->
     <div id="lista-deputados" class="grid"></div>
 
 </main>
@@ -57,7 +53,7 @@
 <div id="modal-comparacao" class="modal">
     <div class="modal-content">
         <button onclick="fecharModal()">X</button>
-        <h2>Comparação</h2>
+        <h2>Comparação de Deputados</h2>
         <div id="conteudo-comparacao"></div>
     </div>
 </div>
@@ -67,13 +63,22 @@ let selecionados = new Set();
 let modoComparacao = false;
 let todosDeputados = [];
 
-// 🔥 CORREÇÃO PRINCIPAL AQUI
+// ELEMENTOS
+const buscaNome = document.getElementById("busca-nome");
+const filtroEstado = document.getElementById("filtro-estado");
+const filtroPartido = document.getElementById("filtro-partido");
+const contagem = document.getElementById("contagem");
+const btnModo = document.getElementById("btn-modo");
+const btnGerar = document.getElementById("btn-gerar-comparacao");
+const modal = document.getElementById("modal-comparacao");
+const conteudo = document.getElementById("conteudo-comparacao");
+
+// CARREGAR API
 async function carregarDeputados() {
     try {
         const res = await fetch('/api/deputados');
         const json = await res.json();
 
-        // 👇 AGORA É DIRETO
         todosDeputados = json;
 
         popularFiltros(todosDeputados);
@@ -81,7 +86,7 @@ async function carregarDeputados() {
 
     } catch (e) {
         console.error(e);
-        document.getElementById('contagem').innerText = "Erro ao carregar";
+        contagem.innerText = "Erro ao carregar";
     }
 }
 
@@ -90,11 +95,11 @@ function popularFiltros(dados) {
     const partidos = [...new Set(dados.map(d => d.partido))].sort();
 
     estados.forEach(uf => {
-        filtro_estado.innerHTML += `<option value="${uf}">${uf}</option>`;
+        filtroEstado.innerHTML += `<option value="${uf}">${uf}</option>`;
     });
 
     partidos.forEach(p => {
-        filtro_partido.innerHTML += `<option value="${p}">${p}</option>`;
+        filtroPartido.innerHTML += `<option value="${p}">${p}</option>`;
     });
 }
 
@@ -107,7 +112,7 @@ function renderizarCards(lista) {
         <div class="card" style="border:${selecionados.has(d.id) ? '2px solid orange' : '1px solid #ddd'}">
 
             <img src="${d.foto}" 
-                onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
+                 onerror="this.src='https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png'">
 
             <h3>${d.nome}</h3>
             <p>${d.partido} - ${d.uf}</p>
@@ -124,10 +129,11 @@ function renderizarCards(lista) {
     `).join('');
 }
 
+// FILTROS
 function aplicarFiltros() {
-    const nome = busca_nome.value.toLowerCase();
-    const estado = filtro_estado.value;
-    const partido = filtro_partido.value;
+    const nome = buscaNome.value.toLowerCase();
+    const estado = filtroEstado.value;
+    const partido = filtroPartido.value;
 
     const filtrados = todosDeputados.filter(d =>
         d.nome.toLowerCase().includes(nome) &&
@@ -138,23 +144,24 @@ function aplicarFiltros() {
     renderizarCards(filtrados);
 }
 
-busca_nome.addEventListener("input", aplicarFiltros);
-filtro_estado.addEventListener("change", aplicarFiltros);
-filtro_partido.addEventListener("change", aplicarFiltros);
+buscaNome.addEventListener("input", aplicarFiltros);
+filtroEstado.addEventListener("change", aplicarFiltros);
+filtroPartido.addEventListener("change", aplicarFiltros);
 
-// COMPARAÇÃO
-function toggleModoComparacao() {
+// MODO COMPARAÇÃO
+btnModo.onclick = () => {
     modoComparacao = !modoComparacao;
 
-    btn_modo.innerText = modoComparacao ? "Voltar" : "Comparar Deputados";
-    btn_gerar_comparacao.style.display = modoComparacao ? "inline-block" : "none";
+    btnModo.innerText = modoComparacao ? "Voltar" : "Comparar Deputados";
+    btnGerar.style.display = modoComparacao ? "inline-block" : "none";
 
     if (!modoComparacao) selecionados.clear();
 
     atualizarBotao();
     renderizarCards(todosDeputados);
-}
+};
 
+// SELEÇÃO
 document.addEventListener("click", (e) => {
     if (!modoComparacao) return;
 
@@ -178,36 +185,54 @@ document.addEventListener("click", (e) => {
 });
 
 function atualizarBotao() {
-    btn_gerar_comparacao.innerText =
-        `Gerar Comparação [${selecionados.size}/8]`;
+    const qtd = selecionados.size;
+
+    btnGerar.innerText = `Gerar Comparação [${qtd}/8]`;
+
+    btnGerar.disabled = qtd < 2;
+    btnGerar.style.opacity = qtd < 2 ? "0.5" : "1";
+    btnGerar.style.cursor = qtd < 2 ? "not-allowed" : "pointer";
 }
 
-function gerarComparacao() {
+// GERAR COMPARAÇÃO (BONITO)
+btnGerar.onclick = () => {
     if (selecionados.size < 2) return;
 
     const lista = todosDeputados.filter(d => selecionados.has(d.id));
 
-    conteudo_comparacao.innerHTML = `
-        <table>
-            <tr>
-                ${lista.map(d => `<th>${d.nome}</th>`).join('')}
-            </tr>
-            <tr>
-                ${lista.map(d => `<td>${d.partido}</td>`).join('')}
-            </tr>
-            <tr>
-                ${lista.map(d => `<td>${d.uf}</td>`).join('')}
-            </tr>
+    conteudo.innerHTML = `
+        <table style="width:100%; border-collapse: collapse; text-align:center;">
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    ${lista.map(d => `<th>${d.nome}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Partido</strong></td>
+                    ${lista.map(d => `<td>${d.partido}</td>`).join('')}
+                </tr>
+                <tr>
+                    <td><strong>UF</strong></td>
+                    ${lista.map(d => `<td>${d.uf}</td>`).join('')}
+                </tr>
+                <tr>
+                    <td><strong>ID</strong></td>
+                    ${lista.map(d => `<td>${d.id}</td>`).join('')}
+                </tr>
+            </tbody>
         </table>
     `;
 
-    modal_comparacao.style.display = "flex";
-}
+    modal.style.display = "flex";
+};
 
 function fecharModal() {
-    modal_comparacao.style.display = "none";
+    modal.style.display = "none";
 }
 
+// TOAST
 function toast(msg) {
     const t = document.getElementById("toast");
     t.innerText = msg;
