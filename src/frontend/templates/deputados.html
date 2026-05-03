@@ -12,67 +12,52 @@
 
 <header class="navbar">
     <a href="/" class="logo">PORTAL<span>SJC</span></a>
-    <nav>
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/deputados.html" class="active">Deputados</a></li>
-            <li><a href="/relatorios.html">Relatórios</a></li>
-            <li><a href="/graficos.html">Gráficos</a></li>
-        </ul>
-    </nav>
 </header>
 
 <main class="container">
-    <h1 style="margin-top: 20px;">Representantes na Câmara Federal</h1>
+    <h1>Representantes na Câmara Federal</h1>
     <p id="contagem">Carregando deputados...</p>
 
-    <div class="card" style="margin-bottom: 25px; padding: 20px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-            
-            <div>
-                <label style="font-weight: bold; color: var(--primary);">Buscar por Nome</label>
-                <input type="text" id="busca-nome" style="width: 100%; padding: 10px;">
-            </div>
+    <div class="card">
+        <input type="text" id="busca-nome" placeholder="Buscar deputado...">
 
-            <div>
-                <label style="font-weight: bold; color: var(--primary);">Estado</label>
-                <select id="filtro-estado" style="width: 100%; padding: 10px;">
-                    <option value="">Todos</option>
-                </select>
-            </div>
+        <select id="filtro-estado">
+            <option value="">Todos</option>
+        </select>
 
-            <div>
-                <label style="font-weight: bold; color: var(--primary);">Partido</label>
-                <select id="filtro-partido" style="width: 100%; padding: 10px;">
-                    <option value="">Todos</option>
-                </select>
-            </div>
+        <select id="filtro-partido">
+            <option value="">Todos</option>
+        </select>
 
-            <div style="margin-top:15px; display:flex; gap:10px;">
-                <button id="btn-modo" onclick="toggleModoComparacao()"
-                    style="padding:10px; background:#ff9800; color:white; border:none;">
-                    Comparar Deputados
-                </button>
+        <button id="btn-modo" onclick="toggleModoComparacao()">
+            Comparar Deputados
+        </button>
 
-                <button id="btn-gerar-comparacao"
-                    style="display:none; padding:10px; background:#0d47a1; color:white; border:none;">
-                    Gerar Comparação [0/8]
-                </button>
-            </div>
-        </div>
+        <button id="btn-gerar-comparacao" style="display:none;">
+            Gerar Comparação [0/8]
+        </button>
     </div>
 
-    <div id="lista-deputados"
-        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;">
-    </div>
+    <div id="lista-deputados" class="grid"></div>
 </main>
+
+<!-- MODAL -->
+<div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+
+    <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:900px;">
+        <button onclick="fecharModal()">X</button>
+        <h2>Comparação</h2>
+        <div id="comparacao"></div>
+    </div>
+</div>
 
 <script>
 let selecionados = new Set();
 let modoComparacao = false;
 let todosDeputados = [];
 
-// 🔥 NORMALIZAÇÃO FORTE (resolve TUDO)
+// NORMALIZAÇÃO
 function normalizarDeputado(d) {
     return {
         id: d.id,
@@ -83,7 +68,7 @@ function normalizarDeputado(d) {
     };
 }
 
-// 🔥 CARREGAR API
+// CARREGAR
 async function carregarDeputados() {
     try {
         const res = await fetch('/api/deputados');
@@ -117,19 +102,17 @@ function popularFiltros() {
     partidos.forEach(p => selPartido.innerHTML += `<option>${p}</option>`);
 }
 
-// CARDS
+// RENDER
 function renderizarCards(lista) {
     document.getElementById("contagem").innerText = `${lista.length} deputados`;
 
     document.getElementById("lista-deputados").innerHTML = lista.map(d => {
-        const foto = d.foto && d.foto !== ""
-            ? d.foto
-            : "https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png";
+        const foto = d.foto || "https://www.camara.leg.br/tema/assets/images/foto-deputado-ausente.png";
 
         return `
         <div class="card" style="text-align:center; border:${selecionados.has(d.id) ? '2px solid orange' : '1px solid #ddd'}">
 
-            <img src="${foto}" style="width:100%; height:200px; object-fit:cover; border-radius:8px;">
+            <img src="${foto}" style="width:100%; height:200px; object-fit:cover;">
 
             <h3>${d.nome}</h3>
             <p>${d.partido} - ${d.uf}</p>
@@ -165,7 +148,7 @@ document.getElementById("busca-nome").addEventListener("input", aplicarFiltros);
 document.getElementById("filtro-estado").addEventListener("change", aplicarFiltros);
 document.getElementById("filtro-partido").addEventListener("change", aplicarFiltros);
 
-// COMPARAÇÃO
+// MODO COMPARAÇÃO
 function toggleModoComparacao() {
     modoComparacao = !modoComparacao;
 
@@ -190,8 +173,9 @@ document.addEventListener("click", e => {
 
     const id = Number(btn.dataset.id);
 
-    if (selecionados.has(id)) selecionados.delete(id);
-    else {
+    if (selecionados.has(id)) {
+        selecionados.delete(id);
+    } else {
         if (selecionados.size >= 8) {
             toast("Máximo 8 deputados");
             return;
@@ -203,9 +187,44 @@ document.addEventListener("click", e => {
     renderizarCards(todosDeputados);
 });
 
+// BOTÃO
 function atualizarBotao() {
     const btn = document.getElementById("btn-gerar-comparacao");
     btn.innerText = `Gerar Comparação [${selecionados.size}/8]`;
+    btn.disabled = selecionados.size < 2;
+}
+
+// 🔥 AQUI ESTAVA O PROBLEMA (não tinha evento)
+document.getElementById("btn-gerar-comparacao").addEventListener("click", gerarComparacao);
+
+// COMPARAÇÃO
+function gerarComparacao() {
+    if (selecionados.size < 2) return;
+
+    const lista = todosDeputados.filter(d => selecionados.has(d.id));
+
+    document.getElementById("comparacao").innerHTML = `
+        <table style="width:100%; text-align:center;">
+            <tr>
+                <th>Nome</th>
+                ${lista.map(d => `<td>${d.nome}</td>`).join('')}
+            </tr>
+            <tr>
+                <th>Partido</th>
+                ${lista.map(d => `<td>${d.partido}</td>`).join('')}
+            </tr>
+            <tr>
+                <th>UF</th>
+                ${lista.map(d => `<td>${d.uf}</td>`).join('')}
+            </tr>
+        </table>
+    `;
+
+    document.getElementById("modal").style.display = "flex";
+}
+
+function fecharModal() {
+    document.getElementById("modal").style.display = "none";
 }
 
 // TOAST
