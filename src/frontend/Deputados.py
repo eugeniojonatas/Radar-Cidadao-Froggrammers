@@ -1,19 +1,37 @@
 import requests
+import json
 
 def handler(request):
     try:
-        r = requests.get(
-            "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome"
-        )
+        url = "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome"
+        r = requests.get(url)
+        data = r.json()
+
+        deputados = data.get("dados", [])
+
+        lista = []
+
+        for d in deputados:
+            lista.append({
+                "id": d.get("id"),
+                "nome": d.get("nome"),
+                "partido": d.get("siglaPartido"),
+                "uf": d.get("siglaUf"),
+                "foto": d.get("urlFoto")
+            })
 
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
-            "body": r.text
+            "body": json.dumps(lista, ensure_ascii=False)
         }
 
-    except:
+    except Exception as e:
         return {
             "statusCode": 500,
-            "body": '{"erro": "falha ao buscar dados"}'
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({
+                "erro": "falha ao buscar dados",
+                "detalhe": str(e)
+            })
         }
