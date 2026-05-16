@@ -1,10 +1,11 @@
 from flask import Flask, render_template, jsonify
 import requests
 
-app = Flask(__name__,
-            template_folder='templates',
-            static_folder='static')
-
+app = Flask(
+    __name__,
+    template_folder='templates',
+    static_folder='static'
+)
 
 # =========================
 # PÁGINAS
@@ -13,17 +14,21 @@ app = Flask(__name__,
 def home():
     return render_template("index.html")
 
+
 @app.route("/deputados.html")
 def deputados():
     return render_template("deputados.html")
+
 
 @app.route("/perfil.html")
 def perfil():
     return render_template("perfil.html")
 
+
 @app.route("/relatorios.html")
 def relatorios():
     return render_template("relatorios.html")
+
 
 @app.route("/graficos.html")
 def graficos():
@@ -37,11 +42,18 @@ def graficos():
 def api_deputados():
     try:
         r = requests.get(
-            "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome"
+            "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome",
+            timeout=10
         )
+
         return jsonify(r.json())
-    except:
-        return jsonify({"dados": []})
+
+    except Exception as e:
+        print("ERRO DEPUTADOS:", e)
+
+        return jsonify({
+            "dados": []
+        })
 
 
 # =========================
@@ -51,7 +63,8 @@ def api_deputados():
 def deputado_info(id_dep):
     try:
         r = requests.get(
-            f"https://dadosabertos.camara.leg.br/api/v2/deputados/{id_dep}"
+            f"https://dadosabertos.camara.leg.br/api/v2/deputados/{id_dep}",
+            timeout=10
         ).json()["dados"]
 
         return jsonify({
@@ -63,6 +76,7 @@ def deputado_info(id_dep):
 
     except Exception as e:
         print("ERRO PERFIL:", e)
+
         return jsonify({
             "nome": "Erro",
             "partido": "-",
@@ -78,15 +92,23 @@ def deputado_info(id_dep):
 def gastos(id_dep):
     try:
         lista = []
+
         anos = [2026, 2025]
 
         for ano in anos:
+
             pagina = 1
 
             while True:
-                url = f"https://dadosabertos.camara.leg.br/api/v2/deputados/{id_dep}/despesas?ano={ano}&pagina={pagina}&itens=100"
 
-                r = requests.get(url).json()
+                url = (
+                    f"https://dadosabertos.camara.leg.br/api/v2/"
+                    f"deputados/{id_dep}/despesas"
+                    f"?ano={ano}&pagina={pagina}&itens=100"
+                )
+
+                r = requests.get(url, timeout=10).json()
+
                 dados = r.get("dados", [])
 
                 if not dados:
@@ -96,6 +118,7 @@ def gastos(id_dep):
 
                 pagina += 1
 
+                # proteção contra loop infinito
                 if pagina > 50:
                     break
 
@@ -103,11 +126,12 @@ def gastos(id_dep):
 
     except Exception as e:
         print("ERRO GASTOS:", e)
+
         return jsonify([])
 
 
 # =========================
-# RUN
+# RUN LOCAL
 # =========================
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
