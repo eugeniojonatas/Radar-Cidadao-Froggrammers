@@ -331,12 +331,7 @@ let todosOsGastos = [];
 
 async function init() {
 
-    if (!id) {
-        console.log("ID não encontrado na URL");
-        return;
-    }
-
-    console.log("ID URL:", id);
+    if (!id) return;
 
     await carregarPerfil();
 
@@ -383,9 +378,7 @@ async function carregarPerfil() {
             txt.innerText = "Sem foto";
         }
 
-    } catch (err) {
-
-        console.error(err);
+    } catch {
 
         txt.innerText = "Erro ao carregar";
     }
@@ -429,9 +422,7 @@ async function carregarGastos() {
         status.style.color =
             "green";
 
-    } catch (err) {
-
-        console.error(err);
+    } catch {
 
         status.innerText =
             "Erro";
@@ -593,51 +584,17 @@ async function carregarPresencas() {
             links.map(link => fetch(link))
         );
 
-        const jsons = await Promise.all(
+        const partes = await Promise.all(
             responses.map(r => r.json())
         );
 
-        console.log("JSONS:", jsons);
+        const deputados = partes.flat();
 
-        let deputados = [];
+        const deputado = deputados.find(
 
-        jsons.forEach(parte => {
+            d => String(d.deputado_id) === String(id)
 
-            if (Array.isArray(parte)) {
-
-                deputados.push(...parte);
-
-            } else if (parte.dados) {
-
-                deputados.push(...parte.dados);
-
-            }
-
-        });
-
-        console.log("TOTAL DEPUTADOS:", deputados.length);
-
-        console.log("PRIMEIRO DEPUTADO:", deputados[0]);
-
-        const deputado = deputados.find(d => {
-
-            return (
-
-                String(d.idDeputado) === String(id)
-
-                ||
-
-                String(d.deputado_id) === String(id)
-
-                ||
-
-                String(d.id) === String(id)
-
-            );
-
-        });
-
-        console.log("DEPUTADO ENCONTRADO:", deputado);
+        );
 
         if (!deputado) {
 
@@ -651,39 +608,21 @@ async function carregarPresencas() {
             "total-presencas"
         ).innerText =
 
-            deputado.totalPresencas
-            ||
-
-            deputado.total_presencas
-            ||
-
-            0;
+            deputado.total_presencas || 0;
 
         // 2025
         document.getElementById(
             "presenca-2025"
         ).innerText =
 
-            deputado.presencas2025
-            ||
-
-            deputado.presencas_2025
-            ||
-
-            0;
+            deputado.presencas_2025 || 0;
 
         // 2026
         document.getElementById(
             "presenca-2026"
         ).innerText =
 
-            deputado.presencas2026
-            ||
-
-            deputado.presencas_2026
-            ||
-
-            0;
+            deputado.presencas_2026 || 0;
 
         // EVENTOS
         const eventos = deputado.eventos || [];
