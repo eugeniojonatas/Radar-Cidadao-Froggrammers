@@ -1,0 +1,50 @@
+import json
+
+
+def carregar_dados(caminho_arquivo):
+    with open(caminho_arquivo, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def calcular_ranking_presenca(dados):
+    ranking = []
+
+    for deputado in dados:
+
+        total_presencas = deputado.get("total_presencas", 0)
+        total_eventos = len(deputado.get("eventos", []))
+
+        # evita divisão por zero
+        indice_presenca = 0
+
+        if total_eventos > 0:
+            indice_presenca = (
+                total_presencas / total_eventos
+            ) * 100
+
+        ranking.append({
+            "deputado_id": deputado["deputado_id"],
+            "nome": deputado["nome"],
+            "partido": deputado["partido"],
+            "uf": deputado["uf"],
+            "total_presencas": total_presencas,
+            "total_eventos": total_eventos,
+            "indice_presenca": round(indice_presenca, 2)
+        })
+
+    # ordena maior -> menor
+    ranking_ordenado = sorted(
+        ranking,
+        key=lambda x: x["indice_presenca"],
+        reverse=True
+    )
+
+    top_10_presentes = ranking_ordenado[:10]
+
+    # menor -> maior
+    top_10_ausentes = ranking_ordenado[-10:]
+
+    return {
+        "mais_presentes": top_10_presentes,
+        "mais_ausentes": top_10_ausentes
+    }
