@@ -1,19 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-
     <meta charset="UTF-8">
+    <title>Perfil Parlamentar | Radar Cidadão</title>
 
-    <title>
-        Perfil Parlamentar | Radar Cidadão
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
@@ -25,33 +16,12 @@
     </a>
 
     <nav>
-
         <ul class="nav-links">
-
-            <li>
-                <a href="/">Home</a>
-            </li>
-
-            <li>
-                <a href="/deputados.html">
-                    Deputados
-                </a>
-            </li>
-
-            <li>
-                <a href="/relatorios.html">
-                    Relatórios
-                </a>
-            </li>
-
-            <li>
-                <a href="/graficos.html">
-                    Gráficos
-                </a>
-            </li>
-
+            <li><a href="/">Home</a></li>
+            <li><a href="/deputados.html">Deputados</a></li>
+            <li><a href="/relatorios.html">Relatórios</a></li>
+            <li><a href="/graficos.html">Gráficos</a></li>
         </ul>
-
     </nav>
 
 </header>
@@ -119,27 +89,13 @@
         ">
 
             <p>
-
-                <strong>
-                    Partido:
-                </strong>
-
-                <span id="dep-partido">
-                    -
-                </span>
-
+                <strong>Partido:</strong>
+                <span id="dep-partido">-</span>
             </p>
 
             <p>
-
-                <strong>
-                    UF:
-                </strong>
-
-                <span id="dep-uf">
-                    -
-                </span>
-
+                <strong>UF:</strong>
+                <span id="dep-uf">-</span>
             </p>
 
         </div>
@@ -155,7 +111,6 @@
 <section>
 
     <!-- TOTAL -->
-
     <div class="card" style="
         margin-bottom:25px;
         border-left:5px solid var(--secondary);
@@ -182,7 +137,7 @@
             id="status-carregamento"
             style="font-size:0.8rem;"
         >
-            Carregando...
+            Iniciando...
         </div>
 
     </div>
@@ -274,16 +229,13 @@
             ">
 
                 Total:
-                <span id="total-presencas">
-                    0
-                </span>
+                <span id="total-presencas">0</span>
 
             </div>
 
         </div>
 
         <!-- CARDS -->
-
         <div style="
             display:grid;
             grid-template-columns:repeat(5,1fr);
@@ -298,9 +250,7 @@
                 border-left:4px solid #0b5fff;
             ">
 
-                <small>
-                    Presenças 2025
-                </small>
+                <small>Presenças 2025</small>
 
                 <h2 id="presenca-2025">
                     0
@@ -315,9 +265,7 @@
                 border-left:4px solid #00a86b;
             ">
 
-                <small>
-                    Presenças 2026
-                </small>
+                <small>Presenças 2026</small>
 
                 <h2 id="presenca-2026">
                     0
@@ -332,9 +280,7 @@
                 border-left:4px solid #ff8800;
             ">
 
-                <small>
-                    Total Eventos
-                </small>
+                <small>Total Eventos</small>
 
                 <h2 id="eventos-total">
                     0
@@ -349,9 +295,7 @@
                 border-left:4px solid #00c853;
             ">
 
-                <small>
-                    Total Presenças
-                </small>
+                <small>Total Presenças</small>
 
                 <h2 id="total-presencas-card">
                     0
@@ -366,9 +310,7 @@
                 border-left:4px solid #ff3b30;
             ">
 
-                <small>
-                    Total Faltas
-                </small>
+                <small>Total Faltas</small>
 
                 <h2 id="faltas-count">
                     0
@@ -378,8 +320,7 @@
 
         </div>
 
-        <!-- TABELA -->
-
+        <!-- TABELA PRESENÇAS -->
         <div style="
             max-height:320px;
             overflow:auto;
@@ -411,11 +352,23 @@
 
 <script>
 
-const id = new URLSearchParams(
-    window.location.search
-).get('id');
+const id = new URLSearchParams(window.location.search).get('id');
 
 let todosOsGastos = [];
+
+// =====================================================
+// LINKS DOS JSONS
+// =====================================================
+
+const arquivosPresencas = [
+
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
+
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte2.json",
+
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte3.json"
+
+];
 
 // =====================================================
 // INIT
@@ -438,92 +391,41 @@ async function init() {
 
 async function carregarPerfil() {
 
-    const img =
-        document.getElementById(
-            "dep-foto"
-        );
+    const img = document.getElementById("dep-foto");
 
-    const txt =
-        document.getElementById(
-            "txt-foto"
-        );
+    const txt = document.getElementById("txt-foto");
 
     try {
 
-        // =====================================
-        // USAR JSON DE PRESENÇAS
-        // =====================================
+        const res = await fetch(`/api/deputado/${id}`);
 
-        const urls = [
+        const d = await res.json();
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
+        document.getElementById("dep-nome").innerText =
+            d.nome || "Sem nome";
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte2.json",
+        document.getElementById("dep-partido").innerText =
+            d.partido || "-";
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte3.json"
+        document.getElementById("dep-uf").innerText =
+            d.uf || "-";
 
-        ];
+        if (d.foto) {
 
-        const respostas = await Promise.all(
+            img.src = d.foto;
 
-            urls.map(url => fetch(url))
+            img.style.display = "block";
 
-        );
+            txt.style.display = "none";
 
-        const jsons = await Promise.all(
+        } else {
 
-            respostas.map(r => r.json())
-
-        );
-
-        const deputados =
-            jsons.flat();
-
-        const d = deputados.find(
-
-            dep =>
-
-                String(dep.deputado_id)
-
-                ===
-
-                String(id)
-
-        );
-
-        if (!d) {
-
-            txt.innerText =
-                "Deputado não encontrado";
-
-            return;
+            txt.innerText = "Sem foto";
         }
-
-        document.getElementById(
-            "dep-nome"
-        ).innerText = d.nome || "Sem nome";
-
-        document.getElementById(
-            "dep-partido"
-        ).innerText = d.siglaPartido || "-";
-
-        document.getElementById(
-            "dep-uf"
-        ).innerText = d.siglaUf || "-";
-
-        // FOTO OFICIAL
-
-        img.src =
-            `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
-
-        img.style.display = "block";
-
-        txt.style.display = "none";
 
     } catch {
 
-        txt.innerText =
-            "Erro ao carregar";
+        txt.innerText = "Erro ao carregar";
     }
 }
 
@@ -540,42 +442,30 @@ async function carregarGastos() {
 
     try {
 
-        const res = await fetch(
-
-            `https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ordem=DESC&ordenarPor=ano`
-
-        );
-
-        const data = await res.json();
+        const res =
+            await fetch(`/api/gastos/${id}`);
 
         todosOsGastos =
-            data.dados || [];
+            await res.json();
+
+        status.innerText =
+            "Processando...";
+
+        todosOsGastos.sort(
+            (a,b) =>
+                new Date(b.dataDocumento)
+                - new Date(a.dataDocumento)
+        );
+
+        popularFiltro(todosOsGastos);
+
+        renderTabela(todosOsGastos);
 
         status.innerText =
             "Finalizado";
 
         status.style.color =
             "green";
-
-        todosOsGastos.sort(
-
-            (a,b) =>
-
-                new Date(b.dataDocumento)
-
-                -
-
-                new Date(a.dataDocumento)
-
-        );
-
-        popularFiltro(
-            todosOsGastos
-        );
-
-        renderTabela(
-            todosOsGastos
-        );
 
     } catch {
 
@@ -587,10 +477,6 @@ async function carregarGastos() {
     }
 }
 
-// =====================================================
-// FILTRO
-// =====================================================
-
 function popularFiltro(lista) {
 
     const filtro =
@@ -599,17 +485,11 @@ function popularFiltro(lista) {
         );
 
     const tipos = [
-
         ...new Set(
-
             lista.map(
-
                 g => g.tipoDespesa
-
             )
-
         )
-
     ].sort();
 
     tipos.forEach(tipo => {
@@ -627,51 +507,30 @@ function popularFiltro(lista) {
 
             filtro.appendChild(option);
         }
-
     });
 
     filtro.addEventListener(
-
         "change",
-
         (e) => {
 
             const selecionado =
                 e.target.value;
 
             const listaFiltrada =
-
                 selecionado === "todos"
-
-                ?
-
-                todosOsGastos
-
-                :
-
-                todosOsGastos.filter(
-
+                ? todosOsGastos
+                : todosOsGastos.filter(
                     g =>
-
                         g.tipoDespesa
-
-                        ===
-
-                        selecionado
-
+                        === selecionado
                 );
 
             renderTabela(
                 listaFiltrada
             );
         }
-
     );
 }
-
-// =====================================================
-// RENDER GASTOS
-// =====================================================
 
 function renderTabela(lista) {
 
@@ -688,7 +547,6 @@ function renderTabela(lista) {
     let total = 0;
 
     tabela.innerHTML =
-
         lista.map(g => {
 
             const valor =
@@ -697,63 +555,46 @@ function renderTabela(lista) {
             total += valor;
 
             const data =
-
                 g.dataDocumento
-
-                ?
-
-                g.dataDocumento
+                ? g.dataDocumento
                     .split("T")[0]
                     .split("-")
                     .reverse()
                     .join("/")
-
-                :
-
-                "-";
+                : "-";
 
             return `
+            <tr>
 
-                <tr>
+                <td>${data}</td>
 
-                    <td>${data}</td>
+                <td>
+                    ${g.tipoDespesa || "-"}
+                </td>
 
-                    <td>
-                        ${g.tipoDespesa || "-"}
-                    </td>
+                <td style="text-align:right;">
 
-                    <td style="text-align:right;">
+                    ${valor.toLocaleString(
+                        'pt-br',
+                        {
+                            style:'currency',
+                            currency:'BRL'
+                        }
+                    )}
 
-                        ${valor.toLocaleString(
+                </td>
 
-                            'pt-br',
-
-                            {
-                                style:'currency',
-                                currency:'BRL'
-                            }
-
-                        )}
-
-                    </td>
-
-                </tr>
-
+            </tr>
             `;
-
         }).join("");
 
     totalEl.innerText =
-
         total.toLocaleString(
-
             'pt-br',
-
             {
                 style:'currency',
                 currency:'BRL'
             }
-
         );
 }
 
@@ -765,100 +606,104 @@ async function carregarPresencas() {
 
     try {
 
-        const urls = [
+        let deputado = null;
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
+        // procura deputado nos 3 jsons
+        for (const url of arquivosPresencas) {
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte2.json",
+            const res = await fetch(url);
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte3.json"
+            const lista = await res.json();
 
-        ];
-
-        const respostas = await Promise.all(
-
-            urls.map(url => fetch(url))
-
-        );
-
-        const jsons = await Promise.all(
-
-            respostas.map(r => r.json())
-
-        );
-
-        const todosDeputados =
-            jsons.flat();
-
-        const deputado =
-            todosDeputados.find(
-
-                d =>
-
-                    String(d.deputado_id)
-
-                    ===
-
-                    String(id)
-
+            deputado = lista.find(
+                d => String(d.deputado_id) === String(id)
             );
 
+            if (deputado) break;
+        }
+
+        // não encontrou
         if (!deputado) {
 
             document.getElementById(
                 "tabela-presencas"
             ).innerHTML = `
-
                 <tr>
-
                     <td colspan="3">
-
                         Nenhuma presença encontrada
-
                     </td>
-
                 </tr>
-
             `;
 
             return;
         }
 
-        const eventos =
-            deputado.eventos || [];
+        const eventos = deputado.eventos || [];
+
+        // =========================
+        // CALCULOS
+        // =========================
+
+        const totalEventos = eventos.length;
+
+        const totalPresencas = eventos.filter(
+            e =>
+                e.presente === true
+                ||
+                e.status === "presente"
+        ).length;
+
+        const totalFaltas =
+            totalEventos - totalPresencas;
+
+        // =========================
+        // CONTADORES
+        // =========================
 
         document.getElementById(
             "total-presencas"
         ).innerText =
-            eventos.length;
+            totalPresencas;
 
         document.getElementById(
             "total-presencas-card"
         ).innerText =
-            eventos.length;
+            totalPresencas;
 
         document.getElementById(
             "eventos-total"
         ).innerText =
-            eventos.length;
+            totalEventos;
 
         document.getElementById(
             "faltas-count"
-        ).innerText = 0;
+        ).innerText =
+            totalFaltas;
+
+        // =========================
+        // CONTAR 2025 / 2026
+        // =========================
 
         let presencas2025 = 0;
         let presencas2026 = 0;
 
         eventos.forEach(evento => {
 
-            if (evento.data?.includes("2025")) {
-                presencas2025++;
-            }
+            const presente =
+                evento.presente === true
+                ||
+                evento.status === "presente";
 
-            if (evento.data?.includes("2026")) {
-                presencas2026++;
-            }
+            if (presente) {
 
+                if (evento.data?.includes("2025")) {
+                    presencas2025++;
+                }
+
+                if (evento.data?.includes("2026")) {
+                    presencas2026++;
+                }
+            }
         });
 
         document.getElementById(
@@ -868,6 +713,10 @@ async function carregarPresencas() {
         document.getElementById(
             "presenca-2026"
         ).innerText = presencas2026;
+
+        // =========================
+        // TABELA
+        // =========================
 
         const tabela =
             document.getElementById(
@@ -887,23 +736,26 @@ async function carregarPresencas() {
 
             );
 
-        tabela.innerHTML = eventosOrdenados.map(evento => {
+        tabela.innerHTML =
+            eventosOrdenados.map(evento => {
 
-            const data =
-
-                evento.data
-
-                ?
-
-                evento.data
+            const data = evento.data
+                ? evento.data
                     .split("T")[0]
                     .split("-")
                     .reverse()
                     .join("/")
+                : "-";
 
-                :
+            const presente =
+                evento.presente === true
+                ||
+                evento.status === "presente";
 
-                "-";
+            const status =
+                presente
+                ? "✅ Presente"
+                : "❌ Falta";
 
             return `
 
@@ -912,15 +764,11 @@ async function carregarPresencas() {
                     <td>${data}</td>
 
                     <td>
-
                         ${evento.descricao || evento.evento || "Sem descrição"}
-
                     </td>
 
                     <td>
-
-                        ✅ Presente
-
+                        ${status}
                     </td>
 
                 </tr>
