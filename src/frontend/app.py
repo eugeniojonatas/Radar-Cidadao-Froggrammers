@@ -7,9 +7,16 @@ app = Flask(
     static_folder='static'
 )
 
-# =========================
+BASE_URL = "https://dadosabertos.camara.leg.br/api/v2"
+
+HEADERS = {
+    "accept": "application/json"
+}
+
+# =====================================================
 # PÁGINAS
-# =========================
+# =====================================================
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -35,20 +42,29 @@ def graficos():
     return render_template("graficos.html")
 
 
-# =========================
+# =====================================================
 # API - LISTA DE DEPUTADOS
-# =========================
+# =====================================================
+
 @app.route("/api/deputados")
 def api_deputados():
+
     try:
+
         r = requests.get(
-            "https://dadosabertos.camara.leg.br/api/v2/deputados?ordem=ASC&ordenarPor=nome",
+
+            f"{BASE_URL}/deputados?ordem=ASC&ordenarPor=nome",
+
+            headers=HEADERS,
+
             timeout=10
+
         )
 
         return jsonify(r.json())
 
     except Exception as e:
+
         print("ERRO DEPUTADOS:", e)
 
         return jsonify({
@@ -56,41 +72,85 @@ def api_deputados():
         })
 
 
-# =========================
+# =====================================================
 # API - PERFIL DO DEPUTADO
-# =========================
+# =====================================================
+
 @app.route("/api/deputado/<int:id_dep>")
 def deputado_info(id_dep):
+
     try:
+
         r = requests.get(
-            f"https://dadosabertos.camara.leg.br/api/v2/deputados/{id_dep}",
+
+            f"{BASE_URL}/deputados/{id_dep}",
+
+            headers=HEADERS,
+
             timeout=10
+
         ).json()["dados"]
 
         return jsonify({
-            "nome": r.get("nomeCivil", "Desconhecido"),
-            "partido": r.get("ultimoStatus", {}).get("siglaPartido", "-"),
-            "uf": r.get("ultimoStatus", {}).get("siglaUf", "-"),
-            "foto": r.get("ultimoStatus", {}).get("urlFoto", "")
+
+            "nome":
+            r.get("nomeCivil", "Desconhecido"),
+
+            "partido":
+            r.get(
+                "ultimoStatus",
+                {}
+            ).get(
+                "siglaPartido",
+                "-"
+            ),
+
+            "uf":
+            r.get(
+                "ultimoStatus",
+                {}
+            ).get(
+                "siglaUf",
+                "-"
+            ),
+
+            "foto":
+            r.get(
+                "ultimoStatus",
+                {}
+            ).get(
+                "urlFoto",
+                ""
+            )
+
         })
 
     except Exception as e:
+
         print("ERRO PERFIL:", e)
 
         return jsonify({
+
             "nome": "Erro",
+
             "partido": "-",
+
             "uf": "-",
+
             "foto": ""
+
         })
 
 
-# =========================
-# API - GASTOS COMPLETOS
-# =========================
+# =====================================================
+# API - GASTOS
+# =====================================================
+
 @app.route("/api/gastos/<int:id_dep>")
 def gastos(id_dep):
+
     try:
+
         lista = []
 
         anos = [2026, 2025]
@@ -102,14 +162,33 @@ def gastos(id_dep):
             while True:
 
                 url = (
-                    f"https://dadosabertos.camara.leg.br/api/v2/"
+
+                    f"{BASE_URL}/"
+
                     f"deputados/{id_dep}/despesas"
-                    f"?ano={ano}&pagina={pagina}&itens=100"
+
+                    f"?ano={ano}"
+
+                    f"&pagina={pagina}"
+
+                    f"&itens=100"
+
                 )
 
-                r = requests.get(url, timeout=10).json()
+                r = requests.get(
 
-                dados = r.get("dados", [])
+                    url,
+
+                    headers=HEADERS,
+
+                    timeout=10
+
+                ).json()
+
+                dados = r.get(
+                    "dados",
+                    []
+                )
 
                 if not dados:
                     break
@@ -118,20 +197,222 @@ def gastos(id_dep):
 
                 pagina += 1
 
-                # proteção contra loop infinito
+                # proteção
                 if pagina > 50:
                     break
 
         return jsonify(lista)
 
     except Exception as e:
+
         print("ERRO GASTOS:", e)
 
         return jsonify([])
 
 
-# =========================
+# =====================================================
+# API - PRESENÇAS
+# =====================================================
+
+@app.route("/api/presencas/<int:id_dep>")
+def presencas(id_dep):
+
+    try:
+
+        eventos = []
+
+        total_presencas = 0
+
+        total_faltas = 0
+
+        # ==========================================
+        # 2025 + 2026
+        # ==========================================
+
+        for ano in [2025, 2026]:
+
+            pagina = 1
+
+            while True:
+
+                try:
+
+                    r = requests.get(
+
+                        f"{BASE_URL}/eventos",
+
+                        params={
+
+                            "dataInicio":
+                            f"{ano}-01-01",
+
+                            "dataFim":
+                            f"{ano}-12-31",
+
+                            "pagina":
+                            pagina,
+
+                            "itens":
+                            100
+
+                        },
+
+                        headers=HEADERS,
+
+                        timeout=20
+
+                    )
+
+                    dados = r.json().get(
+                        "dados",
+                        []
+                    )
+
+                    if not dados:
+                        break
+
+                    # ==================================
+                    # EVENTOS
+                    # ==================================
+
+                    for evento in dados:
+
+                        try:
+
+                            detalhe = requests.get(
+
+                                f"{BASE_URL}/eventos/{evento['id']}",
+
+                                headers=HEADERS,
+
+                                timeout=20
+
+                            )
+
+                            detalhe_json = detalhe.json().get(
+                                "dados",
+                                {}
+                            )
+
+                            deputados = detalhe_json.get(
+                                "deputados",
+                                []
+                            )
+
+                            presentes_ids = [
+
+                                d.get("id")
+
+                                for d in deputados
+
+                            ]
+
+                            status = "falta"
+
+                            if id_dep in presentes_ids:
+
+                                status = "presente"
+
+                                total_presencas += 1
+
+                            else:
+
+                                total_faltas += 1
+
+                            eventos.append({
+
+                                "evento_id":
+                                evento["id"],
+
+                                "descricao":
+                                evento.get(
+                                    "descricaoTipo",
+                                    "Evento"
+                                ),
+
+                                "data":
+                                evento.get(
+                                    "dataHoraInicio"
+                                ),
+
+                                "status":
+                                status
+
+                            })
+
+                        except Exception as erro_evento:
+
+                            print(
+                                "ERRO EVENTO:",
+                                erro_evento
+                            )
+
+                    pagina += 1
+
+                except Exception as erro_pagina:
+
+                    print(
+                        "ERRO PÁGINA:",
+                        erro_pagina
+                    )
+
+                    break
+
+        # ==========================================
+        # RETORNO
+        # ==========================================
+
+        return jsonify({
+
+            "deputado_id":
+            id_dep,
+
+            "total_eventos":
+            len(eventos),
+
+            "total_presencas":
+            total_presencas,
+
+            "total_faltas":
+            total_faltas,
+
+            "eventos":
+            eventos
+
+        })
+
+    except Exception as e:
+
+        print("ERRO PRESENÇAS:", e)
+
+        return jsonify({
+
+            "deputado_id":
+            id_dep,
+
+            "total_eventos":
+            0,
+
+            "total_presencas":
+            0,
+
+            "total_faltas":
+            0,
+
+            "eventos":
+            []
+
+        })
+
+
+# =====================================================
 # RUN LOCAL
-# =========================
+# =====================================================
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
