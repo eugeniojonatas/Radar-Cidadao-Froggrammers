@@ -1,178 +1,458 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Perfil Parlamentar | Radar Cidadão</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
 
-<body>
-<header class="navbar">
-    <a href="/" class="logo">RADAR<span>CIDADÃO</span></a>
-    <nav>
+  <body>
+    <header class="navbar">
+      <a href="/" class="logo">RADAR<span>CIDADÃO</span></a>
+      <nav>
         <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/deputados.html">Deputados</a></li>
-            <li><a href="/relatorios.html">Relatórios</a></li>
-            <li><a href="/graficos.html">Gráficos</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/deputados.html">Deputados</a></li>
+          <li><a href="/relatorios.html">Relatórios</a></li>
+          <li><a href="/graficos.html">Gráficos</a></li>
         </ul>
-    </nav>
-</header>
+      </nav>
+    </header>
 
-<main class="container">
-<div style="display:grid; grid-template-columns:320px 1fr; gap:30px; margin-top:20px;">
+    <main class="container">
+      <div
+        style="
+          display: grid;
+          grid-template-columns: 320px 1fr;
+          gap: 30px;
+          margin-top: 20px;
+        "
+      >
+        <aside>
+          <div
+            class="card"
+            style="text-align: center; position: sticky; top: 20px"
+          >
+            <div
+              style="
+                min-height: 250px;
+                background: #f0f0f0;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <img
+                id="dep-foto"
+                style="width: 100%; border-radius: 8px; display: none"
+              />
+              <span id="txt-foto">Carregando foto...</span>
+            </div>
 
-<aside>
-    <div class="card" style="text-align:center; position:sticky; top:20px;">
-        <div style="min-height:250px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-            <img id="dep-foto" style="width:100%; border-radius:8px; display:none;">
-            <span id="txt-foto">Carregando foto...</span>
-        </div>
-        <h2 id="dep-nome" style="margin:15px 0; color:var(--primary);">Carregando...</h2>
-        <div style="text-align:left; padding:10px; background:#f9f9f9; border-radius:5px;">
-            <p><strong>Partido:</strong> <span id="dep-partido">-</span></p>
-            <p><strong>UF:</strong> <span id="dep-uf">-</span></p>
-        </div>
-    </div>
-</aside>
+            <h2 id="dep-nome" style="margin: 15px 0; color: var(--primary)">
+              Carregando...
+            </h2>
 
-<section>
-    <div class="card" style="margin-bottom:25px; border-left:5px solid var(--secondary); display:flex; justify-content:space-between;">
-        <div>
-            <h3 style="font-size:0.8rem;">Total Acumulado (2025-2026)</h3>
-            <h2 id="dep-total" style="font-size:2.5rem;">R$ 0,00</h2>
-        </div>
-        <div id="status-carregamento" style="font-size:0.8rem;">Iniciando...</div>
-    </div>
+            <div
+              style="
+                text-align: left;
+                padding: 10px;
+                background: #f9f9f9;
+                border-radius: 5px;
+              "
+            >
+              <p><strong>Partido:</strong> <span id="dep-partido">-</span></p>
+              <p><strong>UF:</strong> <span id="dep-uf">-</span></p>
+            </div>
+          </div>
+        </aside>
 
-    <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3>Extrato de Despesas</h3>
-            <!-- Novo Filtro -->
-            <select id="filtro-tipo" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+        <section>
+          <!-- TOTAL GASTOS -->
+          <div
+            class="card"
+            style="
+              margin-bottom: 25px;
+              border-left: 5px solid var(--secondary);
+              display: flex;
+              justify-content: space-between;
+            "
+          >
+            <div>
+              <h3 style="font-size: 0.8rem">Total Acumulado (2025-2026)</h3>
+              <h2 id="dep-total" style="font-size: 2.5rem">R$ 0,00</h2>
+            </div>
+
+            <div id="status-carregamento" style="font-size: 0.8rem">
+              Iniciando...
+            </div>
+          </div>
+
+          <!-- GASTOS -->
+          <div class="card">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+              "
+            >
+              <h3>Extrato de Despesas</h3>
+
+              <select
+                id="filtro-tipo"
+                style="padding: 8px; border-radius: 5px; border: 1px solid #ccc"
+              >
                 <option value="todos">Todos os tipos de gastos</option>
-            </select>
-        </div>
+              </select>
+            </div>
 
-        <div style="max-height:600px; overflow:auto;">
-            <table style="width:100%;">
+            <div style="max-height: 600px; overflow: auto">
+              <table style="width: 100%">
                 <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Despesa</th>
-                        <th style="text-align:right;">Valor</th>
-                    </tr>
+                  <tr>
+                    <th>Data</th>
+                    <th>Despesa</th>
+                    <th style="text-align: right">Valor</th>
+                  </tr>
                 </thead>
+
                 <tbody id="tabela-gastos"></tbody>
-            </table>
-        </div>
-    </div>
-</section>
-</div>
-</main>
+              </table>
+            </div>
+          </div>
 
-<script>
-const id = new URLSearchParams(window.location.search).get('id');
-let todosOsGastos = []; // Armazena a lista original para filtrar localmente
+          <!-- ====================================================== -->
+          <!-- PRESENÇAS -->
+          <!-- ====================================================== -->
 
-async function init() {
-    if (!id) return;
-    await carregarPerfil();
-    await carregarGastos();
-}
+          <div class="card" style="margin-top: 25px">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+              "
+            >
+              <h3>Presenças em Eventos</h3>
 
-async function carregarPerfil() {
-    const img = document.getElementById("dep-foto");
-    const txt = document.getElementById("txt-foto");
-    try {
-        const res = await fetch(`/api/deputado/${id}`);
-        const d = await res.json();
-        document.getElementById("dep-nome").innerText = d.nome || "Sem nome";
-        document.getElementById("dep-partido").innerText = d.partido || "-";
-        document.getElementById("dep-uf").innerText = d.uf || "-";
-        if (d.foto) {
+              <div
+                style="
+                  background: rgba(11, 95, 255, 0.08);
+                  padding: 10px 18px;
+                  border-radius: 10px;
+                  color: var(--primary);
+                  font-weight: bold;
+                "
+              >
+                Total:
+                <span id="total-presencas">0</span>
+              </div>
+            </div>
+
+            <!-- CARDS -->
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                margin-bottom: 20px;
+              "
+            >
+              <div
+                style="
+                  background: #f8f9ff;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border-left: 4px solid #0b5fff;
+                "
+              >
+                <small>Presenças 2025</small>
+                <h2 id="presenca-2025">0</h2>
+              </div>
+
+              <div
+                style="
+                  background: #f8fff8;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border-left: 4px solid #00a86b;
+                "
+              >
+                <small>Presenças 2026</small>
+                <h2 id="presenca-2026">0</h2>
+              </div>
+
+              <div
+                style="
+                  background: #fff8f2;
+                  padding: 15px;
+                  border-radius: 10px;
+                  border-left: 4px solid #ff8800;
+                "
+              >
+                <small>Eventos Registrados</small>
+                <h2 id="eventos-count">0</h2>
+              </div>
+            </div>
+
+            <!-- TABELA -->
+            <div style="max-height: 600px; overflow: auto">
+              <table style="width: 100%">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Evento</th>
+                  </tr>
+                </thead>
+
+                <tbody id="tabela-presencas"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const id = new URLSearchParams(window.location.search).get("id");
+
+      let todosOsGastos = [];
+
+      // =========================================================
+      // INIT
+      // =========================================================
+
+      async function init() {
+        if (!id) return;
+
+        await carregarPerfil();
+
+        await carregarGastos();
+
+        await carregarPresencas();
+      }
+
+      // =========================================================
+      // PERFIL
+      // =========================================================
+
+      async function carregarPerfil() {
+        const img = document.getElementById("dep-foto");
+
+        const txt = document.getElementById("txt-foto");
+
+        try {
+          const res = await fetch(`/api/deputado/${id}`);
+
+          const d = await res.json();
+
+          document.getElementById("dep-nome").innerText = d.nome || "Sem nome";
+
+          document.getElementById("dep-partido").innerText = d.partido || "-";
+
+          document.getElementById("dep-uf").innerText = d.uf || "-";
+
+          if (d.foto) {
             img.src = d.foto;
+
             img.style.display = "block";
+
             txt.style.display = "none";
-        } else {
+          } else {
             txt.innerText = "Sem foto";
+          }
+        } catch {
+          txt.innerText = "Erro ao carregar";
         }
-    } catch {
-        txt.innerText = "Erro ao carregar";
-    }
-}
+      }
 
-async function carregarGastos() {
-    const status = document.getElementById("status-carregamento");
-    try {
-        const res = await fetch(`/api/gastos/${id}`);
-        todosOsGastos = await res.json();
+      // =========================================================
+      // GASTOS
+      // =========================================================
 
-        status.innerText = "Processando...";
+      async function carregarGastos() {
+        const status = document.getElementById("status-carregamento");
 
-        todosOsGastos.sort((a,b) => new Date(b.dataDocumento) - new Date(a.dataDocumento));
+        try {
+          const res = await fetch(`/api/gastos/${id}`);
 
-        popularFiltro(todosOsGastos);
-        renderTabela(todosOsGastos);
+          todosOsGastos = await res.json();
 
-        status.innerText = "Finalizado";
-        status.style.color = "green";
-    } catch {
-        status.innerText = "Erro";
-        status.style.color = "red";
-    }
-}
+          status.innerText = "Processando...";
 
-// Preenche o <select> com os tipos únicos de despesas
-function popularFiltro(lista) {
-    const filtro = document.getElementById("filtro-tipo");
-    const tipos = [...new Set(lista.map(g => g.tipoDespesa))].sort();
-    
-    tipos.forEach(tipo => {
-        if (tipo) {
+          todosOsGastos.sort(
+            (a, b) => new Date(b.dataDocumento) - new Date(a.dataDocumento),
+          );
+
+          popularFiltro(todosOsGastos);
+
+          renderTabela(todosOsGastos);
+
+          status.innerText = "Finalizado";
+
+          status.style.color = "green";
+        } catch {
+          status.innerText = "Erro";
+
+          status.style.color = "red";
+        }
+      }
+
+      // =========================================================
+      // FILTRO
+      // =========================================================
+
+      function popularFiltro(lista) {
+        const filtro = document.getElementById("filtro-tipo");
+
+        const tipos = [...new Set(lista.map((g) => g.tipoDespesa))].sort();
+
+        tipos.forEach((tipo) => {
+          if (tipo) {
             const option = document.createElement("option");
+
             option.value = tipo;
+
             option.innerText = tipo;
+
             filtro.appendChild(option);
-        }
-    });
+          }
+        });
 
-    filtro.addEventListener("change", (e) => {
-        const selecionado = e.target.value;
-        const listaFiltrada = selecionado === "todos" 
-            ? todosOsGastos 
-            : todosOsGastos.filter(g => g.tipoDespesa === selecionado);
-        renderTabela(listaFiltrada);
-    });
-}
+        filtro.addEventListener("change", (e) => {
+          const selecionado = e.target.value;
 
-function renderTabela(lista) {
-    const tabela = document.getElementById("tabela-gastos");
-    const totalEl = document.getElementById("dep-total");
-    let total = 0;
+          const listaFiltrada =
+            selecionado === "todos"
+              ? todosOsGastos
+              : todosOsGastos.filter((g) => g.tipoDespesa === selecionado);
 
-    tabela.innerHTML = lista.map(g => {
-        const valor = g.valorDocumento || 0;
-        total += valor;
-        const data = g.dataDocumento
-            ? g.dataDocumento.split("T")[0].split("-").reverse().join("/")
-            : "-";
+          renderTabela(listaFiltrada);
+        });
+      }
 
-        return `
+      // =========================================================
+      // TABELA GASTOS
+      // =========================================================
+
+      function renderTabela(lista) {
+        const tabela = document.getElementById("tabela-gastos");
+
+        const totalEl = document.getElementById("dep-total");
+
+        let total = 0;
+
+        tabela.innerHTML = lista
+          .map((g) => {
+            const valor = g.valorDocumento || 0;
+
+            total += valor;
+
+            const data = g.dataDocumento
+              ? g.dataDocumento.split("T")[0].split("-").reverse().join("/")
+              : "-";
+
+            return `
         <tr>
             <td>${data}</td>
+
             <td>${g.tipoDespesa || "-"}</td>
+
             <td style="text-align:right;">
-                ${valor.toLocaleString('pt-br',{style:'currency',currency:'BRL'})}
+                ${valor.toLocaleString("pt-br", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
             </td>
         </tr>
         `;
-    }).join("");
+          })
+          .join("");
 
-    totalEl.innerText = total.toLocaleString('pt-br',{style:'currency',currency:'BRL'});
-}
+        totalEl.innerText = total.toLocaleString("pt-br", {
+          style: "currency",
+          currency: "BRL",
+        });
+      }
 
-init();
-</script>
-</body>
+      // =========================================================
+      // PRESENÇAS
+      // =========================================================
+
+      async function carregarPresencas() {
+        const links = [
+          "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_1.json",
+
+          "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_2.json",
+
+          "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_3.json",
+
+          "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_4.json",
+        ];
+
+        try {
+          const responses = await Promise.all(links.map((link) => fetch(link)));
+
+          const partes = await Promise.all(responses.map((r) => r.json()));
+
+          const deputados = partes.flat();
+
+          const deputado = deputados.find(
+            (d) => String(d.deputado_id) === String(id),
+          );
+
+          if (!deputado) return;
+
+          document.getElementById("total-presencas").innerText =
+            deputado.total_presencas || 0;
+
+          document.getElementById("presenca-2025").innerText =
+            deputado.presencas_2025 || 0;
+
+          document.getElementById("presenca-2026").innerText =
+            deputado.presencas_2026 || 0;
+
+          document.getElementById("eventos-count").innerText =
+            deputado.eventos?.length || 0;
+
+          const tabela = document.getElementById("tabela-presencas");
+
+          const eventosOrdenados = [...deputado.eventos].sort(
+            (a, b) => new Date(b.data) - new Date(a.data),
+          );
+
+          tabela.innerHTML = eventosOrdenados
+            .map((evento) => {
+              const data = evento.data
+                ? evento.data.split("T")[0].split("-").reverse().join("/")
+                : "-";
+
+              return `
+                    <tr>
+
+                        <td>${data}</td>
+
+                        <td>
+                            ${evento.descricao || "Sem descrição"}
+                        </td>
+
+                    </tr>
+                `;
+            })
+            .join("");
+        } catch (err) {
+          console.error("Erro presenças", err);
+        }
+      }
+
+      init();
+    </script>
+  </body>
 </html>
