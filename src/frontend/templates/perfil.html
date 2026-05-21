@@ -599,14 +599,15 @@ async function carregarPresencas() {
 
         const links = [
 
-            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_1.json",
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_1.json",
 
-            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_2.json",
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_2.json",
 
-            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_3.json",
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_3.json",
 
-            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_4.json"
-        ];
+    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_4.json"
+
+];
 
         const responses = await Promise.all(
             links.map(link => fetch(link))
