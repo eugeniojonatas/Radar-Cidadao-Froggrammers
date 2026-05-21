@@ -176,7 +176,6 @@
 
         </div>
 
-        <!-- DIMINUIDO -->
         <div style="
             max-height:320px;
             overflow:auto;
@@ -332,7 +331,12 @@ let todosOsGastos = [];
 
 async function init() {
 
-    if (!id) return;
+    if (!id) {
+        console.log("ID não encontrado na URL");
+        return;
+    }
+
+    console.log("ID URL:", id);
 
     await carregarPerfil();
 
@@ -379,7 +383,9 @@ async function carregarPerfil() {
             txt.innerText = "Sem foto";
         }
 
-    } catch {
+    } catch (err) {
+
+        console.error(err);
 
         txt.innerText = "Erro ao carregar";
     }
@@ -423,7 +429,9 @@ async function carregarGastos() {
         status.style.color =
             "green";
 
-    } catch {
+    } catch (err) {
+
+        console.error(err);
 
         status.innerText =
             "Erro";
@@ -581,45 +589,53 @@ async function carregarPresencas() {
             "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_4.json"
         ];
 
-        // ============================================
-        // BUSCAR TODOS OS JSONS
-        // ============================================
-
         const responses = await Promise.all(
-
-            links.map(
-                link => fetch(link)
-            )
+            links.map(link => fetch(link))
         );
 
-        // ============================================
-        // TRANSFORMAR EM JSON
-        // ============================================
-
-        const partes = await Promise.all(
-
-            responses.map(
-                r => r.json()
-            )
+        const jsons = await Promise.all(
+            responses.map(r => r.json())
         );
 
-        // ============================================
-        // JUNTAR TODOS
-        // ============================================
+        console.log("JSONS:", jsons);
 
-        const deputados = partes.flat();
+        let deputados = [];
+
+        jsons.forEach(parte => {
+
+            if (Array.isArray(parte)) {
+
+                deputados.push(...parte);
+
+            } else if (parte.dados) {
+
+                deputados.push(...parte.dados);
+
+            }
+
+        });
 
         console.log("TOTAL DEPUTADOS:", deputados.length);
 
-        // ============================================
-        // ENCONTRAR DEPUTADO
-        // ============================================
+        console.log("PRIMEIRO DEPUTADO:", deputados[0]);
 
-        const deputado = deputados.find(
+        const deputado = deputados.find(d => {
 
-            d => String(d.idDeputado) === String(id)
+            return (
 
-        );
+                String(d.idDeputado) === String(id)
+
+                ||
+
+                String(d.deputado_id) === String(id)
+
+                ||
+
+                String(d.id) === String(id)
+
+            );
+
+        });
 
         console.log("DEPUTADO ENCONTRADO:", deputado);
 
@@ -630,54 +646,63 @@ async function carregarPresencas() {
             return;
         }
 
-        // ============================================
         // TOTAL
-        // ============================================
-
         document.getElementById(
             "total-presencas"
-        ).innerText = deputado.totalPresencas || 0;
+        ).innerText =
 
-        // ============================================
+            deputado.totalPresencas
+            ||
+
+            deputado.total_presencas
+            ||
+
+            0;
+
         // 2025
-        // ============================================
-
         document.getElementById(
             "presenca-2025"
-        ).innerText = deputado.presencas2025 || 0;
+        ).innerText =
 
-        // ============================================
+            deputado.presencas2025
+            ||
+
+            deputado.presencas_2025
+            ||
+
+            0;
+
         // 2026
-        // ============================================
-
         document.getElementById(
             "presenca-2026"
-        ).innerText = deputado.presencas2026 || 0;
+        ).innerText =
 
-        // ============================================
+            deputado.presencas2026
+            ||
+
+            deputado.presencas_2026
+            ||
+
+            0;
+
         // EVENTOS
-        // ============================================
+        const eventos = deputado.eventos || [];
 
         document.getElementById(
             "eventos-count"
-        ).innerText = deputado.eventos?.length || 0;
+        ).innerText = eventos.length;
 
-        // ============================================
         // TABELA
-        // ============================================
-
-        const tabela = document.getElementById(
-            "tabela-presencas"
-        );
+        const tabela =
+            document.getElementById(
+                "tabela-presencas"
+            );
 
         const eventosOrdenados =
-            [...deputado.eventos]
-            .sort(
-
+            [...eventos].sort(
                 (a,b) =>
                     new Date(b.data)
                     - new Date(a.data)
-
             );
 
         tabela.innerHTML = eventosOrdenados.map(evento => {
@@ -707,11 +732,12 @@ async function carregarPresencas() {
     } catch(err) {
 
         console.error(
-            "Erro ao carregar presenças:",
+            "ERRO PRESENÇAS:",
             err
         );
     }
 }
+
 init();
 
 </script>
