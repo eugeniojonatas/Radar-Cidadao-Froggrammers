@@ -290,7 +290,7 @@
 
         </div>
 
-        <!-- TABELA -->
+        <!-- TABELA PRESENÇAS -->
         <div style="
             max-height:320px;
             overflow:auto;
@@ -331,13 +331,7 @@ let todosOsGastos = [];
 
 async function init() {
 
-    if (!id) {
-
-        console.log("ID não encontrado");
-        return;
-    }
-
-    console.log("ID URL:", id);
+    if (!id) return;
 
     await carregarPerfil();
 
@@ -384,9 +378,7 @@ async function carregarPerfil() {
             txt.innerText = "Sem foto";
         }
 
-    } catch(err) {
-
-        console.error(err);
+    } catch {
 
         txt.innerText = "Erro ao carregar";
     }
@@ -430,9 +422,7 @@ async function carregarGastos() {
         status.style.color =
             "green";
 
-    } catch(err) {
-
-        console.error(err);
+    } catch {
 
         status.innerText =
             "Erro";
@@ -579,72 +569,32 @@ async function carregarPresencas() {
 
     try {
 
-        console.log("BUSCANDO PRESENÇAS...");
-
         const links = [
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_1.json",
+            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_1.json",
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_2.json",
+            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_2.json",
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_3.json",
+            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_3.json",
 
-            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_4.json"
+            "https://cdn.jsdelivr.net/gh/daviespedro/presenca_do_deputado@main/deputados_parte_4.json"
         ];
 
-        // =========================================
-        // FETCH
-        // =========================================
-
         const responses = await Promise.all(
-
             links.map(link => fetch(link))
-
         );
-
-        // =========================================
-        // JSON
-        // =========================================
 
         const partes = await Promise.all(
-
             responses.map(r => r.json())
-
         );
-
-        // =========================================
-        // JUNTAR
-        // =========================================
 
         const deputados = partes.flat();
 
-        console.log("TOTAL JSON:", deputados.length);
+        const deputado = deputados.find(
 
-        console.log("PRIMEIRO:", deputados[0]);
+            d => String(d.deputado_id) === String(id)
 
-        // =========================================
-        // PROCURAR
-        // =========================================
-
-        const deputado = deputados.find(d => {
-
-            return (
-
-                String(d.deputado_id).trim()
-
-                ===
-
-                String(id).trim()
-
-            );
-
-        });
-
-        console.log("DEPUTADO ACHADO:", deputado);
-
-        // =========================================
-        // NÃO ACHOU
-        // =========================================
+        );
 
         if (!deputado) {
 
@@ -667,39 +617,35 @@ async function carregarPresencas() {
             return;
         }
 
-        // =========================================
-        // CARDS
-        // =========================================
-
+        // TOTAL
         document.getElementById(
             "total-presencas"
         ).innerText =
 
             deputado.total_presencas || 0;
 
+        // 2025
         document.getElementById(
             "presenca-2025"
         ).innerText =
 
             deputado.presencas_2025 || 0;
 
+        // 2026
         document.getElementById(
             "presenca-2026"
         ).innerText =
 
             deputado.presencas_2026 || 0;
 
-        const eventos =
-            deputado.eventos || [];
+        // EVENTOS
+        const eventos = deputado.eventos || [];
 
         document.getElementById(
             "eventos-count"
         ).innerText = eventos.length;
 
-        // =========================================
         // TABELA
-        // =========================================
-
         const tabela =
             document.getElementById(
                 "tabela-presencas"
@@ -707,47 +653,31 @@ async function carregarPresencas() {
 
         const eventosOrdenados =
             [...eventos].sort(
-
                 (a,b) =>
-
                     new Date(b.data)
-
-                    -
-
-                    new Date(a.data)
-
+                    - new Date(a.data)
             );
 
         tabela.innerHTML = eventosOrdenados.map(evento => {
 
             const data = evento.data
-
-                ?
-
-                evento.data
+                ? evento.data
                     .split("T")[0]
                     .split("-")
                     .reverse()
                     .join("/")
-
-                :
-
-                "-";
+                : "-";
 
             return `
-
                 <tr>
 
                     <td>${data}</td>
 
                     <td>
-
                         ${evento.descricao || "Sem descrição"}
-
                     </td>
 
                 </tr>
-
             `;
 
         }).join("");
@@ -758,7 +688,6 @@ async function carregarPresencas() {
             "ERRO PRESENÇAS:",
             err
         );
-
     }
 }
 
