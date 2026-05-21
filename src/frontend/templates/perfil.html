@@ -243,7 +243,6 @@
             margin-bottom:20px;
         ">
 
-            <!-- PRESENÇAS 2025 -->
             <div style="
                 background:#f8f9ff;
                 padding:15px;
@@ -259,7 +258,6 @@
 
             </div>
 
-            <!-- PRESENÇAS 2026 -->
             <div style="
                 background:#f8fff8;
                 padding:15px;
@@ -275,7 +273,6 @@
 
             </div>
 
-            <!-- TOTAL EVENTOS -->
             <div style="
                 background:#fff8f2;
                 padding:15px;
@@ -291,7 +288,6 @@
 
             </div>
 
-            <!-- TOTAL PRESENÇAS -->
             <div style="
                 background:#f4fff7;
                 padding:15px;
@@ -307,7 +303,6 @@
 
             </div>
 
-            <!-- TOTAL FALTAS -->
             <div style="
                 background:#fff4f4;
                 padding:15px;
@@ -597,89 +592,64 @@ async function carregarPresencas() {
 
     try {
 
-        const links = [
+        const res = await fetch(`/api/presencas/${id}`);
 
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_1.json",
-
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_2.json",
-
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_3.json",
-
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_4.json"
-
-];
-
-        const responses = await Promise.all(
-            links.map(link => fetch(link))
-        );
-
-        const partes = await Promise.all(
-            responses.map(r => r.json())
-        );
-
-        const deputados = partes.flat();
-
-        const deputado = deputados.find(
-            d => String(d.deputado_id) === String(id)
-        );
-
-        if (!deputado) {
-
-            document.getElementById(
-                "tabela-presencas"
-            ).innerHTML = `
-
-                <tr>
-
-                    <td colspan="3">
-
-                        Nenhuma presença encontrada
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-        }
+        const deputado = await res.json();
 
         const eventos = deputado.eventos || [];
 
-        const totalPresencas =
-            deputado.total_presencas || 0;
-
-        const totalEventos =
-            eventos.length;
-
-        const totalFaltas =
-            totalEventos - totalPresencas;
-
         document.getElementById(
             "total-presencas"
-        ).innerText = totalPresencas;
+        ).innerText =
+            deputado.total_presencas || 0;
 
         document.getElementById(
             "total-presencas-card"
-        ).innerText = totalPresencas;
-
-        document.getElementById(
-            "presenca-2025"
         ).innerText =
-            deputado.presencas_2025 || 0;
-
-        document.getElementById(
-            "presenca-2026"
-        ).innerText =
-            deputado.presencas_2026 || 0;
+            deputado.total_presencas || 0;
 
         document.getElementById(
             "eventos-total"
-        ).innerText = totalEventos;
+        ).innerText =
+            deputado.total_eventos || 0;
 
         document.getElementById(
             "faltas-count"
-        ).innerText = totalFaltas;
+        ).innerText =
+            deputado.total_faltas || 0;
+
+        // =========================
+        // CONTAR 2025 / 2026
+        // =========================
+
+        let presencas2025 = 0;
+        let presencas2026 = 0;
+
+        eventos.forEach(evento => {
+
+            if (evento.status === "presente") {
+
+                if (evento.data?.includes("2025")) {
+                    presencas2025++;
+                }
+
+                if (evento.data?.includes("2026")) {
+                    presencas2026++;
+                }
+            }
+        });
+
+        document.getElementById(
+            "presenca-2025"
+        ).innerText = presencas2025;
+
+        document.getElementById(
+            "presenca-2026"
+        ).innerText = presencas2026;
+
+        // =========================
+        // TABELA
+        // =========================
 
         const tabela =
             document.getElementById(
@@ -710,7 +680,7 @@ async function carregarPresencas() {
                 : "-";
 
             const status =
-                evento.presente
+                evento.status === "presente"
                 ? "✅ Presente"
                 : "❌ Falta";
 
@@ -721,15 +691,11 @@ async function carregarPresencas() {
                     <td>${data}</td>
 
                     <td>
-
                         ${evento.descricao || "Sem descrição"}
-
                     </td>
 
                     <td>
-
                         ${status}
-
                     </td>
 
                 </tr>
@@ -744,6 +710,22 @@ async function carregarPresencas() {
             "ERRO PRESENÇAS:",
             err
         );
+
+        document.getElementById(
+            "tabela-presencas"
+        ).innerHTML = `
+
+            <tr>
+
+                <td colspan="3">
+
+                    Erro ao carregar presenças
+
+                </td>
+
+            </tr>
+
+        `;
     }
 }
 
