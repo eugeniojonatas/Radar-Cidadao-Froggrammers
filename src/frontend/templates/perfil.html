@@ -581,88 +581,116 @@ async function carregarPresencas() {
             "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/main/deputados_parte_4.json"
         ];
 
+        // ============================================
+        // BUSCAR TODOS OS JSONS
+        // ============================================
+
         const responses = await Promise.all(
+
             links.map(
                 link => fetch(link)
             )
         );
 
+        // ============================================
+        // TRANSFORMAR EM JSON
+        // ============================================
+
         const partes = await Promise.all(
+
             responses.map(
                 r => r.json()
             )
         );
 
-        const deputados =
-            partes.flat();
+        // ============================================
+        // JUNTAR TODOS
+        // ============================================
 
-        const deputado =
-            deputados.find(
-                d =>
-                    String(d.deputado_id)
-                    === String(id)
-            );
+        const deputados = partes.flat();
+
+        console.log("TOTAL DEPUTADOS:", deputados.length);
+
+        // ============================================
+        // ENCONTRAR DEPUTADO
+        // ============================================
+
+        const deputado = deputados.find(
+
+            d => String(d.idDeputado) === String(id)
+
+        );
+
+        console.log("DEPUTADO ENCONTRADO:", deputado);
 
         if (!deputado) {
 
-            console.log(
-                "Deputado não encontrado nas presenças"
-            );
+            console.log("Deputado não encontrado");
 
             return;
         }
 
+        // ============================================
         // TOTAL
+        // ============================================
+
         document.getElementById(
             "total-presencas"
-        ).innerText =
-            deputado.total_presencas || 0;
+        ).innerText = deputado.totalPresencas || 0;
 
+        // ============================================
         // 2025
+        // ============================================
+
         document.getElementById(
             "presenca-2025"
-        ).innerText =
-            deputado.presencas_2025 || 0;
+        ).innerText = deputado.presencas2025 || 0;
 
+        // ============================================
         // 2026
+        // ============================================
+
         document.getElementById(
             "presenca-2026"
-        ).innerText =
-            deputado.presencas_2026 || 0;
+        ).innerText = deputado.presencas2026 || 0;
 
+        // ============================================
         // EVENTOS
+        // ============================================
+
         document.getElementById(
             "eventos-count"
-        ).innerText =
-            deputado.eventos?.length || 0;
+        ).innerText = deputado.eventos?.length || 0;
 
+        // ============================================
         // TABELA
-        const tabela =
-            document.getElementById(
-                "tabela-presencas"
-            );
+        // ============================================
+
+        const tabela = document.getElementById(
+            "tabela-presencas"
+        );
 
         const eventosOrdenados =
             [...deputado.eventos]
             .sort(
+
                 (a,b) =>
                     new Date(b.data)
                     - new Date(a.data)
+
             );
 
-        tabela.innerHTML =
-            eventosOrdenados.map(evento => {
+        tabela.innerHTML = eventosOrdenados.map(evento => {
 
-                const data =
-                    evento.data
-                    ? evento.data
-                        .split("T")[0]
-                        .split("-")
-                        .reverse()
-                        .join("/")
-                    : "-";
+            const data = evento.data
+                ? evento.data
+                    .split("T")[0]
+                    .split("-")
+                    .reverse()
+                    .join("/")
+                : "-";
 
-                return `
+            return `
                 <tr>
 
                     <td>${data}</td>
@@ -672,8 +700,9 @@ async function carregarPresencas() {
                     </td>
 
                 </tr>
-                `;
-            }).join("");
+            `;
+
+        }).join("");
 
     } catch(err) {
 
@@ -683,7 +712,6 @@ async function carregarPresencas() {
         );
     }
 }
-
 init();
 
 </script>
