@@ -238,11 +238,12 @@
         <!-- CARDS -->
         <div style="
             display:grid;
-            grid-template-columns:repeat(3,1fr);
+            grid-template-columns:repeat(5,1fr);
             gap:15px;
             margin-bottom:20px;
         ">
 
+            <!-- PRESENÇAS 2025 -->
             <div style="
                 background:#f8f9ff;
                 padding:15px;
@@ -258,6 +259,7 @@
 
             </div>
 
+            <!-- PRESENÇAS 2026 -->
             <div style="
                 background:#f8fff8;
                 padding:15px;
@@ -273,6 +275,7 @@
 
             </div>
 
+            <!-- TOTAL EVENTOS -->
             <div style="
                 background:#fff8f2;
                 padding:15px;
@@ -280,9 +283,41 @@
                 border-left:4px solid #ff8800;
             ">
 
-                <small>Eventos Registrados</small>
+                <small>Total Eventos</small>
 
-                <h2 id="eventos-count">
+                <h2 id="eventos-total">
+                    0
+                </h2>
+
+            </div>
+
+            <!-- TOTAL PRESENÇAS -->
+            <div style="
+                background:#f4fff7;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #00c853;
+            ">
+
+                <small>Total Presenças</small>
+
+                <h2 id="total-presencas-card">
+                    0
+                </h2>
+
+            </div>
+
+            <!-- TOTAL FALTAS -->
+            <div style="
+                background:#fff4f4;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #ff3b30;
+            ">
+
+                <small>Total Faltas</small>
+
+                <h2 id="faltas-count">
                     0
                 </h2>
 
@@ -303,6 +338,7 @@
                     <tr>
                         <th>Data</th>
                         <th>Evento</th>
+                        <th>Status</th>
                     </tr>
 
                 </thead>
@@ -432,10 +468,6 @@ async function carregarGastos() {
     }
 }
 
-// =====================================================
-// FILTRO
-// =====================================================
-
 function popularFiltro(lista) {
 
     const filtro =
@@ -490,10 +522,6 @@ function popularFiltro(lista) {
         }
     );
 }
-
-// =====================================================
-// TABELA GASTOS
-// =====================================================
 
 function renderTabela(lista) {
 
@@ -591,9 +619,7 @@ async function carregarPresencas() {
         const deputados = partes.flat();
 
         const deputado = deputados.find(
-
             d => String(d.deputado_id) === String(id)
-
         );
 
         if (!deputado) {
@@ -604,7 +630,7 @@ async function carregarPresencas() {
 
                 <tr>
 
-                    <td colspan="2">
+                    <td colspan="3">
 
                         Nenhuma presença encontrada
 
@@ -617,35 +643,43 @@ async function carregarPresencas() {
             return;
         }
 
-        // TOTAL
-        document.getElementById(
-            "total-presencas"
-        ).innerText =
+        const eventos = deputado.eventos || [];
 
+        const totalPresencas =
             deputado.total_presencas || 0;
 
-        // 2025
+        const totalEventos =
+            eventos.length;
+
+        const totalFaltas =
+            totalEventos - totalPresencas;
+
+        document.getElementById(
+            "total-presencas"
+        ).innerText = totalPresencas;
+
+        document.getElementById(
+            "total-presencas-card"
+        ).innerText = totalPresencas;
+
         document.getElementById(
             "presenca-2025"
         ).innerText =
-
             deputado.presencas_2025 || 0;
 
-        // 2026
         document.getElementById(
             "presenca-2026"
         ).innerText =
-
             deputado.presencas_2026 || 0;
 
-        // EVENTOS
-        const eventos = deputado.eventos || [];
+        document.getElementById(
+            "eventos-total"
+        ).innerText = totalEventos;
 
         document.getElementById(
-            "eventos-count"
-        ).innerText = eventos.length;
+            "faltas-count"
+        ).innerText = totalFaltas;
 
-        // TABELA
         const tabela =
             document.getElementById(
                 "tabela-presencas"
@@ -653,9 +687,15 @@ async function carregarPresencas() {
 
         const eventosOrdenados =
             [...eventos].sort(
+
                 (a,b) =>
+
                     new Date(b.data)
-                    - new Date(a.data)
+
+                    -
+
+                    new Date(a.data)
+
             );
 
         tabela.innerHTML = eventosOrdenados.map(evento => {
@@ -668,16 +708,31 @@ async function carregarPresencas() {
                     .join("/")
                 : "-";
 
+            const status =
+                evento.presente
+                ? "✅ Presente"
+                : "❌ Falta";
+
             return `
+
                 <tr>
 
                     <td>${data}</td>
 
                     <td>
+
                         ${evento.descricao || "Sem descrição"}
+
+                    </td>
+
+                    <td>
+
+                        ${status}
+
                     </td>
 
                 </tr>
+
             `;
 
         }).join("");
