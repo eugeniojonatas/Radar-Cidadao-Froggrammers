@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Perfil Parlamentar | Radar Cidadão</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Perfil Parlamentar | Radar Cidadão
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
 </head>
 
 <body>
@@ -16,12 +25,33 @@
     </a>
 
     <nav>
+
         <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/deputados.html">Deputados</a></li>
-            <li><a href="/relatorios.html">Relatórios</a></li>
-            <li><a href="/graficos.html">Gráficos</a></li>
+
+            <li>
+                <a href="/">Home</a>
+            </li>
+
+            <li>
+                <a href="/deputados.html">
+                    Deputados
+                </a>
+            </li>
+
+            <li>
+                <a href="/relatorios.html">
+                    Relatórios
+                </a>
+            </li>
+
+            <li>
+                <a href="/graficos.html">
+                    Gráficos
+                </a>
+            </li>
+
         </ul>
+
     </nav>
 
 </header>
@@ -89,13 +119,27 @@
         ">
 
             <p>
-                <strong>Partido:</strong>
-                <span id="dep-partido">-</span>
+
+                <strong>
+                    Partido:
+                </strong>
+
+                <span id="dep-partido">
+                    -
+                </span>
+
             </p>
 
             <p>
-                <strong>UF:</strong>
-                <span id="dep-uf">-</span>
+
+                <strong>
+                    UF:
+                </strong>
+
+                <span id="dep-uf">
+                    -
+                </span>
+
             </p>
 
         </div>
@@ -111,6 +155,7 @@
 <section>
 
     <!-- TOTAL -->
+
     <div class="card" style="
         margin-bottom:25px;
         border-left:5px solid var(--secondary);
@@ -137,7 +182,7 @@
             id="status-carregamento"
             style="font-size:0.8rem;"
         >
-            Iniciando...
+            Carregando...
         </div>
 
     </div>
@@ -229,13 +274,16 @@
             ">
 
                 Total:
-                <span id="total-presencas">0</span>
+                <span id="total-presencas">
+                    0
+                </span>
 
             </div>
 
         </div>
 
         <!-- CARDS -->
+
         <div style="
             display:grid;
             grid-template-columns:repeat(5,1fr);
@@ -250,7 +298,9 @@
                 border-left:4px solid #0b5fff;
             ">
 
-                <small>Presenças 2025</small>
+                <small>
+                    Presenças 2025
+                </small>
 
                 <h2 id="presenca-2025">
                     0
@@ -265,7 +315,9 @@
                 border-left:4px solid #00a86b;
             ">
 
-                <small>Presenças 2026</small>
+                <small>
+                    Presenças 2026
+                </small>
 
                 <h2 id="presenca-2026">
                     0
@@ -280,7 +332,9 @@
                 border-left:4px solid #ff8800;
             ">
 
-                <small>Total Eventos</small>
+                <small>
+                    Total Eventos
+                </small>
 
                 <h2 id="eventos-total">
                     0
@@ -295,7 +349,9 @@
                 border-left:4px solid #00c853;
             ">
 
-                <small>Total Presenças</small>
+                <small>
+                    Total Presenças
+                </small>
 
                 <h2 id="total-presencas-card">
                     0
@@ -310,7 +366,9 @@
                 border-left:4px solid #ff3b30;
             ">
 
-                <small>Total Faltas</small>
+                <small>
+                    Total Faltas
+                </small>
 
                 <h2 id="faltas-count">
                     0
@@ -320,7 +378,8 @@
 
         </div>
 
-        <!-- TABELA PRESENÇAS -->
+        <!-- TABELA -->
+
         <div style="
             max-height:320px;
             overflow:auto;
@@ -352,7 +411,9 @@
 
 <script>
 
-const id = new URLSearchParams(window.location.search).get('id');
+const id = new URLSearchParams(
+    window.location.search
+).get('id');
 
 let todosOsGastos = [];
 
@@ -377,41 +438,92 @@ async function init() {
 
 async function carregarPerfil() {
 
-    const img = document.getElementById("dep-foto");
+    const img =
+        document.getElementById(
+            "dep-foto"
+        );
 
-    const txt = document.getElementById("txt-foto");
+    const txt =
+        document.getElementById(
+            "txt-foto"
+        );
 
     try {
 
-        const res = await fetch(`/api/deputado/${id}`);
+        // =====================================
+        // USAR JSON DE PRESENÇAS
+        // =====================================
 
-        const d = await res.json();
+        const urls = [
 
-        document.getElementById("dep-nome").innerText =
-            d.nome || "Sem nome";
+            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
 
-        document.getElementById("dep-partido").innerText =
-            d.partido || "-";
+            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte2.json",
 
-        document.getElementById("dep-uf").innerText =
-            d.uf || "-";
+            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte3.json"
 
-        if (d.foto) {
+        ];
 
-            img.src = d.foto;
+        const respostas = await Promise.all(
 
-            img.style.display = "block";
+            urls.map(url => fetch(url))
 
-            txt.style.display = "none";
+        );
 
-        } else {
+        const jsons = await Promise.all(
 
-            txt.innerText = "Sem foto";
+            respostas.map(r => r.json())
+
+        );
+
+        const deputados =
+            jsons.flat();
+
+        const d = deputados.find(
+
+            dep =>
+
+                String(dep.deputado_id)
+
+                ===
+
+                String(id)
+
+        );
+
+        if (!d) {
+
+            txt.innerText =
+                "Deputado não encontrado";
+
+            return;
         }
+
+        document.getElementById(
+            "dep-nome"
+        ).innerText = d.nome || "Sem nome";
+
+        document.getElementById(
+            "dep-partido"
+        ).innerText = d.siglaPartido || "-";
+
+        document.getElementById(
+            "dep-uf"
+        ).innerText = d.siglaUf || "-";
+
+        // FOTO OFICIAL
+
+        img.src =
+            `https://www.camara.leg.br/internet/deputado/bandep/${id}.jpg`;
+
+        img.style.display = "block";
+
+        txt.style.display = "none";
 
     } catch {
 
-        txt.innerText = "Erro ao carregar";
+        txt.innerText =
+            "Erro ao carregar";
     }
 }
 
@@ -428,30 +540,42 @@ async function carregarGastos() {
 
     try {
 
-        const res =
-            await fetch(`/api/gastos/${id}`);
+        const res = await fetch(
 
-        todosOsGastos =
-            await res.json();
+            `https://dadosabertos.camara.leg.br/api/v2/deputados/${id}/despesas?ordem=DESC&ordenarPor=ano`
 
-        status.innerText =
-            "Processando...";
-
-        todosOsGastos.sort(
-            (a,b) =>
-                new Date(b.dataDocumento)
-                - new Date(a.dataDocumento)
         );
 
-        popularFiltro(todosOsGastos);
+        const data = await res.json();
 
-        renderTabela(todosOsGastos);
+        todosOsGastos =
+            data.dados || [];
 
         status.innerText =
             "Finalizado";
 
         status.style.color =
             "green";
+
+        todosOsGastos.sort(
+
+            (a,b) =>
+
+                new Date(b.dataDocumento)
+
+                -
+
+                new Date(a.dataDocumento)
+
+        );
+
+        popularFiltro(
+            todosOsGastos
+        );
+
+        renderTabela(
+            todosOsGastos
+        );
 
     } catch {
 
@@ -463,6 +587,10 @@ async function carregarGastos() {
     }
 }
 
+// =====================================================
+// FILTRO
+// =====================================================
+
 function popularFiltro(lista) {
 
     const filtro =
@@ -471,11 +599,17 @@ function popularFiltro(lista) {
         );
 
     const tipos = [
+
         ...new Set(
+
             lista.map(
+
                 g => g.tipoDespesa
+
             )
+
         )
+
     ].sort();
 
     tipos.forEach(tipo => {
@@ -493,30 +627,51 @@ function popularFiltro(lista) {
 
             filtro.appendChild(option);
         }
+
     });
 
     filtro.addEventListener(
+
         "change",
+
         (e) => {
 
             const selecionado =
                 e.target.value;
 
             const listaFiltrada =
+
                 selecionado === "todos"
-                ? todosOsGastos
-                : todosOsGastos.filter(
+
+                ?
+
+                todosOsGastos
+
+                :
+
+                todosOsGastos.filter(
+
                     g =>
+
                         g.tipoDespesa
-                        === selecionado
+
+                        ===
+
+                        selecionado
+
                 );
 
             renderTabela(
                 listaFiltrada
             );
         }
+
     );
 }
+
+// =====================================================
+// RENDER GASTOS
+// =====================================================
 
 function renderTabela(lista) {
 
@@ -533,6 +688,7 @@ function renderTabela(lista) {
     let total = 0;
 
     tabela.innerHTML =
+
         lista.map(g => {
 
             const valor =
@@ -541,46 +697,63 @@ function renderTabela(lista) {
             total += valor;
 
             const data =
+
                 g.dataDocumento
-                ? g.dataDocumento
+
+                ?
+
+                g.dataDocumento
                     .split("T")[0]
                     .split("-")
                     .reverse()
                     .join("/")
-                : "-";
+
+                :
+
+                "-";
 
             return `
-            <tr>
 
-                <td>${data}</td>
+                <tr>
 
-                <td>
-                    ${g.tipoDespesa || "-"}
-                </td>
+                    <td>${data}</td>
 
-                <td style="text-align:right;">
+                    <td>
+                        ${g.tipoDespesa || "-"}
+                    </td>
 
-                    ${valor.toLocaleString(
-                        'pt-br',
-                        {
-                            style:'currency',
-                            currency:'BRL'
-                        }
-                    )}
+                    <td style="text-align:right;">
 
-                </td>
+                        ${valor.toLocaleString(
 
-            </tr>
+                            'pt-br',
+
+                            {
+                                style:'currency',
+                                currency:'BRL'
+                            }
+
+                        )}
+
+                    </td>
+
+                </tr>
+
             `;
+
         }).join("");
 
     totalEl.innerText =
+
         total.toLocaleString(
+
             'pt-br',
+
             {
                 style:'currency',
                 currency:'BRL'
             }
+
         );
 }
 
@@ -592,51 +765,100 @@ async function carregarPresencas() {
 
     try {
 
-        const res = await fetch(`/api/presencas/${id}`);
+        const urls = [
 
-        const deputado = await res.json();
+            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
 
-        const eventos = deputado.eventos || [];
+            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte2.json",
+
+            "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte3.json"
+
+        ];
+
+        const respostas = await Promise.all(
+
+            urls.map(url => fetch(url))
+
+        );
+
+        const jsons = await Promise.all(
+
+            respostas.map(r => r.json())
+
+        );
+
+        const todosDeputados =
+            jsons.flat();
+
+        const deputado =
+            todosDeputados.find(
+
+                d =>
+
+                    String(d.deputado_id)
+
+                    ===
+
+                    String(id)
+
+            );
+
+        if (!deputado) {
+
+            document.getElementById(
+                "tabela-presencas"
+            ).innerHTML = `
+
+                <tr>
+
+                    <td colspan="3">
+
+                        Nenhuma presença encontrada
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+        }
+
+        const eventos =
+            deputado.eventos || [];
 
         document.getElementById(
             "total-presencas"
         ).innerText =
-            deputado.total_presencas || 0;
+            eventos.length;
 
         document.getElementById(
             "total-presencas-card"
         ).innerText =
-            deputado.total_presencas || 0;
+            eventos.length;
 
         document.getElementById(
             "eventos-total"
         ).innerText =
-            deputado.total_eventos || 0;
+            eventos.length;
 
         document.getElementById(
             "faltas-count"
-        ).innerText =
-            deputado.total_faltas || 0;
-
-        // =========================
-        // CONTAR 2025 / 2026
-        // =========================
+        ).innerText = 0;
 
         let presencas2025 = 0;
         let presencas2026 = 0;
 
         eventos.forEach(evento => {
 
-            if (evento.status === "presente") {
-
-                if (evento.data?.includes("2025")) {
-                    presencas2025++;
-                }
-
-                if (evento.data?.includes("2026")) {
-                    presencas2026++;
-                }
+            if (evento.data?.includes("2025")) {
+                presencas2025++;
             }
+
+            if (evento.data?.includes("2026")) {
+                presencas2026++;
+            }
+
         });
 
         document.getElementById(
@@ -646,10 +868,6 @@ async function carregarPresencas() {
         document.getElementById(
             "presenca-2026"
         ).innerText = presencas2026;
-
-        // =========================
-        // TABELA
-        // =========================
 
         const tabela =
             document.getElementById(
@@ -671,18 +889,21 @@ async function carregarPresencas() {
 
         tabela.innerHTML = eventosOrdenados.map(evento => {
 
-            const data = evento.data
-                ? evento.data
+            const data =
+
+                evento.data
+
+                ?
+
+                evento.data
                     .split("T")[0]
                     .split("-")
                     .reverse()
                     .join("/")
-                : "-";
 
-            const status =
-                evento.status === "presente"
-                ? "✅ Presente"
-                : "❌ Falta";
+                :
+
+                "-";
 
             return `
 
@@ -691,11 +912,15 @@ async function carregarPresencas() {
                     <td>${data}</td>
 
                     <td>
-                        ${evento.descricao || "Sem descrição"}
+
+                        ${evento.descricao || evento.evento || "Sem descrição"}
+
                     </td>
 
                     <td>
-                        ${status}
+
+                        ✅ Presente
+
                     </td>
 
                 </tr>
