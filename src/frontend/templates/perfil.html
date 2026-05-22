@@ -608,7 +608,10 @@ async function carregarPresencas() {
 
         let deputado = null;
 
-        // procura deputado nos 3 jsons
+        // ============================================
+        // PROCURA NOS 3 JSONS
+        // ============================================
+
         for (const url of arquivosPresencas) {
 
             const res = await fetch(url);
@@ -616,13 +619,19 @@ async function carregarPresencas() {
             const lista = await res.json();
 
             deputado = lista.find(
-                d => String(d.deputado_id) === String(id)
+                d =>
+                    String(d.deputado_id)
+                    ===
+                    String(id)
             );
 
             if (deputado) break;
         }
 
-        // não encontrou
+        // ============================================
+        // NÃO ENCONTROU
+        // ============================================
+
         if (!deputado) {
 
             document.getElementById(
@@ -638,27 +647,46 @@ async function carregarPresencas() {
             return;
         }
 
-        const eventos = deputado.eventos || [];
+        const eventos =
+            deputado.eventos || [];
 
-        // =========================
-        // CALCULOS
-        // =========================
+        // ============================================
+        // CALCULAR PRESENÇAS E FALTAS
+        // ============================================
 
-        const totalEventos = eventos.length;
+        let totalPresencas = 0;
+        let totalFaltas = 0;
 
-        const totalPresencas = eventos.filter(
-            e =>
-                e.presente === true
+        eventos.forEach(evento => {
+
+            const statusTexto =
+                String(
+                    evento.status || ""
+                ).toLowerCase();
+
+            const presente =
+                evento.presente === true
                 ||
-                e.status === "presente"
-        ).length;
+                statusTexto.includes("presente")
+                ||
+                statusTexto.includes("compareceu");
 
-        const totalFaltas =
-            totalEventos - totalPresencas;
+            if (presente) {
 
-        // =========================
-        // CONTADORES
-        // =========================
+                totalPresencas++;
+
+            } else {
+
+                totalFaltas++;
+            }
+        });
+
+        const totalEventos =
+            totalPresencas + totalFaltas;
+
+        // ============================================
+        // CARDS
+        // ============================================
 
         document.getElementById(
             "total-presencas"
@@ -680,43 +708,92 @@ async function carregarPresencas() {
         ).innerText =
             totalFaltas;
 
-        // =========================
-        // CONTAR 2025 / 2026
-        // =========================
+        // ============================================
+// CONTAGEM POR ANO
+// ============================================
 
-        let presencas2025 = 0;
-        let presencas2026 = 0;
+let eventos2025 = 0;
+let eventos2026 = 0;
 
-        eventos.forEach(evento => {
+let presencas2025 = 0;
+let presencas2026 = 0;
 
-            const presente =
-                evento.presente === true
-                ||
-                evento.status === "presente";
+let faltas2025 = 0;
+let faltas2026 = 0;
 
-            if (presente) {
+eventos.forEach(evento => {
 
-                if (evento.data?.includes("2025")) {
-                    presencas2025++;
-                }
+    const statusTexto =
+        String(
+            evento.status || ""
+        ).toLowerCase();
 
-                if (evento.data?.includes("2026")) {
-                    presencas2026++;
-                }
-            }
-        });
+    const presente =
+        evento.presente === true
+        ||
+        statusTexto.includes("presente")
+        ||
+        statusTexto.includes("compareceu");
 
-        document.getElementById(
-            "presenca-2025"
-        ).innerText = presencas2025;
+    // =========================
+    // ANO 2025
+    // =========================
 
-        document.getElementById(
-            "presenca-2026"
-        ).innerText = presencas2026;
+    if (
+        evento.data &&
+        evento.data.includes("2025")
+    ) {
 
-        // =========================
+        eventos2025++;
+
+        if (presente) {
+
+            presencas2025++;
+
+        } else {
+
+            faltas2025++;
+        }
+    }
+
+    // =========================
+    // ANO 2026
+    // =========================
+
+    if (
+        evento.data &&
+        evento.data.includes("2026")
+    ) {
+
+        eventos2026++;
+
+        if (presente) {
+
+            presencas2026++;
+
+        } else {
+
+            faltas2026++;
+        }
+    }
+});
+
+// =========================
+// MOSTRAR NO HTML
+// =========================
+
+document.getElementById(
+    "presenca-2025"
+).innerText =
+    `${presencas2025} / ${eventos2025}`;
+
+document.getElementById(
+    "presenca-2026"
+).innerText =
+    `${presencas2026} / ${eventos2026}`;
+        // ============================================
         // TABELA
-        // =========================
+        // ============================================
 
         const tabela =
             document.getElementById(
@@ -739,7 +816,8 @@ async function carregarPresencas() {
         tabela.innerHTML =
             eventosOrdenados.map(evento => {
 
-            const data = evento.data
+            const data =
+                evento.data
                 ? evento.data
                     .split("T")[0]
                     .split("-")
@@ -747,10 +825,17 @@ async function carregarPresencas() {
                     .join("/")
                 : "-";
 
+            const statusTexto =
+                String(
+                    evento.status || ""
+                ).toLowerCase();
+
             const presente =
                 evento.presente === true
                 ||
-                evento.status === "presente";
+                statusTexto.includes("presente")
+                ||
+                statusTexto.includes("compareceu");
 
             const status =
                 presente
@@ -764,7 +849,13 @@ async function carregarPresencas() {
                     <td>${data}</td>
 
                     <td>
-                        ${evento.descricao || evento.evento || "Sem descrição"}
+                        ${
+                            evento.descricao
+                            ||
+                            evento.evento
+                            ||
+                            "Sem descrição"
+                        }
                     </td>
 
                     <td>
