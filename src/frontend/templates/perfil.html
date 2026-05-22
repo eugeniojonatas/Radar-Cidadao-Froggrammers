@@ -393,14 +393,14 @@ async function carregarPerfil() {
             d.nome || "Sem nome";
 
         document.getElementById("dep-partido").innerText =
-            d.partido || "-";
+            d.siglaPartido || d.partido || "-";
 
         document.getElementById("dep-uf").innerText =
-            d.uf || "-";
+            d.siglaUf || d.uf || "-";
 
-        if (d.foto) {
+        if (d.urlFoto || d.foto) {
 
-            img.src = d.foto;
+            img.src = d.urlFoto || d.foto;
 
             img.style.display = "block";
 
@@ -628,7 +628,7 @@ async function carregarPresencas() {
         const totalEventosJson =
             await resEventos.json();
 
-        // TOTAL EVENTOS POR ANO
+        // TOTAIS OFICIAIS
         const eventos2025 =
             totalEventosJson["2025"] || 0;
 
@@ -641,52 +641,59 @@ async function carregarPresencas() {
         const eventos =
             deputado.eventos || [];
 
+        // SOMENTE PRESENÇAS
+        const presencas =
+            eventos.filter(evento => {
+
+                const statusTexto =
+                    String(
+                        evento.status || ""
+                    ).toLowerCase();
+
+                return (
+                    evento.presente === true
+                    ||
+                    statusTexto.includes("presente")
+                    ||
+                    statusTexto.includes("compareceu")
+                );
+
+            });
+
+        // CONTADORES
         let presencas2025 = 0;
         let presencas2026 = 0;
 
-        // LOOP PRESENÇAS
-        eventos.forEach(evento => {
+        presencas.forEach(evento => {
 
-            const statusTexto =
-                String(
-                    evento.status || ""
-                ).toLowerCase();
-
-            const presente =
-                evento.presente === true
-                ||
-                statusTexto.includes("presente")
-                ||
-                statusTexto.includes("compareceu");
-
-            if (!presente) return;
-
-            // 2025
             if (
                 evento.data &&
                 evento.data.includes("2025")
             ) {
-
                 presencas2025++;
             }
 
-            // 2026
             if (
                 evento.data &&
                 evento.data.includes("2026")
             ) {
-
                 presencas2026++;
             }
 
         });
 
-        // TOTAIS
         const totalPresencas =
-            presencas2025 + presencas2026;
+            presencas.length;
 
         const totalFaltas =
             totalEventos - totalPresencas;
+
+        // PERCENTUAL
+        const percentual =
+            (
+                (totalPresencas / totalEventos)
+                * 100
+            ).toFixed(1);
 
         // CARDS
         document.getElementById(
@@ -709,15 +716,58 @@ async function carregarPresencas() {
         ).innerText =
             totalFaltas;
 
+        // ALTERAÇÃO AQUI ↓↓↓
         document.getElementById(
             "presenca-2025"
-        ).innerText =
-            `${presencas2025} / ${eventos2025}`;
+        ).innerHTML =
+            `
+            <div style="font-size:28px;">
+                ${presencas2025}
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#666;
+                margin-top:5px;
+            ">
+                de ${eventos2025} eventos
+            </div>
+            `;
 
         document.getElementById(
             "presenca-2026"
-        ).innerText =
-            `${presencas2026} / ${eventos2026}`;
+        ).innerHTML =
+            `
+            <div style="font-size:28px;">
+                ${presencas2026}
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#666;
+                margin-top:5px;
+            ">
+                de ${eventos2026} eventos
+            </div>
+            `;
+
+        // MOSTRAR %
+        document.getElementById(
+            "total-presencas-card"
+        ).innerHTML =
+            `
+            <div style="font-size:28px;">
+                ${totalPresencas}
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#666;
+                margin-top:5px;
+            ">
+                ${percentual}% de presença
+            </div>
+            `;
 
         // TABELA
         const tabela =
@@ -726,7 +776,7 @@ async function carregarPresencas() {
             );
 
         const eventosOrdenados =
-            [...eventos].sort(
+            [...presencas].sort(
                 (a,b) =>
                     new Date(b.data)
                     -
@@ -745,23 +795,6 @@ async function carregarPresencas() {
                     .join("/")
                 : "-";
 
-            const statusTexto =
-                String(
-                    evento.status || ""
-                ).toLowerCase();
-
-            const presente =
-                evento.presente === true
-                ||
-                statusTexto.includes("presente")
-                ||
-                statusTexto.includes("compareceu");
-
-            const status =
-                presente
-                ? "✅ Presente"
-                : "❌ Falta";
-
             return `
 
                 <tr>
@@ -778,8 +811,11 @@ async function carregarPresencas() {
                         }
                     </td>
 
-                    <td>
-                        ${status}
+                    <td style="
+                        color:green;
+                        font-weight:bold;
+                    ">
+                        ✅ Presente
                     </td>
 
                 </tr>
