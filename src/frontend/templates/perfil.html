@@ -243,6 +243,7 @@
             margin-bottom:20px;
         ">
 
+            <!-- 2025 -->
             <div style="
                 background:#f8f9ff;
                 padding:15px;
@@ -253,11 +254,12 @@
                 <small>Presenças 2025</small>
 
                 <h2 id="presenca-2025">
-                    0
+                    0 / 0
                 </h2>
 
             </div>
 
+            <!-- 2026 -->
             <div style="
                 background:#f8fff8;
                 padding:15px;
@@ -268,11 +270,12 @@
                 <small>Presenças 2026</small>
 
                 <h2 id="presenca-2026">
-                    0
+                    0 / 0
                 </h2>
 
             </div>
 
+            <!-- EVENTOS -->
             <div style="
                 background:#fff8f2;
                 padding:15px;
@@ -288,6 +291,7 @@
 
             </div>
 
+            <!-- PRESENÇAS -->
             <div style="
                 background:#f4fff7;
                 padding:15px;
@@ -303,6 +307,7 @@
 
             </div>
 
+            <!-- FALTAS -->
             <div style="
                 background:#fff4f4;
                 padding:15px;
@@ -320,7 +325,7 @@
 
         </div>
 
-        <!-- TABELA PRESENÇAS -->
+        <!-- TABELA -->
         <div style="
             max-height:320px;
             overflow:auto;
@@ -357,7 +362,7 @@ const id = new URLSearchParams(window.location.search).get('id');
 let todosOsGastos = [];
 
 // =====================================================
-// LINKS DOS JSONS
+// JSONS
 // =====================================================
 
 const arquivosPresencas = [
@@ -608,10 +613,6 @@ async function carregarPresencas() {
 
         let deputado = null;
 
-        // ============================================
-        // PROCURA NOS 3 JSONS
-        // ============================================
-
         for (const url of arquivosPresencas) {
 
             const res = await fetch(url);
@@ -621,16 +622,11 @@ async function carregarPresencas() {
             deputado = lista.find(
                 d =>
                     String(d.deputado_id)
-                    ===
-                    String(id)
+                    === String(id)
             );
 
             if (deputado) break;
         }
-
-        // ============================================
-        // NÃO ENCONTROU
-        // ============================================
 
         if (!deputado) {
 
@@ -650,12 +646,25 @@ async function carregarPresencas() {
         const eventos =
             deputado.eventos || [];
 
-        // ============================================
-        // CALCULAR PRESENÇAS E FALTAS
-        // ============================================
+        // =================================================
+        // CONTADORES
+        // =================================================
+
+        let totalEventos = eventos.length;
 
         let totalPresencas = 0;
+
         let totalFaltas = 0;
+
+        let eventos2025 = 0;
+        let eventos2026 = 0;
+
+        let presencas2025 = 0;
+        let presencas2026 = 0;
+
+        // =================================================
+        // LOOP
+        // =================================================
 
         eventos.forEach(evento => {
 
@@ -671,6 +680,8 @@ async function carregarPresencas() {
                 ||
                 statusTexto.includes("compareceu");
 
+            // TOTAL GERAL
+
             if (presente) {
 
                 totalPresencas++;
@@ -679,14 +690,49 @@ async function carregarPresencas() {
 
                 totalFaltas++;
             }
+
+            // 2025
+
+            if (
+                evento.data &&
+                evento.data.includes("2025")
+            ) {
+
+                eventos2025++;
+
+                if (presente) {
+
+                    presencas2025++;
+                }
+            }
+
+            // 2026
+
+            if (
+                evento.data &&
+                evento.data.includes("2026")
+            ) {
+
+                eventos2026++;
+
+                if (presente) {
+
+                    presencas2026++;
+                }
+            }
         });
 
-        const totalEventos =
-            totalPresencas + totalFaltas;
+        // =================================================
+        // GARANTIA:
+        // PRESENÇAS = EVENTOS - FALTAS
+        // =================================================
 
-        // ============================================
-        // CARDS
-        // ============================================
+        totalPresencas =
+            totalEventos - totalFaltas;
+
+        // =================================================
+        // MOSTRAR CARDS
+        // =================================================
 
         document.getElementById(
             "total-presencas"
@@ -708,92 +754,19 @@ async function carregarPresencas() {
         ).innerText =
             totalFaltas;
 
-        // ============================================
-// CONTAGEM POR ANO
-// ============================================
+        document.getElementById(
+            "presenca-2025"
+        ).innerText =
+            `${presencas2025} / ${eventos2025}`;
 
-let eventos2025 = 0;
-let eventos2026 = 0;
+        document.getElementById(
+            "presenca-2026"
+        ).innerText =
+            `${presencas2026} / ${eventos2026}`;
 
-let presencas2025 = 0;
-let presencas2026 = 0;
-
-let faltas2025 = 0;
-let faltas2026 = 0;
-
-eventos.forEach(evento => {
-
-    const statusTexto =
-        String(
-            evento.status || ""
-        ).toLowerCase();
-
-    const presente =
-        evento.presente === true
-        ||
-        statusTexto.includes("presente")
-        ||
-        statusTexto.includes("compareceu");
-
-    // =========================
-    // ANO 2025
-    // =========================
-
-    if (
-        evento.data &&
-        evento.data.includes("2025")
-    ) {
-
-        eventos2025++;
-
-        if (presente) {
-
-            presencas2025++;
-
-        } else {
-
-            faltas2025++;
-        }
-    }
-
-    // =========================
-    // ANO 2026
-    // =========================
-
-    if (
-        evento.data &&
-        evento.data.includes("2026")
-    ) {
-
-        eventos2026++;
-
-        if (presente) {
-
-            presencas2026++;
-
-        } else {
-
-            faltas2026++;
-        }
-    }
-});
-
-// =========================
-// MOSTRAR NO HTML
-// =========================
-
-document.getElementById(
-    "presenca-2025"
-).innerText =
-    `${presencas2025} / ${eventos2025}`;
-
-document.getElementById(
-    "presenca-2026"
-).innerText =
-    `${presencas2026} / ${eventos2026}`;
-        // ============================================
+        // =================================================
         // TABELA
-        // ============================================
+        // =================================================
 
         const tabela =
             document.getElementById(
@@ -802,15 +775,10 @@ document.getElementById(
 
         const eventosOrdenados =
             [...eventos].sort(
-
                 (a,b) =>
-
                     new Date(b.data)
-
                     -
-
                     new Date(a.data)
-
             );
 
         tabela.innerHTML =
