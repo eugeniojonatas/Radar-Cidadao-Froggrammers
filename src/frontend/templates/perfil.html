@@ -35,10 +35,7 @@
     margin-top:20px;
 ">
 
-<!-- ===================================================== -->
 <!-- SIDEBAR -->
-<!-- ===================================================== -->
-
 <aside>
 
     <div class="card" style="
@@ -104,10 +101,7 @@
 
 </aside>
 
-<!-- ===================================================== -->
 <!-- CONTEÚDO -->
-<!-- ===================================================== -->
-
 <section>
 
     <!-- TOTAL -->
@@ -142,10 +136,7 @@
 
     </div>
 
-    <!-- ================================================= -->
     <!-- GASTOS -->
-    <!-- ================================================= -->
-
     <div class="card">
 
         <div style="
@@ -203,10 +194,7 @@
 
     </div>
 
-    <!-- ================================================= -->
     <!-- PRESENÇAS -->
-    <!-- ================================================= -->
-
     <div class="card" style="margin-top:25px;">
 
         <div style="
@@ -275,7 +263,7 @@
 
             </div>
 
-            <!-- EVENTOS -->
+            <!-- TOTAL EVENTOS -->
             <div style="
                 background:#fff8f2;
                 padding:15px;
@@ -291,7 +279,7 @@
 
             </div>
 
-            <!-- PRESENÇAS -->
+            <!-- TOTAL PRESENÇAS -->
             <div style="
                 background:#f4fff7;
                 padding:15px;
@@ -307,7 +295,7 @@
 
             </div>
 
-            <!-- FALTAS -->
+            <!-- TOTAL FALTAS -->
             <div style="
                 background:#fff4f4;
                 padding:15px;
@@ -361,10 +349,7 @@ const id = new URLSearchParams(window.location.search).get('id');
 
 let todosOsGastos = [];
 
-// =====================================================
-// JSONS
-// =====================================================
-
+// JSONS PRESENÇAS
 const arquivosPresencas = [
 
     "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
@@ -375,10 +360,11 @@ const arquivosPresencas = [
 
 ];
 
-// =====================================================
-// INIT
-// =====================================================
+// JSON TOTAL EVENTOS
+const urlTotalEventos =
+"https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/total_eventos.json";
 
+// INIT
 async function init() {
 
     if (!id) return;
@@ -390,10 +376,7 @@ async function init() {
     await carregarPresencas();
 }
 
-// =====================================================
 // PERFIL
-// =====================================================
-
 async function carregarPerfil() {
 
     const img = document.getElementById("dep-foto");
@@ -434,10 +417,7 @@ async function carregarPerfil() {
     }
 }
 
-// =====================================================
 // GASTOS
-// =====================================================
-
 async function carregarGastos() {
 
     const status =
@@ -603,16 +583,14 @@ function renderTabela(lista) {
         );
 }
 
-// =====================================================
 // PRESENÇAS
-// =====================================================
-
 async function carregarPresencas() {
 
     try {
 
         let deputado = null;
 
+        // BUSCA PRESENÇAS
         for (const url of arquivosPresencas) {
 
             const res = await fetch(url);
@@ -643,29 +621,30 @@ async function carregarPresencas() {
             return;
         }
 
+        // BUSCA TOTAL EVENTOS
+        const resEventos =
+            await fetch(urlTotalEventos);
+
+        const totalEventosJson =
+            await resEventos.json();
+
+        // TOTAL EVENTOS POR ANO
+        const eventos2025 =
+            totalEventosJson["2025"] || 0;
+
+        const eventos2026 =
+            totalEventosJson["2026"] || 0;
+
+        const totalEventos =
+            eventos2025 + eventos2026;
+
         const eventos =
             deputado.eventos || [];
-
-        // =================================================
-        // CONTADORES
-        // =================================================
-
-        let totalEventos = eventos.length;
-
-        let totalPresencas = 0;
-
-        let totalFaltas = 0;
-
-        let eventos2025 = 0;
-        let eventos2026 = 0;
 
         let presencas2025 = 0;
         let presencas2026 = 0;
 
-        // =================================================
-        // LOOP
-        // =================================================
-
+        // LOOP PRESENÇAS
         eventos.forEach(evento => {
 
             const statusTexto =
@@ -680,60 +659,36 @@ async function carregarPresencas() {
                 ||
                 statusTexto.includes("compareceu");
 
-            // TOTAL GERAL
-
-            if (presente) {
-
-                totalPresencas++;
-
-            } else {
-
-                totalFaltas++;
-            }
+            if (!presente) return;
 
             // 2025
-
             if (
                 evento.data &&
                 evento.data.includes("2025")
             ) {
 
-                eventos2025++;
-
-                if (presente) {
-
-                    presencas2025++;
-                }
+                presencas2025++;
             }
 
             // 2026
-
             if (
                 evento.data &&
                 evento.data.includes("2026")
             ) {
 
-                eventos2026++;
-
-                if (presente) {
-
-                    presencas2026++;
-                }
+                presencas2026++;
             }
+
         });
 
-        // =================================================
-        // GARANTIA:
-        // PRESENÇAS = EVENTOS - FALTAS
-        // =================================================
+        // TOTAIS
+        const totalPresencas =
+            presencas2025 + presencas2026;
 
-        totalPresencas =
-            totalEventos - totalFaltas;
+        const totalFaltas =
+            totalEventos - totalPresencas;
 
-        // =================================================
-        // MOSTRAR CARDS
-        // =================================================
-
+        // CARDS
         document.getElementById(
             "total-presencas"
         ).innerText =
@@ -764,10 +719,7 @@ async function carregarPresencas() {
         ).innerText =
             `${presencas2026} / ${eventos2026}`;
 
-        // =================================================
         // TABELA
-        // =================================================
-
         const tabela =
             document.getElementById(
                 "tabela-presencas"
