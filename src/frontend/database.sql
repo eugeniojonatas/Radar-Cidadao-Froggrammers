@@ -1,8 +1,8 @@
-CREATE DATABASE radarcidadao;
+CREATE DATABASE IF NOT EXISTS radarcidadao;
 
 USE radarcidadao;
 
-CREATE TABLE feedbacks (
+CREATE TABLE IF NOT EXISTS feedbacks (
 
     id INT AUTO_INCREMENT PRIMARY KEY,
 
