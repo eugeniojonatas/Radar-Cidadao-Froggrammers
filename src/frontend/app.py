@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
+from flask_mysqldb import MySQL
 import requests
 import os
 
@@ -7,6 +8,18 @@ app = Flask(
     template_folder='templates',
     static_folder='static'
 )
+
+# =====================================================
+# CONFIGURAÇÃO DO MYSQL
+# =====================================================
+
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = '123456'
+app.config['MYSQL_DB'] = 'radarcidadao'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
 
 # =====================================================
 # CONFIGURAÇÃO API CÂMARA
@@ -175,7 +188,6 @@ def gastos(id_dep):
 
                 pagina += 1
 
-                # proteção contra loop infinito
                 if pagina > 50:
                     break
 
@@ -339,6 +351,75 @@ def presencas(id_dep):
             "eventos": []
 
         })
+
+
+# =====================================================
+# API - FEEDBACKS
+# =====================================================
+
+@app.route("/api/feedback", methods=["POST"])
+def salvar_feedback():
+
+    try:
+
+        dados = request.get_json()
+
+        nome = dados.get("nome")
+        mensagem = dados.get("mensagem")
+
+        cur = mysql.connection.cursor()
+
+        cur.execute(
+            """
+            INSERT INTO feedbacks (nome, mensagem)
+            VALUES (%s, %s)
+            """,
+            (nome, mensagem)
+        )
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Feedback enviado!"
+        })
+
+    except Exception as e:
+
+        print("ERRO FEEDBACK:", e)
+
+        return jsonify({
+            "success": False,
+            "message": "Erro ao salvar feedback"
+        })
+
+
+@app.route("/api/feedbacks")
+def listar_feedbacks():
+
+    try:
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("""
+            SELECT *
+            FROM feedbacks
+            ORDER BY id DESC
+        """)
+
+        feedbacks = cur.fetchall()
+
+        cur.close()
+
+        return jsonify(feedbacks)
+
+    except Exception as e:
+
+        print("ERRO LISTAR FEEDBACKS:", e)
+
+        return jsonify([])
 
 
 # =====================================================
