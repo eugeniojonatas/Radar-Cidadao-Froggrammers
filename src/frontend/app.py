@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
+from flask_mysqldb import MySQL
 import requests
 
 app = Flask(
@@ -6,6 +7,24 @@ app = Flask(
     template_folder='templates',
     static_folder='static'
 )
+
+# =====================================================
+# MYSQL
+# =====================================================
+
+app.config['MYSQL_HOST'] = 'localhost'
+
+app.config['MYSQL_USER'] = 'root'
+
+app.config['MYSQL_PASSWORD'] = 'SUA_SENHA'
+
+app.config['MYSQL_DB'] = 'radarcidadao'
+
+mysql = MySQL(app)
+
+# =====================================================
+# API CÂMARA
+# =====================================================
 
 BASE_URL = "https://dadosabertos.camara.leg.br/api/v2"
 
@@ -225,10 +244,6 @@ def presencas(id_dep):
 
         total_faltas = 0
 
-        # ==========================================
-        # 2025 + 2026
-        # ==========================================
-
         for ano in [2025, 2026]:
 
             pagina = 1
@@ -270,10 +285,6 @@ def presencas(id_dep):
 
                     if not dados:
                         break
-
-                    # ==================================
-                    # EVENTOS
-                    # ==================================
 
                     for evento in dados:
 
@@ -358,10 +369,6 @@ def presencas(id_dep):
 
                     break
 
-        # ==========================================
-        # RETORNO
-        # ==========================================
-
         return jsonify({
 
             "deputado_id":
@@ -403,6 +410,123 @@ def presencas(id_dep):
             []
 
         })
+
+
+# =====================================================
+# API - FEEDBACK
+# =====================================================
+
+@app.route('/api/feedback', methods=['POST'])
+def salvar_feedback():
+
+    try:
+
+        dados = request.json
+
+        deputado_id = dados.get('deputado_id')
+
+        nome = dados.get('nome')
+
+        nota = dados.get('nota')
+
+        comentario = dados.get('comentario')
+
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("""
+
+            INSERT INTO feedbacks
+            (
+                deputado_id,
+                nome,
+                nota,
+                comentario
+            )
+
+            VALUES (%s,%s,%s,%s)
+
+        """, (
+
+            deputado_id,
+            nome,
+            nota,
+            comentario
+
+        ))
+
+        mysql.connection.commit()
+
+        cursor.close()
+
+        return jsonify({
+
+            "message":
+            "Avaliação enviada com sucesso!"
+
+        })
+
+    except Exception as e:
+
+        print("ERRO FEEDBACK:", e)
+
+        return jsonify({
+
+            "message":
+            "Erro ao salvar feedback"
+
+        }), 500
+
+
+@app.route('/api/feedback/<int:deputado_id>')
+def listar_feedbacks(deputado_id):
+
+    try:
+
+        cursor = mysql.connection.cursor()
+
+        cursor.execute("""
+
+            SELECT
+                nome,
+                nota,
+                comentario,
+                criado_em
+
+            FROM feedbacks
+
+            WHERE deputado_id = %s
+
+            ORDER BY id DESC
+
+        """, (deputado_id,))
+
+        resultados = cursor.fetchall()
+
+        cursor.close()
+
+        feedbacks = []
+
+        for item in resultados:
+
+            feedbacks.append({
+
+                "nome": item[0],
+
+                "nota": item[1],
+
+                "comentario": item[2],
+
+                "criado_em": str(item[3])
+
+            })
+
+        return jsonify(feedbacks)
+
+    except Exception as e:
+
+        print("ERRO LISTAR FEEDBACK:", e)
+
+        return jsonify([])
 
 
 # =====================================================
