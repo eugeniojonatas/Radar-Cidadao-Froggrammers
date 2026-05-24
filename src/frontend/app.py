@@ -13,10 +13,18 @@ app = Flask(
 # CONFIGURAÇÃO DO MYSQL
 # =====================================================
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '123456'
-app.config['MYSQL_DB'] = 'radarcidadao'
+app.config['MYSQL_HOST'] = os.environ.get("MYSQLHOST", "localhost")
+
+app.config['MYSQL_USER'] = os.environ.get("MYSQLUSER", "root")
+
+app.config['MYSQL_PASSWORD'] = os.environ.get("MYSQLPASSWORD", "123456")
+
+app.config['MYSQL_DB'] = os.environ.get("MYSQLDATABASE", "radarcidadao")
+
+app.config['MYSQL_PORT'] = int(
+    os.environ.get("MYSQLPORT", 3306)
+)
+
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
