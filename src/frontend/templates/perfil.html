@@ -223,7 +223,6 @@
 
         </div>
 
-        <!-- CARDS -->
         <div style="
             display:grid;
             grid-template-columns:repeat(5,1fr);
@@ -231,7 +230,6 @@
             margin-bottom:20px;
         ">
 
-            <!-- 2025 -->
             <div style="
                 background:#f8f9ff;
                 padding:15px;
@@ -247,7 +245,6 @@
 
             </div>
 
-            <!-- 2026 -->
             <div style="
                 background:#f8fff8;
                 padding:15px;
@@ -263,7 +260,6 @@
 
             </div>
 
-            <!-- TOTAL EVENTOS -->
             <div style="
                 background:#fff8f2;
                 padding:15px;
@@ -279,7 +275,6 @@
 
             </div>
 
-            <!-- TOTAL PRESENÇAS -->
             <div style="
                 background:#f4fff7;
                 padding:15px;
@@ -295,7 +290,6 @@
 
             </div>
 
-            <!-- TOTAL FALTAS -->
             <div style="
                 background:#fff4f4;
                 padding:15px;
@@ -313,7 +307,6 @@
 
         </div>
 
-        <!-- TABELA -->
         <div style="
             max-height:320px;
             overflow:auto;
@@ -339,6 +332,110 @@
 
     </div>
 
+    <!-- FEEDBACK -->
+    <div class="card" style="margin-top:25px;">
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:20px;
+        ">
+
+            <h3>
+                Avaliação do Deputado
+            </h3>
+
+            <div style="
+                background:#fff8f2;
+                padding:10px 18px;
+                border-radius:10px;
+                color:var(--secondary);
+                font-weight:bold;
+            ">
+                Média:
+                <span id="media-notas">0</span>/5
+            </div>
+
+        </div>
+
+        <form id="form-feedback">
+
+            <div style="
+                display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:15px;
+                margin-bottom:15px;
+            ">
+
+                <input
+                    type="text"
+                    id="nome-usuario"
+                    placeholder="Seu nome"
+                    required
+                >
+
+                <select id="nota-feedback" required>
+
+                    <option value="">
+                        Dê uma nota
+                    </option>
+
+                    <option value="1">1 ⭐</option>
+                    <option value="2">2 ⭐⭐</option>
+                    <option value="3">3 ⭐⭐⭐</option>
+                    <option value="4">4 ⭐⭐⭐⭐</option>
+                    <option value="5">5 ⭐⭐⭐⭐⭐</option>
+
+                </select>
+
+            </div>
+
+            <textarea
+                id="comentario-feedback"
+                placeholder="Digite sua avaliação..."
+                rows="4"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    border-radius:8px;
+                    border:1px solid #ccc;
+                    resize:none;
+                    margin-bottom:15px;
+                "
+            ></textarea>
+
+            <button
+                type="submit"
+                style="
+                    background:var(--primary);
+                    color:white;
+                "
+            >
+                Enviar Avaliação
+            </button>
+
+        </form>
+
+        <div style="margin-top:30px;">
+
+            <h3 style="margin-bottom:15px;">
+                Avaliações dos Usuários
+            </h3>
+
+            <div id="lista-feedbacks">
+
+                <p>
+                    Nenhuma avaliação encontrada.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
 </div>
 </main>
@@ -347,509 +444,157 @@
 
 const id = new URLSearchParams(window.location.search).get('id');
 
-let todosOsGastos = [];
 
-// JSONS PRESENÇAS
-const arquivosPresencas = [
+// =========================
+// FEEDBACK
+// =========================
 
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte1.json",
-
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte2.json",
-
-    "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/presencas_parte3.json"
-
-];
-
-// JSON TOTAL EVENTOS
-const urlTotalEventos =
-"https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/total_eventos.json";
-
-// INIT
-async function init() {
-
-    if (!id) return;
-
-    await carregarPerfil();
-
-    await carregarGastos();
-
-    await carregarPresencas();
-}
-
-// PERFIL
-async function carregarPerfil() {
-
-    const img = document.getElementById("dep-foto");
-
-    const txt = document.getElementById("txt-foto");
-
-    try {
-
-        const res = await fetch(`/api/deputado/${id}`);
-
-        const d = await res.json();
-
-        document.getElementById("dep-nome").innerText =
-            d.nome || "Sem nome";
-
-        document.getElementById("dep-partido").innerText =
-            d.siglaPartido || d.partido || "-";
-
-        document.getElementById("dep-uf").innerText =
-            d.siglaUf || d.uf || "-";
-
-        if (d.urlFoto || d.foto) {
-
-            img.src = d.urlFoto || d.foto;
-
-            img.style.display = "block";
-
-            txt.style.display = "none";
-
-        } else {
-
-            txt.innerText = "Sem foto";
-        }
-
-    } catch {
-
-        txt.innerText = "Erro ao carregar";
-    }
-}
-
-// GASTOS
-async function carregarGastos() {
-
-    const status =
-        document.getElementById(
-            "status-carregamento"
-        );
+async function carregarFeedbacks() {
 
     try {
 
         const res =
-            await fetch(`/api/gastos/${id}`);
+            await fetch(`/api/feedback/${id}`);
 
-        todosOsGastos =
+        const feedbacks =
             await res.json();
 
-        status.innerText =
-            "Processando...";
-
-        todosOsGastos.sort(
-            (a,b) =>
-                new Date(b.dataDocumento)
-                - new Date(a.dataDocumento)
-        );
-
-        popularFiltro(todosOsGastos);
-
-        renderTabela(todosOsGastos);
-
-        status.innerText =
-            "Finalizado";
-
-        status.style.color =
-            "green";
-
-    } catch {
-
-        status.innerText =
-            "Erro";
-
-        status.style.color =
-            "red";
-    }
-}
-
-function popularFiltro(lista) {
-
-    const filtro =
-        document.getElementById(
-            "filtro-tipo"
-        );
-
-    const tipos = [
-        ...new Set(
-            lista.map(
-                g => g.tipoDespesa
-            )
-        )
-    ].sort();
-
-    tipos.forEach(tipo => {
-
-        if (tipo) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value = tipo;
-
-            option.innerText = tipo;
-
-            filtro.appendChild(option);
-        }
-    });
-
-    filtro.addEventListener(
-        "change",
-        (e) => {
-
-            const selecionado =
-                e.target.value;
-
-            const listaFiltrada =
-                selecionado === "todos"
-                ? todosOsGastos
-                : todosOsGastos.filter(
-                    g =>
-                        g.tipoDespesa
-                        === selecionado
-                );
-
-            renderTabela(
-                listaFiltrada
-            );
-        }
-    );
-}
-
-function renderTabela(lista) {
-
-    const tabela =
-        document.getElementById(
-            "tabela-gastos"
-        );
-
-    const totalEl =
-        document.getElementById(
-            "dep-total"
-        );
-
-    let total = 0;
-
-    tabela.innerHTML =
-        lista.map(g => {
-
-            const valor =
-                g.valorDocumento || 0;
-
-            total += valor;
-
-            const data =
-                g.dataDocumento
-                ? g.dataDocumento
-                    .split("T")[0]
-                    .split("-")
-                    .reverse()
-                    .join("/")
-                : "-";
-
-            return `
-            <tr>
-
-                <td>${data}</td>
-
-                <td>
-                    ${g.tipoDespesa || "-"}
-                </td>
-
-                <td style="text-align:right;">
-
-                    ${valor.toLocaleString(
-                        'pt-br',
-                        {
-                            style:'currency',
-                            currency:'BRL'
-                        }
-                    )}
-
-                </td>
-
-            </tr>
-            `;
-        }).join("");
-
-    totalEl.innerText =
-        total.toLocaleString(
-            'pt-br',
-            {
-                style:'currency',
-                currency:'BRL'
-            }
-        );
-}
-
-// PRESENÇAS
-async function carregarPresencas() {
-
-    try {
-
-        let deputado = null;
-
-        // BUSCA PRESENÇAS
-        for (const url of arquivosPresencas) {
-
-            const res = await fetch(url);
-
-            const lista = await res.json();
-
-            deputado = lista.find(
-                d =>
-                    String(d.deputado_id)
-                    === String(id)
-            );
-
-            if (deputado) break;
-        }
-
-        if (!deputado) {
-
+        const lista =
             document.getElementById(
-                "tabela-presencas"
-            ).innerHTML = `
-                <tr>
-                    <td colspan="3">
-                        Nenhuma presença encontrada
-                    </td>
-                </tr>
+                "lista-feedbacks"
+            );
+
+        const mediaEl =
+            document.getElementById(
+                "media-notas"
+            );
+
+        if (!feedbacks.length) {
+
+            lista.innerHTML = `
+                <p>Nenhuma avaliação encontrada.</p>
             `;
+
+            mediaEl.innerText = "0";
 
             return;
         }
 
-        // BUSCA TOTAL EVENTOS
-        const resEventos =
-            await fetch(urlTotalEventos);
-
-        const totalEventosJson =
-            await resEventos.json();
-
-        // TOTAIS OFICIAIS
-        const eventos2025 =
-            totalEventosJson["2025"] || 0;
-
-        const eventos2026 =
-            totalEventosJson["2026"] || 0;
-
-        const totalEventos =
-            eventos2025 + eventos2026;
-
-        const eventos =
-            deputado.eventos || [];
-
-        // SOMENTE PRESENÇAS
-        const presencas =
-            eventos.filter(evento => {
-
-                const statusTexto =
-                    String(
-                        evento.status || ""
-                    ).toLowerCase();
-
-                return (
-                    evento.presente === true
-                    ||
-                    statusTexto.includes("presente")
-                    ||
-                    statusTexto.includes("compareceu")
-                );
-
-            });
-
-        // CONTADORES
-        let presencas2025 = 0;
-        let presencas2026 = 0;
-
-        presencas.forEach(evento => {
-
-            if (
-                evento.data &&
-                evento.data.includes("2025")
-            ) {
-                presencas2025++;
-            }
-
-            if (
-                evento.data &&
-                evento.data.includes("2026")
-            ) {
-                presencas2026++;
-            }
-
-        });
-
-        const totalPresencas =
-            presencas.length;
-
-        const totalFaltas =
-            totalEventos - totalPresencas;
-
-        // PERCENTUAL
-        const percentual =
-            (
-                (totalPresencas / totalEventos)
-                * 100
-            ).toFixed(1);
-
-        // CARDS
-        document.getElementById(
-            "total-presencas"
-        ).innerText =
-            totalPresencas;
-
-        document.getElementById(
-            "total-presencas-card"
-        ).innerText =
-            totalPresencas;
-
-        document.getElementById(
-            "eventos-total"
-        ).innerText =
-            totalEventos;
-
-        document.getElementById(
-            "faltas-count"
-        ).innerText =
-            totalFaltas;
-
-        // ALTERAÇÃO AQUI ↓↓↓
-        document.getElementById(
-            "presenca-2025"
-        ).innerHTML =
-            `
-            <div style="font-size:28px;">
-                ${presencas2025}
-            </div>
-
-            <div style="
-                font-size:13px;
-                color:#666;
-                margin-top:5px;
-            ">
-                de ${eventos2025} eventos
-            </div>
-            `;
-
-        document.getElementById(
-            "presenca-2026"
-        ).innerHTML =
-            `
-            <div style="font-size:28px;">
-                ${presencas2026}
-            </div>
-
-            <div style="
-                font-size:13px;
-                color:#666;
-                margin-top:5px;
-            ">
-                de ${eventos2026} eventos
-            </div>
-            `;
-
-        // MOSTRAR %
-        document.getElementById(
-            "total-presencas-card"
-        ).innerHTML =
-            `
-            <div style="font-size:28px;">
-                ${totalPresencas}
-            </div>
-
-            <div style="
-                font-size:13px;
-                color:#666;
-                margin-top:5px;
-            ">
-                ${percentual}% de presença
-            </div>
-            `;
-
-        // TABELA
-        const tabela =
-            document.getElementById(
-                "tabela-presencas"
+        const soma =
+            feedbacks.reduce(
+                (acc, item) =>
+                    acc + item.nota,
+                0
             );
 
-        const eventosOrdenados =
-            [...presencas].sort(
-                (a,b) =>
-                    new Date(b.data)
-                    -
-                    new Date(a.data)
-            );
+        const media =
+            (soma / feedbacks.length)
+            .toFixed(1);
 
-        tabela.innerHTML =
-            eventosOrdenados.map(evento => {
+        mediaEl.innerText = media;
 
-            const data =
-                evento.data
-                ? evento.data
-                    .split("T")[0]
-                    .split("-")
-                    .reverse()
-                    .join("/")
-                : "-";
+        lista.innerHTML =
+            feedbacks.map(f => `
 
-            return `
+                <div class="feedback-item">
 
-                <tr>
+                    <h4>
+                        ${f.nome}
+                    </h4>
 
-                    <td>${data}</td>
+                    <small>
+                        Nota: ${f.nota} ⭐
+                    </small>
 
-                    <td>
-                        ${
-                            evento.descricao
-                            ||
-                            evento.evento
-                            ||
-                            "Sem descrição"
-                        }
-                    </td>
+                    <p>
+                        ${f.comentario}
+                    </p>
 
-                    <td style="
-                        color:green;
-                        font-weight:bold;
-                    ">
-                        ✅ Presente
-                    </td>
+                </div>
 
-                </tr>
-
-            `;
-
-        }).join("");
+            `).join("");
 
     } catch(err) {
 
-        console.error(
-            "ERRO PRESENÇAS:",
-            err
-        );
-
-        document.getElementById(
-            "tabela-presencas"
-        ).innerHTML = `
-
-            <tr>
-
-                <td colspan="3">
-
-                    Erro ao carregar presenças
-
-                </td>
-
-            </tr>
-
-        `;
+        console.error(err);
     }
 }
 
-init();
+document
+.getElementById("form-feedback")
+.addEventListener(
+    "submit",
+    async (e) => {
+
+        e.preventDefault();
+
+        const nome =
+            document.getElementById(
+                "nome-usuario"
+            ).value;
+
+        const nota =
+            document.getElementById(
+                "nota-feedback"
+            ).value;
+
+        const comentario =
+            document.getElementById(
+                "comentario-feedback"
+            ).value;
+
+        try {
+
+            const res =
+                await fetch(
+                    "/api/feedback",
+                    {
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                            "application/json"
+                        },
+
+                        body:JSON.stringify({
+
+                            deputado_id:id,
+
+                            nome,
+
+                            nota,
+
+                            comentario
+                        })
+                    }
+                );
+
+            const data =
+                await res.json();
+
+            alert(data.message);
+
+            document
+            .getElementById(
+                "form-feedback"
+            )
+            .reset();
+
+            carregarFeedbacks();
+
+        } catch(err) {
+
+            console.error(err);
+
+            alert(
+                "Erro ao enviar avaliação"
+            );
+        }
+
+    }
+);
+
+carregarFeedbacks();
 
 </script>
 </body>
