@@ -63,7 +63,6 @@
     margin-top:20px;
 ">
 
-<!-- SIDEBAR -->
 <aside>
 
     <div class="card" style="
@@ -129,10 +128,8 @@
 
 </aside>
 
-<!-- CONTEÚDO -->
 <section>
 
-    <!-- TOTAL -->
     <div class="card" style="
         margin-bottom:25px;
         border-left:5px solid var(--secondary);
@@ -164,7 +161,6 @@
 
     </div>
 
-    <!-- GASTOS -->
     <div class="card">
 
         <div style="
@@ -226,7 +222,6 @@
 
     </div>
 
-    <!-- PRESENÇAS -->
     <div class="card" style="margin-top:25px;">
 
         <div style="
@@ -255,7 +250,6 @@
 
         </div>
 
-        <!-- CARDS -->
         <div style="
             display:grid;
             grid-template-columns:repeat(5,1fr);
@@ -340,7 +334,6 @@
 
         </div>
 
-        <!-- TABELA -->
         <div style="
             max-height:320px;
             overflow:auto;
@@ -370,7 +363,6 @@
 
     </div>
 
-    <!-- FEEDBACK -->
     <div class="card" style="margin-top:25px;">
 
         <div style="
@@ -810,7 +802,7 @@ function renderTabela(lista) {
 
 
 // ====================================
-// PRESENÇAS
+// PRESENÇAS (Corrigido)
 // ====================================
 
 async function carregarPresencas() {
@@ -940,14 +932,9 @@ async function carregarPresencas() {
             totalPresencas;
 
         const percentual =
-            (
-                (
-                    totalPresencas
-                    /
-                    totalEventos
-                )
-                * 100
-            ).toFixed(1);
+            totalEventos > 0 
+            ? ((totalPresencas / totalEventos) * 100).toFixed(1) 
+            : "0.0";
 
         document.getElementById(
             "total-presencas"
@@ -1023,8 +1010,9 @@ async function carregarPresencas() {
                 "tabela-presencas"
             );
 
+        // CORREÇÃO: Ordenar e iterar por 'eventos' (histórico total) em vez de 'presencas'
         const eventosOrdenados =
-            [...presencas].sort(
+            [...eventos].sort(
                 (a,b) =>
                     new Date(b.data)
                     -
@@ -1051,6 +1039,16 @@ async function carregarPresencas() {
 
                     "-";
 
+                // Validação dinâmica para descobrir se o item atual mapeado é uma presença ou falta
+                const statusTexto = String(evento.status || "").toLowerCase();
+                const esPresente = evento.presente === true || 
+                                   statusTexto.includes("presente") || 
+                                   statusTexto.includes("compareceu");
+
+                const statusHTML = esPresente
+                    ? `<td style="color:green; font-weight:bold;">✅ Presente</td>`
+                    : `<td style="color:red; font-weight:bold;">❌ Ausente</td>`;
+
                 return `
 
                     <tr>
@@ -1069,14 +1067,7 @@ async function carregarPresencas() {
 
                         </td>
 
-                        <td style="
-                            color:green;
-                            font-weight:bold;
-                        ">
-
-                            ✅ Presente
-
-                        </td>
+                        ${statusHTML}
 
                     </tr>
 
