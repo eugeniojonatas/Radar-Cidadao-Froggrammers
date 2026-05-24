@@ -1,8 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        Perfil Parlamentar | Radar Cidadão
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+        RADAR<span>CIDADÃO</span>
+    </a>
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/">Home</a>
+            </li>
+
+            <li>
+                <a href="/deputados.html">
+                    Deputados
+                </a>
+            </li>
+
+            <li>
+                <a href="/relatorios.html">
+                    Relatórios
+                </a>
+            </li>
+
+            <li>
+                <a href="/graficos.html">
+                    Gráficos
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+</header>
+
+<main class="container">
+
+<div style="
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:30px;
+    margin-top:20px;
+">
+
+<!-- SIDEBAR -->
+<aside>
+
+    <div class="card" style="
+        text-align:center;
+        position:sticky;
+        top:20px;
+    ">
+
+        <div style="
+            min-height:250px;
+            background:#f0f0f0;
+            border-radius:8px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        ">
+
+            <img
+                id="dep-foto"
+                style="
+                    width:100%;
+                    border-radius:8px;
+                    display:none;
+                "
+            >
+
+            <span id="txt-foto">
+                Carregando foto...
+            </span>
+
+        </div>
+
+        <h2
+            id="dep-nome"
+            style="
+                margin:15px 0;
+                color:var(--primary);
+            "
+        >
+            Carregando...
+        </h2>
+
+        <div style="
+            text-align:left;
+            padding:10px;
+            background:#f9f9f9;
+            border-radius:5px;
+        ">
+
+            <p>
+                <strong>Partido:</strong>
+                <span id="dep-partido">-</span>
+            </p>
+
+            <p>
+                <strong>UF:</strong>
+                <span id="dep-uf">-</span>
+            </p>
+
+        </div>
+
+    </div>
+
+</aside>
+
+<!-- CONTEÚDO -->
+<section>
+
+    <!-- TOTAL -->
+    <div class="card" style="
+        margin-bottom:25px;
+        border-left:5px solid var(--secondary);
+        display:flex;
+        justify-content:space-between;
+    ">
+
+        <div>
+
+            <h3 style="font-size:0.8rem;">
+                Total Acumulado (2025-2026)
+            </h3>
+
+            <h2
+                id="dep-total"
+                style="font-size:2.5rem;"
+            >
+                R$ 0,00
+            </h2>
+
+        </div>
+
+        <div
+            id="status-carregamento"
+            style="font-size:0.8rem;"
+        >
+            Iniciando...
+        </div>
+
+    </div>
+
+    <!-- GASTOS -->
+    <div class="card">
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:15px;
+        ">
+
+            <h3>
+                Extrato de Despesas
+            </h3>
+
+            <select
+                id="filtro-tipo"
+                style="
+                    padding:8px;
+                    border-radius:5px;
+                    border:1px solid #ccc;
+                "
+            >
+
+                <option value="todos">
+                    Todos os tipos de gastos
+                </option>
+
+            </select>
+
+        </div>
+
+        <div style="
+            max-height:320px;
+            overflow:auto;
+        ">
+
+            <table style="width:100%;">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Data</th>
+
+                        <th>Despesa</th>
+
+                        <th style="text-align:right;">
+                            Valor
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabela-gastos"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- PRESENÇAS -->
+    <div class="card" style="margin-top:25px;">
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:20px;
+        ">
+
+            <h3>
+                Presenças em Eventos
+            </h3>
+
+            <div style="
+                background:rgba(11,95,255,0.08);
+                padding:10px 18px;
+                border-radius:10px;
+                color:var(--primary);
+                font-weight:bold;
+            ">
+
+                Total:
+                <span id="total-presencas">0</span>
+
+            </div>
+
+        </div>
+
+        <!-- CARDS -->
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(5,1fr);
+            gap:15px;
+            margin-bottom:20px;
+        ">
+
+            <div style="
+                background:#f8f9ff;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #0b5fff;
+            ">
+
+                <small>Presenças 2025</small>
+
+                <h2 id="presenca-2025">
+                    0 / 0
+                </h2>
+
+            </div>
+
+            <div style="
+                background:#f8fff8;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #00a86b;
+            ">
+
+                <small>Presenças 2026</small>
+
+                <h2 id="presenca-2026">
+                    0 / 0
+                </h2>
+
+            </div>
+
+            <div style="
+                background:#fff8f2;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #ff8800;
+            ">
+
+                <small>Total Eventos</small>
+
+                <h2 id="eventos-total">
+                    0
+                </h2>
+
+            </div>
+
+            <div style="
+                background:#f4fff7;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #00c853;
+            ">
+
+                <small>Total Presenças</small>
+
+                <h2 id="total-presencas-card">
+                    0
+                </h2>
+
+            </div>
+
+            <div style="
+                background:#fff4f4;
+                padding:15px;
+                border-radius:10px;
+                border-left:4px solid #ff3b30;
+            ">
+
+                <small>Total Faltas</small>
+
+                <h2 id="faltas-count">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+        <!-- TABELA -->
+        <div style="
+            max-height:320px;
+            overflow:auto;
+        ">
+
+            <table style="width:100%;">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Data</th>
+
+                        <th>Evento</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tabela-presencas"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- FEEDBACK -->
+    <div class="card" style="margin-top:25px;">
+
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:20px;
+        ">
+
+            <h3>
+                Avaliação do Deputado
+            </h3>
+
+            <div style="
+                background:#fff8f2;
+                padding:10px 18px;
+                border-radius:10px;
+                color:var(--secondary);
+                font-weight:bold;
+            ">
+
+                Média:
+                <span id="media-notas">0</span>/5
+
+            </div>
+
+        </div>
+
+        <form id="form-feedback">
+
+            <div style="
+                display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:15px;
+                margin-bottom:15px;
+            ">
+
+                <input
+                    type="text"
+                    id="nome-usuario"
+                    placeholder="Seu nome"
+                    required
+                >
+
+                <select id="nota-feedback" required>
+
+                    <option value="">
+                        Dê uma nota
+                    </option>
+
+                    <option value="1">1 ⭐</option>
+                    <option value="2">2 ⭐⭐</option>
+                    <option value="3">3 ⭐⭐⭐</option>
+                    <option value="4">4 ⭐⭐⭐⭐</option>
+                    <option value="5">5 ⭐⭐⭐⭐⭐</option>
+
+                </select>
+
+            </div>
+
+            <textarea
+                id="comentario-feedback"
+                placeholder="Digite sua avaliação..."
+                rows="4"
+                required
+                style="
+                    width:100%;
+                    padding:12px;
+                    border-radius:8px;
+                    border:1px solid #ccc;
+                    resize:none;
+                    margin-bottom:15px;
+                "
+            ></textarea>
+
+            <button
+                type="submit"
+                style="
+                    background:var(--primary);
+                    color:white;
+                "
+            >
+                Enviar Avaliação
+            </button>
+
+        </form>
+
+        <div style="margin-top:30px;">
+
+            <h3 style="margin-bottom:15px;">
+                Avaliações dos Usuários
+            </h3>
+
+            <div id="lista-feedbacks">
+
+                <p>
+                    Nenhuma avaliação encontrada.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+</div>
+</main>
+
 <script>
 
-const id = new URLSearchParams(window.location.search).get('id');
+const id =
+    new URLSearchParams(
+        window.location.search
+    ).get('id');
 
 let todosOsGastos = [];
+
 
 // JSONS PRESENÇAS
 const arquivosPresencas = [
@@ -15,14 +501,15 @@ const arquivosPresencas = [
 
 ];
 
+
 // JSON TOTAL EVENTOS
 const urlTotalEventos =
 "https://raw.githubusercontent.com/daviespedro/presenca_do_deputado/refs/heads/main/total_eventos.json";
 
 
-// =====================================
+// ====================================
 // INIT
-// =====================================
+// ====================================
 
 async function init() {
 
@@ -38,55 +525,83 @@ async function init() {
 }
 
 
-// =====================================
+// ====================================
 // PERFIL
-// =====================================
+// ====================================
 
 async function carregarPerfil() {
 
-    const img = document.getElementById("dep-foto");
+    const img =
+        document.getElementById(
+            "dep-foto"
+        );
 
-    const txt = document.getElementById("txt-foto");
+    const txt =
+        document.getElementById(
+            "txt-foto"
+        );
 
     try {
 
         const res =
-            await fetch(`/api/deputado/${id}`);
+            await fetch(
+                `/api/deputado/${id}`
+            );
 
-        const d = await res.json();
+        const d =
+            await res.json();
 
-        document.getElementById("dep-nome").innerText =
+        document.getElementById(
+            "dep-nome"
+        ).innerText =
             d.nome || "Sem nome";
 
-        document.getElementById("dep-partido").innerText =
-            d.partido || "-";
+        document.getElementById(
+            "dep-partido"
+        ).innerText =
+            d.siglaPartido
+            ||
+            d.partido
+            ||
+            "-";
 
-        document.getElementById("dep-uf").innerText =
-            d.uf || "-";
+        document.getElementById(
+            "dep-uf"
+        ).innerText =
+            d.siglaUf
+            ||
+            d.uf
+            ||
+            "-";
 
-        if (d.foto) {
+        if (d.urlFoto || d.foto) {
 
-            img.src = d.foto;
+            img.src =
+                d.urlFoto || d.foto;
 
-            img.style.display = "block";
+            img.style.display =
+                "block";
 
-            txt.style.display = "none";
+            txt.style.display =
+                "none";
 
         } else {
 
-            txt.innerText = "Sem foto";
+            txt.innerText =
+                "Sem foto";
         }
 
     } catch {
 
-        txt.innerText = "Erro ao carregar";
+        txt.innerText =
+            "Erro ao carregar";
     }
 }
 
 
-// =====================================
+// ====================================
 // GASTOS
-// =====================================
+// ====================================
 
 async function carregarGastos() {
 
@@ -98,7 +613,9 @@ async function carregarGastos() {
     try {
 
         const res =
-            await fetch(`/api/gastos/${id}`);
+            await fetch(
+                `/api/gastos/${id}`
+            );
 
         todosOsGastos =
             await res.json();
@@ -108,13 +625,22 @@ async function carregarGastos() {
 
         todosOsGastos.sort(
             (a,b) =>
-                new Date(b.dataDocumento)
-                - new Date(a.dataDocumento)
+                new Date(
+                    b.dataDocumento
+                )
+                -
+                new Date(
+                    a.dataDocumento
+                )
         );
 
-        popularFiltro(todosOsGastos);
+        popularFiltro(
+            todosOsGastos
+        );
 
-        renderTabela(todosOsGastos);
+        renderTabela(
+            todosOsGastos
+        );
 
         status.innerText =
             "Finalizado";
@@ -132,6 +658,7 @@ async function carregarGastos() {
     }
 }
 
+
 function popularFiltro(lista) {
 
     const filtro =
@@ -140,11 +667,15 @@ function popularFiltro(lista) {
         );
 
     const tipos = [
+
         ...new Set(
+
             lista.map(
                 g => g.tipoDespesa
             )
+
         )
+
     ].sort();
 
     tipos.forEach(tipo => {
@@ -156,11 +687,15 @@ function popularFiltro(lista) {
                     "option"
                 );
 
-            option.value = tipo;
+            option.value =
+                tipo;
 
-            option.innerText = tipo;
+            option.innerText =
+                tipo;
 
-            filtro.appendChild(option);
+            filtro.appendChild(
+                option
+            );
         }
     });
 
@@ -172,9 +707,16 @@ function popularFiltro(lista) {
                 e.target.value;
 
             const listaFiltrada =
+
                 selecionado === "todos"
-                ? todosOsGastos
-                : todosOsGastos.filter(
+
+                ?
+
+                todosOsGastos
+
+                :
+
+                todosOsGastos.filter(
                     g =>
                         g.tipoDespesa
                         === selecionado
@@ -186,6 +728,7 @@ function popularFiltro(lista) {
         }
     );
 }
+
 
 function renderTabela(lista) {
 
@@ -202,6 +745,7 @@ function renderTabela(lista) {
     let total = 0;
 
     tabela.innerHTML =
+
         lista.map(g => {
 
             const valor =
@@ -210,40 +754,51 @@ function renderTabela(lista) {
             total += valor;
 
             const data =
+
                 g.dataDocumento
-                ? g.dataDocumento
+
+                ?
+
+                g.dataDocumento
                     .split("T")[0]
                     .split("-")
                     .reverse()
                     .join("/")
-                : "-";
+
+                :
+
+                "-";
 
             return `
-            <tr>
 
-                <td>${data}</td>
+                <tr>
 
-                <td>
-                    ${g.tipoDespesa || "-"}
-                </td>
+                    <td>${data}</td>
 
-                <td style="text-align:right;">
+                    <td>
+                        ${g.tipoDespesa || "-"}
+                    </td>
 
-                    ${valor.toLocaleString(
-                        'pt-br',
-                        {
-                            style:'currency',
-                            currency:'BRL'
-                        }
-                    )}
+                    <td style="text-align:right;">
 
-                </td>
+                        ${valor.toLocaleString(
+                            'pt-br',
+                            {
+                                style:'currency',
+                                currency:'BRL'
+                            }
+                        )}
 
-            </tr>
+                    </td>
+
+                </tr>
+
             `;
+
         }).join("");
 
     totalEl.innerText =
+
         total.toLocaleString(
             'pt-br',
             {
@@ -254,9 +809,9 @@ function renderTabela(lista) {
 }
 
 
-// =====================================
+// ====================================
 // PRESENÇAS
-// =====================================
+// ====================================
 
 async function carregarPresencas() {
 
@@ -266,15 +821,21 @@ async function carregarPresencas() {
 
         for (const url of arquivosPresencas) {
 
-            const res = await fetch(url);
+            const res =
+                await fetch(url);
 
-            const lista = await res.json();
+            const lista =
+                await res.json();
 
-            deputado = lista.find(
-                d =>
-                    String(d.deputado_id)
-                    === String(id)
-            );
+            deputado =
+                lista.find(
+                    d =>
+                        String(
+                            d.deputado_id
+                        )
+                        ===
+                        String(id)
+                );
 
             if (deputado) break;
         }
@@ -284,18 +845,26 @@ async function carregarPresencas() {
             document.getElementById(
                 "tabela-presencas"
             ).innerHTML = `
+
                 <tr>
+
                     <td colspan="3">
+
                         Nenhuma presença encontrada
+
                     </td>
+
                 </tr>
+
             `;
 
             return;
         }
 
         const resEventos =
-            await fetch(urlTotalEventos);
+            await fetch(
+                urlTotalEventos
+            );
 
         const totalEventosJson =
             await resEventos.json();
@@ -321,16 +890,27 @@ async function carregarPresencas() {
                     ).toLowerCase();
 
                 return (
+
                     evento.presente === true
+
                     ||
-                    statusTexto.includes("presente")
+
+                    statusTexto.includes(
+                        "presente"
+                    )
+
                     ||
-                    statusTexto.includes("compareceu")
+
+                    statusTexto.includes(
+                        "compareceu"
+                    )
+
                 );
 
             });
 
         let presencas2025 = 0;
+
         let presencas2026 = 0;
 
         presencas.forEach(evento => {
@@ -355,11 +935,17 @@ async function carregarPresencas() {
             presencas.length;
 
         const totalFaltas =
-            totalEventos - totalPresencas;
+            totalEventos
+            -
+            totalPresencas;
 
         const percentual =
             (
-                (totalPresencas / totalEventos)
+                (
+                    totalPresencas
+                    /
+                    totalEventos
+                )
                 * 100
             ).toFixed(1);
 
@@ -380,35 +966,90 @@ async function carregarPresencas() {
 
         document.getElementById(
             "presenca-2025"
-        ).innerHTML =
-            `${presencas2025}`;
+        ).innerHTML = `
+
+            <div style="font-size:28px;">
+                ${presencas2025}
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#666;
+                margin-top:5px;
+            ">
+                de ${eventos2025} eventos
+            </div>
+
+        `;
 
         document.getElementById(
             "presenca-2026"
-        ).innerHTML =
-            `${presencas2026}`;
+        ).innerHTML = `
+
+            <div style="font-size:28px;">
+                ${presencas2026}
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#666;
+                margin-top:5px;
+            ">
+                de ${eventos2026} eventos
+            </div>
+
+        `;
 
         document.getElementById(
             "total-presencas-card"
-        ).innerHTML =
-            `${percentual}%`;
+        ).innerHTML = `
+
+            <div style="font-size:28px;">
+                ${totalPresencas}
+            </div>
+
+            <div style="
+                font-size:13px;
+                color:#666;
+                margin-top:5px;
+            ">
+                ${percentual}% de presença
+            </div>
+
+        `;
 
         const tabela =
             document.getElementById(
                 "tabela-presencas"
             );
 
+        const eventosOrdenados =
+            [...presencas].sort(
+                (a,b) =>
+                    new Date(b.data)
+                    -
+                    new Date(a.data)
+            );
+
         tabela.innerHTML =
-            presencas.map(evento => {
+
+            eventosOrdenados.map(evento => {
 
                 const data =
+
                     evento.data
-                    ? evento.data
+
+                    ?
+
+                    evento.data
                         .split("T")[0]
                         .split("-")
                         .reverse()
                         .join("/")
-                    : "-";
+
+                    :
+
+                    "-";
 
                 return `
 
@@ -417,18 +1058,24 @@ async function carregarPresencas() {
                         <td>${data}</td>
 
                         <td>
+
                             ${
                                 evento.descricao
                                 ||
-                                "Evento"
+                                evento.evento
+                                ||
+                                "Sem descrição"
                             }
+
                         </td>
 
                         <td style="
                             color:green;
                             font-weight:bold;
                         ">
+
                             ✅ Presente
+
                         </td>
 
                     </tr>
@@ -439,21 +1086,42 @@ async function carregarPresencas() {
 
     } catch(err) {
 
-        console.error(err);
+        console.error(
+            "ERRO PRESENÇAS:",
+            err
+        );
+
+        document.getElementById(
+            "tabela-presencas"
+        ).innerHTML = `
+
+            <tr>
+
+                <td colspan="3">
+
+                    Erro ao carregar presenças
+
+                </td>
+
+            </tr>
+
+        `;
     }
 }
 
 
-// =====================================
+// ====================================
 // FEEDBACKS
-// =====================================
+// ====================================
 
 async function carregarFeedbacks() {
 
     try {
 
         const res =
-            await fetch(`/api/feedback/${id}`);
+            await fetch(
+                `/api/feedback/${id}`
+            );
 
         const feedbacks =
             await res.json();
@@ -471,7 +1139,9 @@ async function carregarFeedbacks() {
         if (!feedbacks.length) {
 
             lista.innerHTML = `
-                <p>Nenhuma avaliação encontrada.</p>
+                <p>
+                    Nenhuma avaliação encontrada.
+                </p>
             `;
 
             mediaEl.innerText = "0";
@@ -487,25 +1157,41 @@ async function carregarFeedbacks() {
             );
 
         const media =
-            (soma / feedbacks.length)
-            .toFixed(1);
+            (
+                soma / feedbacks.length
+            ).toFixed(1);
 
-        mediaEl.innerText = media;
+        mediaEl.innerText =
+            media;
 
         lista.innerHTML =
+
             feedbacks.map(f => `
 
-                <div class="feedback-item">
+                <div style="
+                    background:#f8f9ff;
+                    padding:15px;
+                    border-radius:10px;
+                    margin-bottom:15px;
+                ">
 
-                    <h4>
-                        ${f.nome}
-                    </h4>
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:10px;
+                    ">
 
-                    <small>
-                        Nota: ${f.nota} ⭐
-                    </small>
+                        <strong>
+                            ${f.nome}
+                        </strong>
 
-                    <p>
+                        <span>
+                            ${f.nota} ⭐
+                        </span>
+
+                    </div>
+
+                    <p style="color:#555;">
                         ${f.comentario}
                     </p>
 
@@ -520,9 +1206,9 @@ async function carregarFeedbacks() {
 }
 
 
-// =====================================
+// ====================================
 // ENVIAR FEEDBACK
-// =====================================
+// ====================================
 
 document
 .getElementById("form-feedback")
@@ -553,6 +1239,7 @@ document
                 await fetch(
                     "/api/feedback",
                     {
+
                         method:"POST",
 
                         headers:{
@@ -570,6 +1257,7 @@ document
 
                             comentario
                         })
+
                     }
                 );
 
@@ -599,10 +1287,10 @@ document
 );
 
 
-// =====================================
 // START
-// =====================================
-
 init();
 
 </script>
+
+</body>
+</html>
