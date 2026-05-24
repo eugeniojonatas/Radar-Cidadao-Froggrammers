@@ -213,35 +213,3 @@ th {
         width: 100%;
     }
 }
-
-/* FEEDBACK */
-.feedback-item {
-    background: #f9f9f9;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-left: 4px solid var(--secondary);
-}
-
-.feedback-item h4 {
-    color: var(--primary);
-    margin-bottom: 5px;
-}
-
-.feedback-item small {
-    color: #777;
-}
-
-.feedback-item p {
-    margin-top: 10px;
-    line-height: 1.5;
-}
-
-#form-feedback input,
-#form-feedback select,
-#form-feedback textarea {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
