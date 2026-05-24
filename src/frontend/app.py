@@ -354,7 +354,7 @@ def presencas(id_dep):
 
 
 # =====================================================
-# API - FEEDBACKS
+# API - SALVAR FEEDBACK
 # =====================================================
 
 @app.route("/api/feedback", methods=["POST"])
@@ -364,17 +364,21 @@ def salvar_feedback():
 
         dados = request.get_json()
 
+        deputado_id = dados.get("deputado_id")
         nome = dados.get("nome")
-        mensagem = dados.get("mensagem")
+        nota = dados.get("nota")
+        comentario = dados.get("comentario")
 
         cur = mysql.connection.cursor()
 
         cur.execute(
             """
-            INSERT INTO feedbacks (nome, mensagem)
-            VALUES (%s, %s)
+            INSERT INTO feedbacks
+            (deputado_id, nome, nota, comentario)
+
+            VALUES (%s, %s, %s, %s)
             """,
-            (nome, mensagem)
+            (deputado_id, nome, nota, comentario)
         )
 
         mysql.connection.commit()
@@ -392,22 +396,30 @@ def salvar_feedback():
 
         return jsonify({
             "success": False,
-            "message": "Erro ao salvar feedback"
+            "message": str(e)
         })
 
 
-@app.route("/api/feedbacks")
-def listar_feedbacks():
+# =====================================================
+# API - LISTAR FEEDBACKS
+# =====================================================
+
+@app.route("/api/feedback/<int:id_dep>")
+def feedbacks_deputado(id_dep):
 
     try:
 
         cur = mysql.connection.cursor()
 
-        cur.execute("""
+        cur.execute(
+            """
             SELECT *
             FROM feedbacks
-            ORDER BY id DESC
-        """)
+            WHERE deputado_id = %s
+            ORDER BY criado_em DESC
+            """,
+            (id_dep,)
+        )
 
         feedbacks = cur.fetchall()
 
@@ -432,5 +444,6 @@ if __name__ == "__main__":
 
     app.run(
         host="0.0.0.0",
-        port=port
+        port=port,
+        debug=True
     )
