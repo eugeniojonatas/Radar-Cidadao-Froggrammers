@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Monitor de Proposições</title>
+    <style>
+        body { font-family: system-ui, Arial, sans-serif; margin: 20px; background: #f9f9f9; color: #333; }
+        section { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd; }
+        label { display: inline-block; margin-right: 15px; margin-bottom: 10px; font-weight: bold; font-size: 0.9em; }
+        input, select { padding: 6px; margin-left: 5px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; border: none; background: #005599; color: white; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #004477; }
+        #resetar { background: #666; }
+        article { padding: 12px; border-bottom: 1px solid #eee; }
+        article:last-child { border-bottom: none; }
+        h3 { margin: 0 0 5px 0; color: #005599; font-size: 1.1em; }
+        .meta { font-size: 0.85em; color: #666; font-weight: bold; }
+        .status { margin-top: 5px; font-size: 0.9em; color: #444; }
+    </style>
+</head>
+<body>
+    <h1>Monitor de Proposições</h1>
+    <p id="status">Aguardando interação...</p>
+
+    <section id="controls">
+        <label>Ano: 
+            <select id="ano">
+                <option value="2026" selected>2026</option>
+                <option value="2025">2025</option>
+            </select>
+        </label>
+        
+        <label>Mês:
+            <select id="mes">
+                <option value="todos">Todos</option>
+                <option value="1">Janeiro</option>
+                <option value="2">Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+            </select>
+        </label>
+        
+        <label>Partido: <input type="text" id="partido" placeholder="Ex: PT, PL, PSOL"></label>
+        <label>Autor: <input type="text" id="autor" placeholder="Nome do autor"></label>
+        
+        <div style="margin-top: 10px;">
+            <button id="buscar">Buscar</button>
+            <button id="resetar">Limpar</button>
+        </div>
+    </section>
+
+    <section>
+        <div id="resultados"></div>
+        <button id="carregarMais" style="display:none; margin-top: 15px; width: 100%;">Carregar mais propostas</button>
+    </section>
+
+    <script>
+    class MonitorPropostas {
+        constructor() {
+            this.API_BASE = 'https://dadosabertos.camara.leg.br/api/v2';
+            this.paginaAtual = 1;
+            this.fimDosDados = false;
+        }
+
+        async fetchAPI(endpoint) {
+            try {
+                const response = await fetch(`${this.API_BASE}${endpoint}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(`Falha na requisição para ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        formatarData(dataIso) {
+            if (!dataIso) return 'Data não disponível';
+            const partes = dataIso.split('T')[0].split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        construirUrlAPI(ano, mes, partido, autor) {
+            const params = new URLSearchParams({
+                siglaTipo: 'PL,PEC,PLP',
+                itens: 15,
+                pagina: this.paginaAtual
+            });
+
+            // CORREÇÃO DOS PARÂMETROS NATIVOS DA API
+            if (mes && mes !== 'todos') {
+                const anoNum = parseInt(ano, 10);
+                const mesInt = parseInt(mes, 10);
+                const mesFmt = String(mesInt).padStart(2, '0');
+                
+                const dataInicio = `${anoNum}-${mesFmt}-01`;
+                const ultimoDia = new Date(anoNum, mesInt, 0).getDate().toString().padStart(2, '0');
+                const dataFim = `${anoNum}-${mesFmt}-${ultimoDia}`;
+
+                // Mudança crucial aqui: os nomes corretos esperados pela API da Câmara
+                params.append('dataApresentacaoInicio', dataInicio);
+                params.append('dataApresentacaoFim', dataFim);
+            } else {
+                params.append('ano', ano);
+            }
+
+            if (partido) {
+                params.append('siglaPartidoAutor', partido.trim().toUpperCase());
+            }
+            if (autor) {
+                params.append('autor', autor.trim());
+            }
+
+            return `/proposicoes?${params.toString()}`;
+        }
+
+        async buscar({ ano, mes, partido = '', autor = '', resetar = false }) {
+            if (resetar) {
+                this.paginaAtual = 1;
+                this.fimDosDados = false;
+            }
+
+            if (this.fimDosDados) return { propostas: [], fim: true };
+
+            const endpoint = this.construirUrlAPI(ano, mes, partido, autor);
+            const json = await this.fetchAPI(endpoint);
+            
+            const propostasBase = json?.dados || [];
+            
+            if (propostasBase.length === 0) {
+                this.fimDosDados = true;
+                return { propostas: [], fim: true };
+            }
+
+            const propostasProcessadas = await Promise.all(propostasBase.map(async (prop) => {
+                const jsonDetalhes = await this.fetchAPI(`/proposicoes/${prop.id}`);
+                const detalhes = jsonDetalhes?.dados || {};
+                
+                const situacaoReal = detalhes.statusProposicao?.descricaoSituacao || 
+                                     detalhes.statusProposicao?.descricaoTramitacao || 
+                                     'Em tramitação.';
+
+                return { 
+                    ...prop, 
+                    dataFormatada: this.formatarData(prop.dataApresentacao), 
+                    situacaoReal 
+                };
+            }));
+
+            this.paginaAtual++;
+
+            return {
+                propostas: propostasProcessadas,
+                fim: propostasBase.length < 15
+            };
+        }
+    }
+
+    // --- INTERFACE DO USUÁRIO ---
+    const monitor = new MonitorPropostas();
+    const statusEl = document.getElementById('status');
+    const resultadosEl = document.getElementById('resultados');
+    const buscarBtn = document.getElementById('buscar');
+    const resetarBtn = document.getElementById('resetar');
+    const carregarMaisBtn = document.getElementById('carregarMais');
+
+    function renderPropostas(propostas, append = false) {
+        if (!append) resultadosEl.innerHTML = '';
+        if (!propostas || propostas.length === 0) {
+            if (!append) resultadosEl.innerHTML = '<p>Nenhuma proposição encontrada para estes filtros.</p>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        propostas.forEach(p => {
+            const card = document.createElement('article');
+            card.innerHTML = `
+                <h3>${p.siglaTipo} ${p.numero}/${p.ano}</h3>
+                <div class="meta">Apresentada em: ${p.dataFormatada}</div>
+                <div style="margin: 8px 0;">${p.ementa || 'Sem descrição (Ementa vazia)'}</div>
+                <div class="status"><strong>Situação:</strong> ${p.situacaoReal}</div>
+            `;
+            fragment.appendChild(card);
+        });
+
+        resultadosEl.appendChild(fragment);
+    }
+
+    async function executarBusca(resetar = true) {
+        const ano = document.getElementById('ano').value;
+        const mes = document.getElementById('mes').value;
+        const partido = document.getElementById('partido').value;
+        const autor = document.getElementById('autor').value;
+
+        statusEl.textContent = 'Buscando propostas na Câmara...';
+        buscarBtn.disabled = true;
+
+        try {
+            const resp = await monitor.buscar({ ano, mes, partido, autor, resetar });
+            renderPropostas(resp.propostas, !resetar);
+            
+            statusEl.textContent = resp.fim ? 'Fim dos resultados.' : `Mostrando página ${monitor.paginaAtual - 1}`;
+            carregarMaisBtn.style.display = resp.fim ? 'none' : 'block';
+        } catch (err) {
+            console.error(err);
+            statusEl.textContent = 'Erro ao conectar com a API.';
+        } finally {
+            buscarBtn.disabled = false;
+        }
+    }
+
+    buscarBtn.addEventListener('click', () => executarBusca(true));
+    carregarMaisBtn.addEventListener('click', () => executarBusca(false));
+    
+    resetarBtn.addEventListener('click', () => {
+        document.getElementById('partido').value = '';
+        document.getElementById('autor').value = '';
+        document.getElementById('mes').value = 'todos';
+        document.getElementById('ano').value = '2026';
+        resultadosEl.innerHTML = '';
+        carregarMaisBtn.style.display = 'none';
+        statusEl.textContent = 'Aguardando interação...';
+    });
+
+    window.onload = () => executarBusca(true);
+    </script>
+</body>
+</html>
