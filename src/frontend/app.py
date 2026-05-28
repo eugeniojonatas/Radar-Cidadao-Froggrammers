@@ -13,16 +13,32 @@ app = Flask(
 # CONFIGURAÇÃO DO MYSQL
 # =====================================================
 
-app.config['MYSQL_HOST'] = os.environ.get("MYSQLHOST", "localhost")
+# AWS / Docker / Railway
+# Se não existir variável de ambiente,
+# usa os valores do Railway automaticamente
 
-app.config['MYSQL_USER'] = os.environ.get("MYSQLUSER", "root")
+app.config['MYSQL_HOST'] = os.environ.get(
+    "MYSQLHOST",
+    "zephyr.proxy.rlwy.net"
+)
 
-app.config['MYSQL_PASSWORD'] = os.environ.get("MYSQLPASSWORD", "123456")
+app.config['MYSQL_USER'] = os.environ.get(
+    "MYSQLUSER",
+    "root"
+)
 
-app.config['MYSQL_DB'] = os.environ.get("MYSQLDATABASE", "radarcidadao")
+app.config['MYSQL_PASSWORD'] = os.environ.get(
+    "MYSQLPASSWORD",
+    "YQCodGzkWryGhRAlbnILnomXpHaClwca"
+)
+
+app.config['MYSQL_DB'] = os.environ.get(
+    "MYSQLDATABASE",
+    "railway"
+)
 
 app.config['MYSQL_PORT'] = int(
-    os.environ.get("MYSQLPORT", 3306)
+    os.environ.get("MYSQLPORT", 16652)
 )
 
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
@@ -440,6 +456,37 @@ def feedbacks_deputado(id_dep):
         print("ERRO LISTAR FEEDBACKS:", e)
 
         return jsonify([])
+
+
+# =====================================================
+# TESTE MYSQL
+# =====================================================
+
+@app.route("/teste-mysql")
+def teste_mysql():
+
+    try:
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("SELECT 1")
+
+        resultado = cur.fetchone()
+
+        cur.close()
+
+        return jsonify({
+            "success": True,
+            "resultado": str(resultado),
+            "mensagem": "MySQL conectado com sucesso!"
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "success": False,
+            "erro": str(e)
+        })
 
 
 # =====================================================
