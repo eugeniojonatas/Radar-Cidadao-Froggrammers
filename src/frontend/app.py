@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-from flask_mysqldb import MySQL
+import pymysql
 import requests
 import os
 
@@ -10,40 +10,47 @@ app = Flask(
 )
 
 # =====================================================
-# CONFIGURAÇÃO DO MYSQL
+# CONFIGURAÇÃO MYSQL
 # =====================================================
 
-# AWS / Docker / Railway
-# Se não existir variável de ambiente,
-# usa os valores do Railway automaticamente
-
-app.config['MYSQL_HOST'] = os.environ.get(
+MYSQL_HOST = os.environ.get(
     "MYSQLHOST",
     "zephyr.proxy.rlwy.net"
 )
 
-app.config['MYSQL_USER'] = os.environ.get(
+MYSQL_USER = os.environ.get(
     "MYSQLUSER",
     "root"
 )
 
-app.config['MYSQL_PASSWORD'] = os.environ.get(
+MYSQL_PASSWORD = os.environ.get(
     "MYSQLPASSWORD",
     "YQCodGzkWryGhRAlbnILnomXpHaClwca"
 )
 
-app.config['MYSQL_DB'] = os.environ.get(
+MYSQL_DATABASE = os.environ.get(
     "MYSQLDATABASE",
     "railway"
 )
 
-app.config['MYSQL_PORT'] = int(
+MYSQL_PORT = int(
     os.environ.get("MYSQLPORT", 16652)
 )
 
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+# =====================================================
+# FUNÇÃO CONEXÃO MYSQL
+# =====================================================
 
-mysql = MySQL(app)
+def get_db_connection():
+
+    return pymysql.connect(
+        host=MYSQL_HOST,
+        user=MYSQL_USER,
+        password=MYSQL_PASSWORD,
+        database=MYSQL_DATABASE,
+        port=MYSQL_PORT,
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 # =====================================================
 # CONFIGURAÇÃO API CÂMARA
@@ -83,7 +90,6 @@ def relatorios():
 def graficos():
     return render_template("graficos.html")
 
-
 # =====================================================
 # API - LISTA DE DEPUTADOS
 # =====================================================
@@ -108,7 +114,6 @@ def api_deputados():
         return jsonify({
             "dados": []
         })
-
 
 # =====================================================
 # API - PERFIL DO DEPUTADO
@@ -169,7 +174,6 @@ def deputado_info(id_dep):
 
         })
 
-
 # =====================================================
 # API - GASTOS
 # =====================================================
@@ -222,7 +226,6 @@ def gastos(id_dep):
         print("ERRO GASTOS:", e)
 
         return jsonify([])
-
 
 # =====================================================
 # API - PRESENÇAS
@@ -376,7 +379,6 @@ def presencas(id_dep):
 
         })
 
-
 # =====================================================
 # API - SALVAR FEEDBACK
 # =====================================================
@@ -393,7 +395,9 @@ def salvar_feedback():
         nota = dados.get("nota")
         comentario = dados.get("comentario")
 
-        cur = mysql.connection.cursor()
+        conn = get_db_connection()
+
+        cur = conn.cursor()
 
         cur.execute(
             """
@@ -405,9 +409,11 @@ def salvar_feedback():
             (deputado_id, nome, nota, comentario)
         )
 
-        mysql.connection.commit()
+        conn.commit()
 
         cur.close()
+
+        conn.close()
 
         return jsonify({
             "success": True,
@@ -423,7 +429,6 @@ def salvar_feedback():
             "message": str(e)
         })
 
-
 # =====================================================
 # API - LISTAR FEEDBACKS
 # =====================================================
@@ -433,7 +438,9 @@ def feedbacks_deputado(id_dep):
 
     try:
 
-        cur = mysql.connection.cursor()
+        conn = get_db_connection()
+
+        cur = conn.cursor()
 
         cur.execute(
             """
@@ -449,6 +456,8 @@ def feedbacks_deputado(id_dep):
 
         cur.close()
 
+        conn.close()
+
         return jsonify(feedbacks)
 
     except Exception as e:
@@ -456,7 +465,6 @@ def feedbacks_deputado(id_dep):
         print("ERRO LISTAR FEEDBACKS:", e)
 
         return jsonify([])
-
 
 # =====================================================
 # TESTE MYSQL
@@ -467,7 +475,9 @@ def teste_mysql():
 
     try:
 
-        cur = mysql.connection.cursor()
+        conn = get_db_connection()
+
+        cur = conn.cursor()
 
         cur.execute("SELECT 1")
 
@@ -475,9 +485,11 @@ def teste_mysql():
 
         cur.close()
 
+        conn.close()
+
         return jsonify({
             "success": True,
-            "resultado": str(resultado),
+            "resultado": resultado,
             "mensagem": "MySQL conectado com sucesso!"
         })
 
@@ -487,7 +499,6 @@ def teste_mysql():
             "success": False,
             "erro": str(e)
         })
-
 
 # =====================================================
 # RUN
