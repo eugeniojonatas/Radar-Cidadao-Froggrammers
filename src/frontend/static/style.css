@@ -2,214 +2,569 @@
     --primary: #0d47a1;
     --primary-light: #1565c0;
     --secondary: #ff9800;
-    --bg: #f0f2f5;
+
+    --bg: #f4f6f9;
     --white: #ffffff;
+
     --text-dark: #2c3e50;
     --text-light: #7f8c8d;
-    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    --success: #2e7d32;
+    --danger: #c62828;
+
+    --shadow: 0 4px 12px rgba(0,0,0,.08);
     --radius: 12px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
 }
 
-body {
-    background: var(--bg);
-    color: var(--text-dark);
+html{
+    scroll-behavior:smooth;
 }
 
-/* NAVBAR */
-.navbar {
-    background: var(--primary);
-    padding: 0 10%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 70px;
+body{
+    background:var(--bg);
+    color:var(--text-dark);
+    min-height:100vh;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: white;
-    text-decoration: none;
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+.navbar{
+    background:var(--primary);
+    padding:0 5%;
+    height:70px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+
+    position:sticky;
+    top:0;
+    z-index:1000;
 }
 
-.logo span {
-    color: var(--secondary);
+.logo{
+    text-decoration:none;
+    color:white;
+
+    font-size:1.6rem;
+    font-weight:800;
 }
 
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 20px;
+.logo span{
+    color:var(--secondary);
 }
 
-.nav-links a {
-    color: rgba(255,255,255,0.8);
-    text-decoration: none;
+.nav-links{
+    list-style:none;
+    display:flex;
+    gap:25px;
 }
 
-.nav-links a.active {
-    color: white;
+.nav-links a{
+    color:rgba(255,255,255,.8);
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s;
+    background:none;
+    padding:0;
 }
 
-/* CONTAINER */
-.container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
+.nav-links a:hover{
+    color:white;
 }
 
-/* CARD */
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: var(--shadow);
+.nav-links a.active{
+    color:white;
 }
 
-/* FILTROS */
-.card input,
-.card select {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    margin-right: 10px;
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+    width:100%;
 }
 
-/* BOTÕES */
-button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
+.hero h1{
+    font-size:3rem;
+    font-weight:800;
 }
 
-#btn-modo {
-    background: var(--secondary);
-    color: white;
+.hero p{
+    line-height:1.6;
 }
 
-#btn-gerar-comparacao {
-    background: #2e7d32;
-    color: white;
+/* =====================================================
+   CONTAINER
+===================================================== */
+
+.container{
+    max-width:1300px;
+    margin:auto;
+    padding:30px 20px;
 }
 
-/* GRID */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+/* =====================================================
+   CARDS
+===================================================== */
+
+.card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:20px;
+    overflow:hidden;
 }
 
-/* CARD DEPUTADO */
-.grid .card {
-    text-align: center;
-    transition: 0.2s;
+.card h2,
+.card h3{
+    color:var(--primary);
 }
 
-.grid .card:hover {
-    transform: translateY(-5px);
+/* =====================================================
+   FORMULÁRIOS
+===================================================== */
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:12px;
+
+    border:1px solid #dcdcdc;
+    border-radius:8px;
+
+    font-size:15px;
+
+    outline:none;
+    transition:.2s;
 }
 
-.grid img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 10px;
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:var(--primary);
 }
 
-.grid h3 {
-    margin: 10px 0 5px;
-    color: var(--primary);
+textarea{
+    resize:vertical;
+    min-height:100px;
 }
 
-/* LINKS */
-a {
-    display: inline-block;
-    margin-top: 10px;
-    text-decoration: none;
-    background: var(--primary);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
+/* =====================================================
+   BOTÕES
+===================================================== */
+
+button,
+.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:12px 18px;
+
+    border:none;
+    border-radius:8px;
+
+    cursor:pointer;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.2s;
 }
 
-/* MODAL */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
-    background: rgba(0,0,0,0.6);
-
-    align-items: center;
-    justify-content: center;
+button:hover,
+.btn:hover{
+    transform:translateY(-2px);
 }
 
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 900px;
+#btn-modo{
+    background:var(--secondary);
+    color:white;
 }
 
-/* TABELA */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+#btn-gerar-comparacao{
+    background:var(--success);
+    color:white;
 }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
+.btn-primary{
+    background:var(--primary);
+    color:white;
 }
 
-th {
-    background: var(--primary);
-    color: white;
+.btn-secondary{
+    background:var(--secondary);
+    color:white;
 }
 
-/* TOAST */
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: red;
-    color: white;
-    padding: 10px;
-    border-radius: 6px;
-    opacity: 0;
-    transition: 0.3s;
+.btn-success{
+    background:var(--success);
+    color:white;
 }
 
-.toast.show {
-    opacity: 1;
+/* =====================================================
+   GRID DE DEPUTADOS
+===================================================== */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:20px;
 }
 
-/* RESPONSIVO */
-@media (max-width: 768px) {
-    .card {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+.grid .card{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    text-align:center;
+
+    transition:.25s;
+}
+
+.grid .card:hover{
+    transform:translateY(-6px);
+}
+
+.grid img{
+    width:100%;
+    height:280px;
+
+    object-fit:cover;
+
+    border-radius:10px;
+}
+
+.grid h3{
+    margin-top:15px;
+    margin-bottom:5px;
+}
+
+.grid p{
+    color:var(--text-light);
+    margin-bottom:8px;
+}
+
+/* =====================================================
+   RANKING
+===================================================== */
+
+.ranking-container{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.ranking-item{
+    background:white;
+    border-radius:12px;
+    box-shadow:var(--shadow);
+
+    padding:15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.ranking-posicao{
+    font-size:1.4rem;
+    font-weight:800;
+    color:var(--primary);
+}
+
+.ranking-info{
+    flex:1;
+    margin-left:15px;
+}
+
+.ranking-nome{
+    font-weight:700;
+}
+
+.ranking-partido{
+    color:var(--text-light);
+    font-size:.9rem;
+}
+
+.ranking-nota{
+    font-size:1.3rem;
+    font-weight:bold;
+    color:var(--secondary);
+}
+
+/* =====================================================
+   PERFIL DEPUTADO
+===================================================== */
+
+.perfil{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:30px;
+}
+
+.perfil-foto img{
+    width:100%;
+    border-radius:12px;
+    box-shadow:var(--shadow);
+}
+
+.perfil-info{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+/* =====================================================
+   TABELAS
+===================================================== */
+
+.table-responsive{
+    overflow-x:auto;
+    width:100%;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    min-width:600px;
+}
+
+th{
+    background:var(--primary);
+    color:white;
+}
+
+th,
+td{
+    border:1px solid #e4e4e4;
+    padding:12px;
+}
+
+tr:nth-child(even){
+    background:#fafafa;
+}
+
+tr:hover{
+    background:#f1f6ff;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal{
+    display:none;
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(0,0,0,.65);
+
+    align-items:center;
+    justify-content:center;
+
+    z-index:9999;
+}
+
+.modal-content{
+    width:95%;
+    max-width:1000px;
+
+    background:white;
+
+    border-radius:12px;
+    padding:25px;
+
+    max-height:90vh;
+    overflow-y:auto;
+}
+
+/* =====================================================
+   GRÁFICOS
+===================================================== */
+
+canvas{
+    max-width:100%;
+}
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+.toast{
+    position:fixed;
+
+    top:20px;
+    right:20px;
+
+    background:var(--danger);
+    color:white;
+
+    padding:14px 18px;
+
+    border-radius:8px;
+
+    box-shadow:var(--shadow);
+
+    opacity:0;
+    transform:translateY(-10px);
+
+    transition:.3s;
+
+    z-index:99999;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#c5c5c5;
+    border-radius:10px;
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 992px){
+
+    .perfil{
+        grid-template-columns:1fr;
     }
 
-    .card input,
-    .card select,
-    .card button {
-        width: 100%;
+    .perfil-foto{
+        max-width:300px;
+        margin:auto;
+    }
+
+    .hero h1{
+        font-size:2.3rem;
+    }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px){
+
+    .navbar{
+        flex-direction:column;
+        height:auto;
+        padding:15px;
+        gap:10px;
+    }
+
+    .nav-links{
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:15px;
+    }
+
+    .container{
+        padding:20px 12px;
+    }
+
+    .hero{
+        padding:40px 20px !important;
+        text-align:center;
+        height:auto !important;
+    }
+
+    .hero h1{
+        font-size:2rem;
+    }
+
+    .hero p{
+        font-size:1rem !important;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .grid img{
+        height:320px;
+    }
+
+    .card{
+        padding:15px;
+    }
+
+    table{
+        min-width:500px;
+    }
+
+    button,
+    .btn{
+        width:100%;
+    }
+
+    .ranking-item{
+        flex-direction:column;
+        gap:10px;
+        text-align:center;
+    }
+
+    .ranking-info{
+        margin-left:0;
+    }
+}
+
+/* =====================================================
+   CELULARES PEQUENOS
+===================================================== */
+
+@media (max-width: 480px){
+
+    .logo{
+        font-size:1.2rem;
+    }
+
+    .hero h1{
+        font-size:1.7rem;
+    }
+
+    .grid img{
+        height:260px;
+    }
+
+    .ranking-posicao{
+        font-size:1.1rem;
+    }
+
+    .ranking-nota{
+        font-size:1.1rem;
     }
 }
