@@ -123,44 +123,85 @@
 
 async function carregarRanking() {
 
-    const tipo =
+    try {
+
+        const tipo =
+            document.getElementById(
+                "tipo-ranking"
+            ).value;
+
+        const res = await fetch(
+            `/api/rankings?tipo=${tipo}`
+        );
+
+        if (!res.ok) {
+
+            throw new Error(
+                `Erro HTTP ${res.status}`
+            );
+
+        }
+
+        const lista =
+            await res.json();
+
+        console.log("Ranking:", lista);
+
+        renderizarTop3(lista);
+
+        renderizarTabela(lista);
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Erro ao carregar ranking:",
+            erro
+        );
 
         document.getElementById(
-            "tipo-ranking"
-        ).value;
+            "ranking-body"
+        ).innerHTML = `
+            <tr>
+                <td colspan="7">
+                    Erro ao carregar ranking.
+                </td>
+            </tr>
+        `;
 
-    const res =
+    }
 
-        await fetch(
-    `/api/ranking`
-);
-    const lista =
-        await res.json();
-
-    renderizarTop3(lista);
-
-    renderizarTabela(lista);
 }
 
 function renderizarTop3(lista) {
 
     const top3 =
-        lista.slice(0,3);
+        lista.slice(0, 3);
+
+    if (top3.length === 0) {
+
+        document.getElementById(
+            "top3"
+        ).innerHTML = "";
+
+        return;
+    }
 
     document.getElementById(
         "top3"
     ).innerHTML =
 
-        top3.map((dep,index)=>`
+        top3.map((dep, index) => `
 
             <div class="ranking-card">
 
                 <div class="medalha">
 
                     ${
-                        index===0
+                        index === 0
                         ? "🥇"
-                        : index===1
+                        : index === 1
                         ? "🥈"
                         : "🥉"
                     }
@@ -169,6 +210,7 @@ function renderizarTop3(lista) {
 
                 <img
                     src="${dep.foto}"
+                    alt="${dep.nome}"
                 >
 
                 <h3>
@@ -176,80 +218,82 @@ function renderizarTop3(lista) {
                 </h3>
 
                 <p>
-
-                    ${dep.partido}
-                    -
-                    ${dep.uf}
-
+                    ${dep.partido} - ${dep.uf}
                 </p>
 
                 <strong>
-
                     ${dep.valor_formatado}
-
                 </strong>
 
             </div>
 
         `).join("");
+
 }
 
 function renderizarTabela(lista) {
+
+    if (!lista.length) {
+
+        document.getElementById(
+            "ranking-body"
+        ).innerHTML = `
+            <tr>
+                <td colspan="7">
+                    Nenhum dado encontrado.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
 
     document.getElementById(
         "ranking-body"
     ).innerHTML =
 
-        lista.map((dep,index)=>`
+        lista.map((dep, index) => `
 
             <tr>
 
                 <td>
-
-                    ${index+1}
-
+                    ${index + 1}
                 </td>
 
                 <td>
 
                     <img
                         src="${dep.foto}"
+                        alt="${dep.nome}"
                         style="
                             width:60px;
-                            border-radius:6px;
+                            border-radius:8px;
                         "
                     >
 
                 </td>
 
                 <td>
-
                     ${dep.nome}
-
                 </td>
 
                 <td>
-
                     ${dep.partido}
-
                 </td>
 
                 <td>
-
                     ${dep.uf}
-
                 </td>
 
                 <td>
-
                     ${dep.valor_formatado}
-
                 </td>
 
                 <td>
 
                     <a
                         href="/perfil.html?id=${dep.id}"
+                        class="btn-perfil"
                     >
 
                         Ver Perfil
@@ -261,9 +305,10 @@ function renderizarTabela(lista) {
             </tr>
 
         `).join("");
+
 }
 
-carregarRanking();
+window.onload = carregarRanking;
 
 </script>
 
