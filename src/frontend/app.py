@@ -470,19 +470,15 @@ def feedbacks_deputado(id_dep):
 
         return jsonify([])
 
-# =====================================================
-# API - RANKING DE DEPUTADOS
-# =====================================================
-
-@app.route("/api/ranking")
-def ranking_deputados():
-
-    tipo = request.args.get(
-        "tipo",
-        "avaliacoes"
-    )
+@app.route("/api/rankings")
+def rankings():
 
     try:
+
+        tipo = request.args.get(
+            "tipo",
+            "avaliacoes"
+        )
 
         # ===================================
         # RANKING DE AVALIAÇÕES
@@ -562,20 +558,12 @@ def ranking_deputados():
                     for g in gastos.get("dados", []):
 
                         total += float(
-                            g.get(
-                                "valorLiquido",
-                                0
-                            )
+                            g.get("valorLiquido", 0)
                         )
 
                     ranking.append({
-
-                        "deputado_id":
-                            dep["id"],
-
-                        "valor":
-                            total
-
+                        "deputado_id": dep["id"],
+                        "valor": total
                     })
 
                 except:
@@ -591,10 +579,6 @@ def ranking_deputados():
         else:
 
             return jsonify([])
-
-        # ===================================
-        # ENRIQUECER DADOS
-        # ===================================
 
         resultado = []
 
@@ -635,35 +619,29 @@ def ranking_deputados():
 
                 resultado.append({
 
-                    "id":
-                        dep["deputado_id"],
+                    "id": dep["deputado_id"],
 
-                    "nome":
-                        info.get(
-                            "nomeCivil",
-                            "Desconhecido"
-                        ),
+                    "nome": info.get(
+                        "nomeCivil",
+                        "Desconhecido"
+                    ),
 
-                    "foto":
-                        ultimo.get(
-                            "urlFoto",
-                            ""
-                        ),
+                    "foto": ultimo.get(
+                        "urlFoto",
+                        ""
+                    ),
 
-                    "partido":
-                        ultimo.get(
-                            "siglaPartido",
-                            "-"
-                        ),
+                    "partido": ultimo.get(
+                        "siglaPartido",
+                        "-"
+                    ),
 
-                    "uf":
-                        ultimo.get(
-                            "siglaUf",
-                            "-"
-                        ),
+                    "uf": ultimo.get(
+                        "siglaUf",
+                        "-"
+                    ),
 
-                    "valor":
-                        dep["valor"],
+                    "valor": dep["valor"],
 
                     "valor_formatado":
                         valor_formatado
