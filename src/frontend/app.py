@@ -90,6 +90,10 @@ def relatorios():
 def graficos():
     return render_template("graficos.html")
 
+@app.route("/ranking.html")
+def ranking():
+    return render_template("ranking.html")
+
 # =====================================================
 # API - LISTA DE DEPUTADOS
 # =====================================================
@@ -463,6 +467,44 @@ def feedbacks_deputado(id_dep):
     except Exception as e:
 
         print("ERRO LISTAR FEEDBACKS:", e)
+
+        return jsonify([])
+
+# =====================================================
+# API - RANKING DE DEPUTADOS
+# =====================================================
+
+@app.route("/api/ranking")
+def ranking_deputados():
+
+    try:
+
+        conn = get_db_connection()
+
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT
+                deputado_id,
+                ROUND(AVG(nota), 2) AS media,
+                COUNT(*) AS total_avaliacoes
+            FROM feedbacks
+            GROUP BY deputado_id
+            HAVING COUNT(*) >= 1
+            ORDER BY media DESC, total_avaliacoes DESC
+            LIMIT 20
+        """)
+
+        ranking = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return jsonify(ranking)
+
+    except Exception as e:
+
+        print("ERRO RANKING:", e)
 
         return jsonify([])
 
