@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        Rankings | Radar Cidadão
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">RADAR<span>CIDADÃO</span></a>
+    <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/deputados.html">Deputados</a></li>
+                <li><a href="/relatorios.html">Relatórios</a></li>
+                <li><a href="/graficos.html">Gráficos</a></li>
+                <li><a href="/ranking.html" class="active">Ranking</a></li>
+            </ul>
+        </nav>
+</header>
+
+<main class="container">
+
+    <div
+        class="card"
+        style="
+            margin-bottom:25px;
+            border-left:5px solid var(--secondary);
+        "
+    >
+
+        <h1 style="margin-bottom:10px;">
+            Ranking Nacional dos Deputados
+        </h1>
+
+        <p style="color:#666;">
+            Compare deputados através dos dados oficiais da Câmara.
+        </p>
+
+    </div>
+
+    <div class="card ranking-filtros">
+
+        <select id="tipo-ranking">
+
+            <option value="gastos">
+                💰 Maiores Gastos
+            </option>
+
+            <option value="presencas">
+                ✅ Mais Presenças
+            </option>
+
+            <option value="faltas">
+                ❌ Mais Faltas
+            </option>
+
+            <option value="avaliacoes">
+                ⭐ Melhor Avaliação
+            </option>
+
+            <option value="feedbacks">
+                📝 Mais Avaliações
+            </option>
+
+        </select>
+
+        <button onclick="carregarRanking()">
+
+            Atualizar Ranking
+
+        </button>
+
+    </div>
+
+    <div id="top3" class="ranking-top3"></div>
+
+    <div class="card">
+
+        <table class="ranking-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>#</th>
+
+                    <th>Foto</th>
+
+                    <th>Nome</th>
+
+                    <th>Partido</th>
+
+                    <th>UF</th>
+
+                    <th>Valor</th>
+
+                    <th>Perfil</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="ranking-body"></tbody>
+
+        </table>
+
+    </div>
+
+</main>
+
+<script>
+
+async function carregarRanking() {
+
+    const tipo =
+
+        document.getElementById(
+            "tipo-ranking"
+        ).value;
+
+    const res =
+
+        await fetch(
+    `/api/ranking`
+);
+    const lista =
+        await res.json();
+
+    renderizarTop3(lista);
+
+    renderizarTabela(lista);
+}
+
+function renderizarTop3(lista) {
+
+    const top3 =
+        lista.slice(0,3);
+
+    document.getElementById(
+        "top3"
+    ).innerHTML =
+
+        top3.map((dep,index)=>`
+
+            <div class="ranking-card">
+
+                <div class="medalha">
+
+                    ${
+                        index===0
+                        ? "🥇"
+                        : index===1
+                        ? "🥈"
+                        : "🥉"
+                    }
+
+                </div>
+
+                <img
+                    src="${dep.foto}"
+                >
+
+                <h3>
+                    ${dep.nome}
+                </h3>
+
+                <p>
+
+                    ${dep.partido}
+                    -
+                    ${dep.uf}
+
+                </p>
+
+                <strong>
+
+                    ${dep.valor_formatado}
+
+                </strong>
+
+            </div>
+
+        `).join("");
+}
+
+function renderizarTabela(lista) {
+
+    document.getElementById(
+        "ranking-body"
+    ).innerHTML =
+
+        lista.map((dep,index)=>`
+
+            <tr>
+
+                <td>
+
+                    ${index+1}
+
+                </td>
+
+                <td>
+
+                    <img
+                        src="${dep.foto}"
+                        style="
+                            width:60px;
+                            border-radius:6px;
+                        "
+                    >
+
+                </td>
+
+                <td>
+
+                    ${dep.nome}
+
+                </td>
+
+                <td>
+
+                    ${dep.partido}
+
+                </td>
+
+                <td>
+
+                    ${dep.uf}
+
+                </td>
+
+                <td>
+
+                    ${dep.valor_formatado}
+
+                </td>
+
+                <td>
+
+                    <a
+                        href="/perfil.html?id=${dep.id}"
+                    >
+
+                        Ver Perfil
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+        `).join("");
+}
+
+carregarRanking();
+
+</script>
+
+</body>
+</html>
