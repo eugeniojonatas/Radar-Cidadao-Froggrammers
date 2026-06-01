@@ -477,31 +477,128 @@ def feedbacks_deputado(id_dep):
 @app.route("/api/ranking")
 def ranking_deputados():
 
+    tipo = request.args.get(
+        "tipo",
+        "avaliacoes"
+    )
+
     try:
 
-        conn = get_db_connection()
-        cur = conn.cursor()
+        # ===================================
+        # RANKING DE AVALIAÇÕES
+        # ===================================
 
-        cur.execute("""
-            SELECT
-                deputado_id,
-                ROUND(AVG(nota), 2) AS media,
-                COUNT(*) AS total_avaliacoes
-            FROM feedbacks
-            GROUP BY deputado_id
-            HAVING COUNT(*) >= 1
-            ORDER BY media DESC, total_avaliacoes DESC
-            LIMIT 20
-        """)
+        if tipo == "avaliacoes":
 
-        ranking = cur.fetchall()
+            conn = get_db_connection()
+            cur = conn.cursor()
 
-        cur.close()
-        conn.close()
+            cur.execute("""
+                SELECT
+                    deputado_id,
+                    ROUND(AVG(nota),2) AS valor,
+                    COUNT(*) AS total
+                FROM feedbacks
+                GROUP BY deputado_id
+                ORDER BY valor DESC
+                LIMIT 20
+            """)
+
+            dados = cur.fetchall()
+
+            cur.close()
+            conn.close()
+
+        # ===================================
+        # MAIS FEEDBACKS
+        # ===================================
+
+        elif tipo == "feedbacks":
+
+            conn = get_db_connection()
+            cur = conn.cursor()
+
+            cur.execute("""
+                SELECT
+                    deputado_id,
+                    COUNT(*) AS valor
+                FROM feedbacks
+                GROUP BY deputado_id
+                ORDER BY valor DESC
+                LIMIT 20
+            """)
+
+            dados = cur.fetchall()
+
+            cur.close()
+            conn.close()
+
+        # ===================================
+        # MAIORES GASTOS
+        # ===================================
+
+        elif tipo == "gastos":
+
+            deputados = requests.get(
+                f"{BASE_URL}/deputados",
+                headers=HEADERS,
+                timeout=20
+            ).json()["dados"]
+
+            ranking = []
+
+            for dep in deputados:
+
+                try:
+
+                    total = 0
+
+                    gastos = requests.get(
+                        f"{BASE_URL}/deputados/{dep['id']}/despesas?ano=2025&itens=100",
+                        headers=HEADERS,
+                        timeout=10
+                    ).json()
+
+                    for g in gastos.get("dados", []):
+
+                        total += float(
+                            g.get(
+                                "valorLiquido",
+                                0
+                            )
+                        )
+
+                    ranking.append({
+
+                        "deputado_id":
+                            dep["id"],
+
+                        "valor":
+                            total
+
+                    })
+
+                except:
+                    pass
+
+            ranking.sort(
+                key=lambda x: x["valor"],
+                reverse=True
+            )
+
+            dados = ranking[:20]
+
+        else:
+
+            return jsonify([])
+
+        # ===================================
+        # ENRIQUECER DADOS
+        # ===================================
 
         resultado = []
 
-        for dep in ranking:
+        for dep in dados:
 
             try:
 
@@ -511,59 +608,83 @@ def ranking_deputados():
                     timeout=10
                 )
 
-                dados = response.json()["dados"]
+                info = response.json()["dados"]
 
-                ultimo = dados.get(
+                ultimo = info.get(
                     "ultimoStatus",
                     {}
                 )
 
+                if tipo == "avaliacoes":
+
+                    valor_formatado = (
+                        f"{dep['valor']} ⭐"
+                    )
+
+                elif tipo == "feedbacks":
+
+                    valor_formatado = (
+                        f"{dep['valor']} avaliações"
+                    )
+
+                else:
+
+                    valor_formatado = (
+                        f"R$ {dep['valor']:,.2f}"
+                    )
+
                 resultado.append({
 
-                    "id": dep["deputado_id"],
+                    "id":
+                        dep["deputado_id"],
 
-                    "nome": dados.get(
-                        "nomeCivil",
-                        "Desconhecido"
-                    ),
+                    "nome":
+                        info.get(
+                            "nomeCivil",
+                            "Desconhecido"
+                        ),
 
-                    "partido": ultimo.get(
-                        "siglaPartido",
-                        "-"
-                    ),
+                    "foto":
+                        ultimo.get(
+                            "urlFoto",
+                            ""
+                        ),
 
-                    "uf": ultimo.get(
-                        "siglaUf",
-                        "-"
-                    ),
+                    "partido":
+                        ultimo.get(
+                            "siglaPartido",
+                            "-"
+                        ),
 
-                    "foto": ultimo.get(
-                        "urlFoto",
-                        ""
-                    ),
+                    "uf":
+                        ultimo.get(
+                            "siglaUf",
+                            "-"
+                        ),
 
-                    "media": dep["media"],
-
-                    "total_avaliacoes":
-                        dep["total_avaliacoes"],
+                    "valor":
+                        dep["valor"],
 
                     "valor_formatado":
-                        f"{dep['media']} ⭐ ({dep['total_avaliacoes']} avaliações)"
+                        valor_formatado
 
                 })
 
-            except Exception as erro_dep:
+            except Exception as erro:
 
                 print(
                     "ERRO DEPUTADO:",
-                    erro_dep
+                    erro
                 )
 
         return jsonify(resultado)
 
     except Exception as e:
 
-        print("ERRO RANKING:", e)
+        print(
+            "ERRO RANKING:",
+            e
+        )
 
         return jsonify([])
 # =====================================================
