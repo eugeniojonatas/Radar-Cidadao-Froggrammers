@@ -132,9 +132,8 @@ async function carregarRanking() {
     const res =
 
         await fetch(
-            `/api/rankings?tipo=${tipo}`
-        );
-
+    `/api/ranking`
+);
     const lista =
         await res.json();
 
