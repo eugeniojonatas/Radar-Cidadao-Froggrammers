@@ -1,0 +1,127 @@
+[
+    {
+        "nome": "Alexandre Padilha",
+        "partido": "PT",
+        "presencas": 1
+    },
+    {
+        "nome": "Luiz Marinho",
+        "partido": "PT",
+        "presencas": 1
+    },
+    {
+        "nome": "Fátima Pelaes",
+        "partido": "REPUBLICANOS",
+        "presencas": 2
+    },
+    {
+        "nome": "Marcelo Calero",
+        "partido": "PSD",
+        "presencas": 3
+    },
+    {
+        "nome": "Renan Ferreirinha",
+        "partido": "PSD",
+        "presencas": 3
+    },
+    {
+        "nome": "Glaycon Franco",
+        "partido": "PSDB",
+        "presencas": 3
+    },
+    {
+        "nome": "Luiz Antonio Corrêa",
+        "partido": "PP",
+        "presencas": 8
+    },
+    {
+        "nome": "Ivan Junior",
+        "partido": "UNIÃO",
+        "presencas": 10
+    },
+    {
+        "nome": "Cristiano Furlan",
+        "partido": "Rede",
+        "presencas": 10
+    },
+    {
+        "nome": "Eduardo Bolsonaro",
+        "partido": "PL",
+        "presencas": 13
+    },
+    {
+        "nome": "Marco Brasil",
+        "partido": "PP",
+        "presencas": 13
+    },
+    {
+        "nome": "Itamar Paim",
+        "partido": "PL",
+        "presencas": 13
+    },
+    {
+        "nome": "Ivan Júnior",
+        "partido": "União",
+        "presencas": 24
+    },
+    {
+        "nome": "Sandro Alex",
+        "partido": "PSD",
+        "presencas": 24
+    },
+    {
+        "nome": "Marcelo Nilo",
+        "partido": "Republican",
+        "presencas": 24
+    },
+    {
+        "nome": "Coronel Tadeu",
+        "partido": "PL",
+        "presencas": 25
+    },
+    {
+        "nome": "Gorete Pereira",
+        "partido": "MDB",
+        "presencas": 26
+    },
+    {
+        "nome": "Elisangela Araujo",
+        "partido": "PT",
+        "presencas": 26
+    },
+    {
+        "nome": "Afonso Florence",
+        "partido": "PT",
+        "presencas": 27
+    },
+    {
+        "nome": "Ilacir Bicalho",
+        "partido": "Republican",
+        "presencas": 27
+    },
+    {
+        "nome": "Silvio Costa Filho",
+        "partido": "REPUBLICANOS",
+        "presencas": 37
+    },
+    {
+        "nome": "André Fufuca",
+        "partido": "PP",
+        "presencas": 38
+    },
+    {
+        "nome": "Arthur Lira",
+        "partido": "PP",
+        "presencas": 39
+    },
+    {
+        "nome": "Rosangela Gomes",
+        "partido": "Republican",
+        "presencas": 39
+    },
+    {
+        "nome": "Soldado Noelio",
+        "partido": "União",
+        "presencas": 39
+    }
+]

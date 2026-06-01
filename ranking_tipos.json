@@ -1,0 +1,62 @@
+[
+    {
+        "tipo_despesa": "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.",
+        "total": 4280968.32
+    },
+    {
+        "tipo_despesa": "PASSAGEM AÉREA - SIGEPA",
+        "total": 963267.09
+    },
+    {
+        "tipo_despesa": "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR",
+        "total": 949946.51
+    },
+    {
+        "tipo_despesa": "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES",
+        "total": 825211.78
+    },
+    {
+        "tipo_despesa": "COMBUSTÍVEIS E LUBRIFICANTES.",
+        "total": 722878.98
+    },
+    {
+        "tipo_despesa": "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.",
+        "total": 85154.19
+    },
+    {
+        "tipo_despesa": "LOCAÇÃO OU FRETAMENTO DE AERONAVES",
+        "total": 51725.0
+    },
+    {
+        "tipo_despesa": "TELEFONIA",
+        "total": 42211.17
+    },
+    {
+        "tipo_despesa": "PASSAGEM AÉREA - RPA",
+        "total": 22923.08
+    },
+    {
+        "tipo_despesa": "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR",
+        "total": 10154.52
+    },
+    {
+        "tipo_despesa": "PASSAGEM AÉREA - REEMBOLSO",
+        "total": 7934.06
+    },
+    {
+        "tipo_despesa": "SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.",
+        "total": 3960.0
+    },
+    {
+        "tipo_despesa": "SERVIÇOS POSTAIS",
+        "total": 1719.4
+    },
+    {
+        "tipo_despesa": "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO",
+        "total": 1189.28
+    },
+    {
+        "tipo_despesa": "AQUISIÇÃO DE TOKENS E CERTIFICADOS DIGITAIS",
+        "total": 190.0
+    }
+]

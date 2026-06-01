@@ -1,0 +1,74 @@
+[
+    {
+        "tipo_despesa": "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.",
+        "total": 119108554.95
+    },
+    {
+        "tipo_despesa": "PASSAGEM AÉREA - SIGEPA",
+        "total": 52261359.28
+    },
+    {
+        "tipo_despesa": "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES",
+        "total": 48325696.91
+    },
+    {
+        "tipo_despesa": "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR",
+        "total": 40288057.04
+    },
+    {
+        "tipo_despesa": "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.",
+        "total": 4665266.39
+    },
+    {
+        "tipo_despesa": "LOCAÇÃO OU FRETAMENTO DE AERONAVES",
+        "total": 2452270.0
+    },
+    {
+        "tipo_despesa": "TELEFONIA",
+        "total": 2372675.74
+    },
+    {
+        "tipo_despesa": "SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.",
+        "total": 1627706.15
+    },
+    {
+        "tipo_despesa": "PASSAGEM AÉREA - REEMBOLSO",
+        "total": 1225414.6
+    },
+    {
+        "tipo_despesa": "PASSAGEM AÉREA - RPA",
+        "total": 804367.23
+    },
+    {
+        "tipo_despesa": "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR",
+        "total": 773720.37
+    },
+    {
+        "tipo_despesa": "LOCAÇÃO OU FRETAMENTO DE EMBARCAÇÕES",
+        "total": 307568.0
+    },
+    {
+        "tipo_despesa": "PASSAGENS TERRESTRES, MARÍTIMAS OU FLUVIAIS",
+        "total": 191460.34
+    },
+    {
+        "tipo_despesa": "SERVIÇOS POSTAIS",
+        "total": 150305.64
+    },
+    {
+        "tipo_despesa": "ASSINATURA DE PUBLICAÇÕES",
+        "total": 104779.46
+    },
+    {
+        "tipo_despesa": "PARTICIPAÇÃO EM CURSO, PALESTRA OU EVENTO SIMILAR",
+        "total": 29779.69
+    },
+    {
+        "tipo_despesa": "CONSULTORIAS, PESQUISAS E TRABALHOS TÉCNICOS.",
+        "total": 7000.0
+    },
+    {
+        "tipo_despesa": "AQUISIÇÃO DE TOKENS E CERTIFICADOS DIGITAIS",
+        "total": 3175.29
+    }
+]

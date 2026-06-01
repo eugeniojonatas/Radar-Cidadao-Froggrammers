@@ -1,0 +1,62 @@
+[
+    {
+        "partido": "PL",
+        "presencas": 31426
+    },
+    {
+        "partido": "PT",
+        "presencas": 20680
+    },
+    {
+        "partido": "PSD",
+        "presencas": 14654
+    },
+    {
+        "partido": "PP",
+        "presencas": 14195
+    },
+    {
+        "partido": "MDB",
+        "presencas": 11148
+    },
+    {
+        "partido": "UNIÃO",
+        "presencas": 9162
+    },
+    {
+        "partido": "União",
+        "presencas": 8736
+    },
+    {
+        "partido": "REPUBLICANOS",
+        "presencas": 7603
+    },
+    {
+        "partido": "Republican",
+        "presencas": 6986
+    },
+    {
+        "partido": "PSB",
+        "presencas": 5402
+    },
+    {
+        "partido": "PSOL",
+        "presencas": 5355
+    },
+    {
+        "partido": "PDT",
+        "presencas": 4404
+    },
+    {
+        "partido": "PODE",
+        "presencas": 4274
+    },
+    {
+        "partido": "PSDB",
+        "presencas": 4128
+    },
+    {
+        "partido": "PCdoB",
+        "presencas": 3069
+    }
+]

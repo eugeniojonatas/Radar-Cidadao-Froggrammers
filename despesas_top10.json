@@ -1,0 +1,235 @@
+[
+    {
+        "nome": "Gabriel Mota",
+        "id": 224117,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 340000.0,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 264000.0,
+                "PASSAGEM AÉREA - SIGEPA": 40320.26
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 112000.0,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 93000.0,
+                "PASSAGEM AÉREA - SIGEPA": 2880.74
+            }
+        }
+    },
+    {
+        "nome": "Albuquerque",
+        "id": 220538,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 21081.5,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 44004.22000000001,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 501500.0,
+                "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR": 57.41,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 20000.0,
+                "PASSAGEM AÉREA - SIGEPA": 29117.93
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 60744.0,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 5033.15,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 122350.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 20000.0,
+                "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO": 48.92,
+                "PASSAGEM AÉREA - SIGEPA": 5147.77
+            }
+        }
+    },
+    {
+        "nome": "Zé Adriano",
+        "id": 230768,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 49776.21000000001,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 93634.86,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 315371.0,
+                "SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.": 3240.0,
+                "PASSAGEM AÉREA - REEMBOLSO": 4311.42,
+                "TELEFONIA": 2069.67,
+                "SERVIÇOS POSTAIS": 1599.7,
+                "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR": 1257.77,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 6642.21,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 82500.0,
+                "PASSAGEM AÉREA - SIGEPA": 38968.45000000001
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 13324.04,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 20737.85,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 98750.0,
+                "SERVIÇO DE SEGURANÇA PRESTADO POR EMPRESA ESPECIALIZADA.": 720.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 42500.0,
+                "PASSAGEM AÉREA - SIGEPA": 23663.5
+            }
+        }
+    },
+    {
+        "nome": "Coronel Ulysses",
+        "id": 220590,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 74604.14,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 107881.09000000001,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 366580.0,
+                "TELEFONIA": 635.09,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 5308.59,
+                "LOCAÇÃO OU FRETAMENTO DE AERONAVES": 7000.0,
+                "AQUISIÇÃO DE TOKENS E CERTIFICADOS DIGITAIS": 190.0,
+                "PASSAGEM AÉREA - SIGEPA": 52201.08
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 27296.05,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 18000.0,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 72000.0,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 1780.0,
+                "LOCAÇÃO OU FRETAMENTO DE AERONAVES": 44725.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 1900.0,
+                "PASSAGEM AÉREA - SIGEPA": 18259.85
+            }
+        }
+    },
+    {
+        "nome": "Maurício Carvalho",
+        "id": 220609,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 25298.94,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 49404.92,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 198540.0,
+                "PASSAGEM AÉREA - REEMBOLSO": 3622.64,
+                "TELEFONIA": 14376.0,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 21715.31,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 119400.0,
+                "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO": 137.91000000000003,
+                "PASSAGEM AÉREA - SIGEPA": 176089.37
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 5400.0,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 14719.189999999999,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 85442.0,
+                "TELEFONIA": 3615.0,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 6196.879999999999,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 35850.0,
+                "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO": 215.55,
+                "PASSAGEM AÉREA - SIGEPA": 33886.76
+            }
+        }
+    },
+    {
+        "nome": "Lucas Ramos",
+        "id": 220662,
+        "despesas": {
+            "2025": {
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 245048.4,
+                "TELEFONIA": 229.98,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 8675.12,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 114188.0,
+                "PASSAGEM AÉREA - SIGEPA": 209007.84000000008,
+                "PASSAGEM AÉREA - RPA": 10874.05
+            },
+            "2026": {
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 98000.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 42400.0,
+                "PASSAGEM AÉREA - SIGEPA": 52947.2
+            }
+        }
+    },
+    {
+        "nome": "Pompeo de Mattos",
+        "id": 73486,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 52273.29999999998,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 72513.42,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 293630.0,
+                "TELEFONIA": 10816.980000000001,
+                "SERVIÇOS POSTAIS": 119.7,
+                "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR": 2535.86,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 12209.58,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 97213.0,
+                "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO": 378.75,
+                "PASSAGEM AÉREA - SIGEPA": 68790.84999999998,
+                "PASSAGEM AÉREA - RPA": 12049.030000000002
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 9113.59,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 24722.799999999992,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 74632.0,
+                "TELEFONIA": 1571.54,
+                "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR": 77.4,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 1922.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 31000.0,
+                "PASSAGEM AÉREA - SIGEPA": 14107.360000000002
+            }
+        }
+    },
+    {
+        "nome": "Helena Lima",
+        "id": 220537,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 79183.76,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 78341.34999999999,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 313410.43,
+                "TELEFONIA": 8287.369999999999,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 1200.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 56989.83,
+                "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO": 277.15000000000003,
+                "PASSAGEM AÉREA - SIGEPA": 89176.61000000002
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 18545.1,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 20381.920000000002,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 67100.0,
+                "TELEFONIA": 609.54,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 2800.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 8870.95,
+                "SERVIÇO DE TÁXI, PEDÁGIO E ESTACIONAMENTO": 131.0,
+                "PASSAGEM AÉREA - SIGEPA": 34169.92
+            }
+        }
+    },
+    {
+        "nome": "Wilson Santiago",
+        "id": 74044,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 42250.28,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 45204.35999999999,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 341100.0,
+                "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR": 5005.610000000001,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 15010.5,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 116400.0,
+                "PASSAGEM AÉREA - SIGEPA": 25582.480000000003
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 11400.0,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 11713.040000000003,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 118000.0,
+                "FORNECIMENTO DE ALIMENTAÇÃO DO PARLAMENTAR": 1220.47,
+                "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL.": 1694.0,
+                "LOCAÇÃO OU FRETAMENTO DE VEÍCULOS AUTOMOTORES": 36000.0,
+                "PASSAGEM AÉREA - SIGEPA": 7846.799999999999
+            }
+        }
+    },
+    {
+        "nome": "Andreia Siqueira",
+        "id": 220676,
+        "despesas": {
+            "2025": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 6157.6,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 84584.56,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 442514.49,
+                "PASSAGEM AÉREA - SIGEPA": 37803.369999999995
+            },
+            "2026": {
+                "MANUTENÇÃO DE ESCRITÓRIO DE APOIO À ATIVIDADE PARLAMENTAR": 1498.0,
+                "COMBUSTÍVEIS E LUBRIFICANTES.": 32002.25,
+                "DIVULGAÇÃO DA ATIVIDADE PARLAMENTAR.": 170000.0,
+                "PASSAGEM AÉREA - SIGEPA": 3298.9500000000003
+            }
+        }
+    }
+]
