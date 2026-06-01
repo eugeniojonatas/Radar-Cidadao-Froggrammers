@@ -480,7 +480,6 @@ def ranking_deputados():
     try:
 
         conn = get_db_connection()
-
         cur = conn.cursor()
 
         cur.execute("""
@@ -500,14 +499,73 @@ def ranking_deputados():
         cur.close()
         conn.close()
 
-        return jsonify(ranking)
+        resultado = []
+
+        for dep in ranking:
+
+            try:
+
+                response = requests.get(
+                    f"{BASE_URL}/deputados/{dep['deputado_id']}",
+                    headers=HEADERS,
+                    timeout=10
+                )
+
+                dados = response.json()["dados"]
+
+                ultimo = dados.get(
+                    "ultimoStatus",
+                    {}
+                )
+
+                resultado.append({
+
+                    "id": dep["deputado_id"],
+
+                    "nome": dados.get(
+                        "nomeCivil",
+                        "Desconhecido"
+                    ),
+
+                    "partido": ultimo.get(
+                        "siglaPartido",
+                        "-"
+                    ),
+
+                    "uf": ultimo.get(
+                        "siglaUf",
+                        "-"
+                    ),
+
+                    "foto": ultimo.get(
+                        "urlFoto",
+                        ""
+                    ),
+
+                    "media": dep["media"],
+
+                    "total_avaliacoes":
+                        dep["total_avaliacoes"],
+
+                    "valor_formatado":
+                        f"{dep['media']} ⭐ ({dep['total_avaliacoes']} avaliações)"
+
+                })
+
+            except Exception as erro_dep:
+
+                print(
+                    "ERRO DEPUTADO:",
+                    erro_dep
+                )
+
+        return jsonify(resultado)
 
     except Exception as e:
 
         print("ERRO RANKING:", e)
 
         return jsonify([])
-
 # =====================================================
 # TESTE MYSQL
 # =====================================================
