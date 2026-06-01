@@ -213,3 +213,272 @@ th {
         width: 100%;
     }
 }
+
+/* =====================================================
+   RANKING DE DEPUTADOS
+===================================================== */
+
+.ranking-container {
+    margin-bottom: 30px;
+}
+
+.ranking-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ranking-item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: var(--shadow);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    transition: .2s;
+}
+
+.ranking-item:hover {
+    transform: translateY(-2px);
+}
+
+.ranking-posicao {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--secondary);
+    min-width: 50px;
+}
+
+.ranking-info {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.ranking-nome {
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.ranking-partido {
+    color: var(--text-light);
+    font-size: .9rem;
+}
+
+.ranking-nota {
+    text-align: right;
+}
+
+.ranking-media {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.ranking-total {
+    color: var(--text-light);
+    font-size: .85rem;
+}
+
+/* =====================================================
+   TOP 3 RANKING
+===================================================== */
+
+.ranking-top3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.ranking-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: .2s;
+}
+
+.ranking-card:hover {
+    transform: translateY(-5px);
+}
+
+.ranking-card img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 10px 0;
+    border: 3px solid var(--primary);
+}
+
+.medalha {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.ranking-card h3 {
+    color: var(--primary);
+    margin-bottom: 5px;
+}
+
+.ranking-card p {
+    color: var(--text-light);
+    margin-bottom: 10px;
+}
+
+.ranking-card strong {
+    color: #2e7d32;
+    font-size: 1.1rem;
+}
+
+/* =====================================================
+   FILTROS RANKING
+===================================================== */
+
+.ranking-filtros {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.ranking-filtros select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.ranking-filtros button {
+    background: var(--secondary);
+    color: white;
+}
+
+/* =====================================================
+   TABELA RANKING
+===================================================== */
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ranking-table th {
+    background: var(--primary);
+    color: white;
+}
+
+.ranking-table td,
+.ranking-table th {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+.ranking-table img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* =====================================================
+   BADGES
+===================================================== */
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge-warning {
+    background: #fff8e1;
+    color: #f57c00;
+}
+
+.badge-danger {
+    background: #ffebee;
+    color: #c62828;
+}
+
+/* =====================================================
+   ESTRELAS
+===================================================== */
+
+.estrelas {
+    color: #ffc107;
+    font-size: 1.1rem;
+}
+
+.estrelas span {
+    margin-right: 2px;
+}
+
+/* =====================================================
+   FEEDBACKS
+===================================================== */
+
+.feedback-item {
+    background: #fafafa;
+    border-left: 4px solid var(--secondary);
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+}
+
+.feedback-item strong {
+    color: var(--primary);
+}
+
+.feedback-item p {
+    margin-top: 8px;
+    color: #555;
+}
+
+/* =====================================================
+   RESPONSIVO
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .ranking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .ranking-info {
+        margin-left: 0;
+    }
+
+    .ranking-nota {
+        text-align: left;
+    }
+
+    .ranking-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ranking-filtros select,
+    .ranking-filtros button {
+        width: 100%;
+    }
+
+    .ranking-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
