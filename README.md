@@ -73,6 +73,11 @@ Além disso, a aplicação deve organizar esses dados de forma intuitiva, promov
 ## MVP - Sprint 2
 
 [![Assista ao vídeo](https://img.youtube.com/vi/TtQeZ0cP71c/0.jpg)](https://youtu.be/TtQeZ0cP71c)
+
+## MVP - Sprint 3
+
+[![Assista ao vídeo](https://img.youtube.com/vi/3TDcRBkeUlo/0.jpg)](https://www.youtube.com/watch?v=3TDcRBkeUlo)
+
 ## 👥 Equipe
 
 <div align="left">
