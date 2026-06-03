@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gráficos | Radar Cidadão</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js + Plugin de Rótulos de dados integrados -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+
+<body>
+    <header class="navbar">
+        <a href="/" class="logo">RADAR<span>CIDADÃO</span></a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/deputados.html">Deputados</a></li>
+                <li><a href="/relatorios.html">Relatórios</a></li>
+                <li><a href="/graficos.html" class="active">Gráficos</a></li>
+                <li><a href="/ranking.html">Ranking</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container" style="max-height: 90vh; padding-top: 10px; padding-bottom: 10px;">
+        <h2 style="margin-bottom: 15px; color: var(--primary); font-size: 24px;">
+            Análise Geral de Despesas da Câmara
+        </h2>
+
+        <!-- Barra de Filtros Compacta -->
+        <div class="card" style="margin-bottom: 15px; padding: 12px 20px;">
+            <div style="display:flex; gap:15px; flex-wrap:wrap; align-items:center;">
+                
+                <div style="flex: 2; min-width: 220px;">
+                    <label style="color:var(--secondary); font-weight: 600; font-size: 13px;">Métrica de Análise</label>
+                    <select id="tipoFiltroMacro" onchange="atualizarGrafico()" style="width: 100%; margin-top: 3px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+                        <option value="maiores_categorias">Top 5: Maiores Gastos por Categoria</option>
+                        <option value="menores_categorias">Top 5: Menores Gastos por Categoria</option>
+                        <option value="maiores_partidos">Top 5: Partidos com Maiores Gastos</option>
+                        <option value="menores_partidos">Top 5: Partidos com Menores Gastos</option>
+                    </select>
+                </div>
+
+                <div style="flex: 1; min-width: 100px;">
+                    <label style="color:var(--secondary); font-weight: 600; font-size: 13px;">Ano</label>
+                    <select id="filtroAno" onchange="atualizarGrafico()" style="width: 100%; margin-top: 3px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+                        <option value="todos">Todos</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+
+                <div style="flex: 1; min-width: 130px;">
+                    <label style="color:var(--secondary); font-weight: 600; font-size: 13px;">Tipo de Gráfico</label>
+                    <select id="tipoGraficoVisual" onchange="atualizarGrafico()" style="width: 100%; margin-top: 3px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+                        <option value="bar-horizontal">Barras Horizontais</option>
+                        <option value="bar-vertical">Barras Verticais</option>
+                        <option value="line">Linhas</option>
+                        <option value="radar">Radar</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Área de Gráfico Reduzida para caber na tela sem Scroll -->
+        <div class="card" style="padding: 15px;">
+            <h3 id="tituloGrafico" style="margin-bottom: 10px; color: var(--secondary); font-size: 16px;"></h3>
+            <div style="position: relative; width: 100%; height: 340px;">
+                <canvas id="graficoPrincipal"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let graficoAtual = null;
+        // Registra o plugin de exibir textos nativamente nas barras
+        Chart.register(ChartDataLabels);
+
+        function gerarCores(qtd) {
+            const paleta = ['#0b549e', '#f15a24', '#2ecc71', '#e74c3c', '#9b59b6'];
+            const cores = [];
+            for (let i = 0; i < qtd; i++) {
+                cores.push(paleta[i % paleta.length]);
+            }
+            return cores;
+        }
+
+        function formatarComoReal(valor) {
+            return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        async function atualizarGrafico() {
+            const selectMétrica = document.getElementById('tipoFiltroMacro');
+            const selectAno = document.getElementById('filtroAno');
+            const selectVisual = document.getElementById('tipoGraficoVisual');
+            
+            const tipoSelecionado = selectMétrica.value;
+            const anoSelecionado = selectAno.value;
+            const visualSelecionado = selectVisual.value;
+            
+            const tituloTexto = selectMétrica.options[selectMétrica.selectedIndex].text + ` (${selectAno.options[selectAno.selectedIndex].text})`;
+            const canvasElement = document.getElementById('graficoPrincipal');
+
+            if (graficoAtual) {
+                graficoAtual.destroy();
+            }
+
+            try {
+                const res = await fetch(`/api/graficos?tipo=${tipoSelecionado}&ano=${anoSelecionado}`);
+                const dados = await res.json();
+
+                if (!dados || dados.length === 0) {
+                    document.getElementById("tituloGrafico").innerText = "Nenhum registro retornado para este filtro.";
+                    return;
+                }
+
+                document.getElementById("tituloGrafico").innerText = tituloTexto;
+
+                const labels = dados.map(item => item.rotulo);
+                const valores = dados.map(item => item.total);
+
+                let chartType = visualSelecionado;
+                let indexAxisConfig = 'x'; 
+
+                if (visualSelecionado === 'bar-horizontal') {
+                    chartType = 'bar';
+                    indexAxisConfig = 'y'; 
+                } else if (visualSelecionado === 'bar-vertical') {
+                    chartType = 'bar';
+                    indexAxisConfig = 'x'; 
+                }
+
+                graficoAtual = new Chart(canvasElement, {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Gasto',
+                            data: valores,
+                            backgroundColor: chartType === 'radar' ? 'rgba(11, 84, 158, 0.2)' : gerarCores(valores.length),
+                            borderColor: '#0b549e',
+                            borderWidth: chartType === 'line' || chartType === 'radar' ? 3 : 0,
+                            borderRadius: 4,
+                            fill: chartType === 'radar' || chartType === 'line'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: indexAxisConfig,
+                        layout: {
+                            padding: {
+                                left: visualSelecionado === 'bar-horizontal' ? 10 : 10,
+                                right: visualSelecionado === 'bar-horizontal' ? 90 : 20,
+                                top: visualSelecionado === 'bar-vertical' ? 30 : 10
+                            }
+                        },
+                        plugins: {
+                            legend: { display: chartType === 'radar' },
+                            // CONFIGURAÇÃO DOS VALORES COBERTOS EM CIMA DA BARRA (R$)
+                            datalabels: {
+                                color: '#333',
+                                font: { weight: 'bold', size: 11 },
+                                anchor: 'end',
+                                align: indexAxisConfig === 'y' ? 'right' : 'top',
+                                formatter: function(value) {
+                                    return formatarComoReal(value);
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' Total: ' + formatarComoReal(context.raw);
+                                    }
+                                }
+                            }
+                        },
+                        scales: chartType === 'radar' ? {} : {
+                            x: {
+                                ticks: {
+                                    callback: function(value) {
+                                        if (indexAxisConfig === 'y' || chartType === 'line') {
+                                            return formatarComoReal(value);
+                                        }
+                                        return value;
+                                    }
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    autoSkip: false,
+                                    font: { weight: '600', size: 11 },
+                                    callback: function(value) {
+                                        if (typeof value === 'number' && indexAxisConfig === 'y') {
+                                            return labels[value];
+                                        }
+                                        if (indexAxisConfig === 'x' && chartType !== 'line') {
+                                            return formatarComoReal(value);
+                                        }
+                                        return value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (e) {
+                console.error("Erro ao processar gráficos:", e);
+                document.getElementById("tituloGrafico").innerText = "Erro ao carregar dados.";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", atualizarGrafico);
+    </script>
+</body>
+</html>

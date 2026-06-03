@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Rankings | Radar Cidadão</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        /* Ajuste fino e moderno para a barra de filtros */
+        .ranking-filtros {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            padding: 16px 20px !important;
+            background: #fff !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+        }
+
+        .ranking-filtros select {
+            padding: 10px 14px !important;
+            border-radius: 6px !important;
+            border: 1px solid #ccc !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            color: #333 !important;
+            background-color: #fff !important;
+            min-width: 220px !important;
+            outline: none !important;
+            transition: border-color 0.2s;
+        }
+
+        .ranking-filtros select:focus {
+            border-color: var(--primary, #007bff) !important;
+        }
+
+        .ranking-filtros button {
+            padding: 10px 20px !important;
+            border-radius: 6px !important;
+            border: none !important;
+            background-color: var(--secondary, #ff9800) !important;
+            color: white !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            transition: background 0.2s, transform 0.1s !important;
+        }
+
+        .ranking-filtros button:hover {
+            background-color: #e68a00 !important;
+        }
+
+        .ranking-filtros button:active {
+            transform: scale(0.98) !important;
+        }
+
+        /* Correção do Top 3 (Pódio Flexível e Centralizado) */
+        .ranking-top3 {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: flex-end !important;
+            gap: 25px !important;
+            margin: 30px 0 !important;
+            flex-wrap: wrap !important;
+        }
+
+        /* Card do Deputado no Top 3 */
+        .ranking-card {
+            background: #fff !important;
+            border-radius: 12px !important;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06) !important;
+            padding: 24px !important;
+            text-align: center !important;
+            min-width: 220px !important;
+            max-width: 260px !important;
+            flex: 1 1 220px !important;
+            position: relative !important;
+            border: 1px solid #eee !important;
+            transition: transform 0.2s !important;
+        }
+
+        .ranking-card:hover {
+            transform: translateY(-5px) !important;
+        }
+
+        /* Ajustando tamanhos de pódio dinamicamente */
+        .ranking-card.pos-0 { order: 2; border-top: 5px solid #ffd700 !important; padding: 32px 24px !important; }
+        .ranking-card.pos-1 { order: 1; border-top: 5px solid #c0c0c0 !important; }
+        .ranking-card.pos-2 { order: 3; border-top: 5px solid #cd7f32 !important; }
+
+        .ranking-card img {
+            width: 100px !important;
+            height: 100px !important;
+            object-fit: cover !important;
+            border-radius: 50% !important;
+            border: 4px solid #f4f5f7 !important;
+            margin-bottom: 12px !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        }
+
+        .ranking-card h3 {
+            font-size: 1.15rem !important;
+            margin: 8px 0 4px 0 !important;
+            color: #222 !important;
+        }
+
+        .ranking-card p {
+            color: #777 !important;
+            font-size: 0.9rem !important;
+            margin-bottom: 12px !important;
+        }
+
+        .ranking-card .medalha {
+            font-size: 1.8rem !important;
+            margin-bottom: 5px !important;
+        }
+
+        /* Tabela Visual Clean */
+        .ranking-table th {
+            background-color: var(--primary, #0056b3) !important;
+            color: white !important;
+            padding: 14px !important;
+        }
+
+        .ranking-table td {
+            padding: 12px 14px !important;
+            vertical-align: middle !important;
+        }
+
+        /* FIX DOS BOTÕES QUEBRADOS: Força o texto a aparecer em branco e centralizado */
+        .btn-perfil {
+            display: inline-block !important;
+            background-color: #0056b3 !important; /* Cor de fundo caso o CSS falhe */
+            color: #ffffff !important; /* TEXTO BRANCO PARA NÃO SUMIR */
+            padding: 8px 18px !important;
+            border-radius: 6px !important;
+            text-decoration: none !important;
+            font-weight: bold !important;
+            text-align: center !important;
+            font-size: 13px !important;
+            min-width: 90px !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+            transition: background-color 0.2s !important;
+        }
+
+        .btn-perfil:hover {
+            background-color: #003d82 !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="/" class="logo">RADAR<span>CIDADÃO</span></a>
+    <nav>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/deputados.html">Deputados</a></li>
+            <li><a href="/relatorios.html">Relatórios</a></li>
+            <li><a href="/graficos.html">Gráficos</a></li>
+            <li><a href="/ranking.html" class="active">Ranking</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+
+    <div class="card" style="margin-bottom:25px; border-left:5px solid var(--secondary, #ff9800);">
+        <h1 style="margin-bottom:10px;">Ranking Nacional dos Deputados</h1>
+        <p style="color:#666;">Compare deputados através dos dados oficiais da Câmara.</p>
+    </div>
+
+    <div class="card ranking-filtros">
+        <select id="tipo-ranking" onchange="carregarRanking()">
+            <option value="maiores_gastos">💰 Maiores Gastos</option>
+            <option value="menores_gastos">📉 Menores Gastos</option>
+            <option value="presencas">✅ Mais Presenças</option>
+            <option value="faltas">❌ Mais Faltas</option>
+            <option value="avaliacoes">⭐ Melhor Avaliação</option>
+            <option value="feedbacks">📝 Mais Avaliações</option>
+        </select>
+
+        <button onclick="carregarRanking()">
+            Atualizar Ranking
+        </button>
+    </div>
+
+    <div id="top3" class="ranking-top3" style="display: none;"></div>
+
+    <div class="card" style="margin-top: 25px;">
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Foto</th>
+                    <th>Nome</th>
+                    <th>Partido</th>
+                    <th>UF</th>
+                    <th id="coluna-dinamica-titulo">Valor</th>
+                    <th>Perfil</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<script>
+function obterEstiloFiltro(tipo) {
+    switch(tipo) {
+        case 'maiores_gastos':
+            return { cor: '#dc3545', titulo: 'Total Gasto' };
+        case 'menores_gastos':
+            return { cor: '#28a745', titulo: 'Total Gasto' };
+        case 'presencas':
+            return { cor: '#28a745', titulo: 'Presenças' };
+        case 'faltas':
+            return { cor: '#dc3545', titulo: 'Faltas' };
+        case 'avaliacoes':
+            return { cor: '#ffc107', titulo: 'Nota' };
+        case 'feedbacks':
+            return { cor: '#007bff', titulo: 'Avaliações' };
+        default:
+            return { cor: '#28a745', titulo: 'Valor' };
+    }
+}
+
+async function carregarRanking() {
+    try {
+        const tipo = document.getElementById("tipo-ranking").value;
+        const estilo = obterEstiloFiltro(tipo);
+
+        document.getElementById("coluna-dinamica-titulo").innerText = estilo.titulo;
+
+        const url = `/api/rankings?tipo=${tipo}`;
+        const res = await fetch(url);
+        const lista = await res.json();
+
+        renderizarTop3(lista, estilo.cor);
+        renderizarTabela(lista);
+
+    } catch (erro) {
+        console.error("ERRO:", erro);
+        document.getElementById("ranking-body").innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: red; padding: 25px; font-weight: bold;">
+                    ⚠️ Erro ao carregar os dados do ranking.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function renderizarTop3(lista, corDestaque) {
+    const top3Container = document.getElementById("top3");
+    const top3 = lista.slice(0, 3);
+    
+    if (!top3.length) {
+        top3Container.innerHTML = "";
+        top3Container.style.display = "none";
+        return;
+    }
+
+    top3Container.style.display = "flex";
+
+    top3Container.innerHTML = top3.map((dep, index) => {
+        // Se já vier sem foto da API, deixa invisível desde o início
+        const estiloInvisivel = !dep.foto ? 'style="opacity: 0;"' : '';
+        
+        return `
+            <div class="ranking-card pos-${index}">
+                <div class="medalha">
+                    ${index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
+                </div>
+                <img src="${dep.foto || ''}" 
+                     alt="${dep.nome}"
+                     ${estiloInvisivel}
+                     onerror="this.onerror=null; this.style.opacity='0';">
+                <h3>${dep.nome}</h3>
+                <p>${dep.partido || '-'} - ${dep.uf || '-'}</p>
+                <strong style="color: ${corDestaque}; font-size: 1.25rem; display: block; margin-top: 5px;">
+                    ${dep.valor || "-"}
+                </strong>
+            </div>
+        `;
+    }).join("");
+}
+
+function renderizarTabela(lista) {
+    const tbody = document.getElementById("ranking-body");
+
+    if (!lista.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #666; font-size: 15px; font-weight: 500;">
+                    🔍 Nenhum dado encontrado para este ranking no momento.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = lista.map((dep, index) => {
+        // Se já vier sem foto da API, aplica opacidade 0 na tabela também
+        const estiloInvisivel = !dep.foto ? 'opacity: 0;' : '';
+
+        return `
+            <tr>
+                <td><b>${index + 1}º</b></td>
+                <td>
+                    <img src="${dep.foto || ''}" 
+                         style="width:46px; height:60px; object-fit: cover; border-radius:6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); ${estiloInvisivel}"
+                         onerror="this.onerror=null; this.style.opacity='0';">
+                </td>
+                <td><b>${dep.nome}</b></td>
+                <td><span class="badge-partido" style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px; font-weight: 600;">${dep.partido}</span></td>
+                <td>${dep.uf}</td>
+                <td style="font-size: 14px;"><b>${dep.valor || "-"}</b></td>
+                <td>
+                    <a href="/perfil.html?id=${dep.id}" class="btn-perfil">Ver Perfil</a>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+window.onload = carregarRanking;
+</script>
+
+</body>
+</html>

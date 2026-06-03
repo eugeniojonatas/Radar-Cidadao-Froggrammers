@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gráficos Gerais</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="logo">PORTAL<span>LEG</span></a>
+        <nav><ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="deputados.html">Deputados</a></li>
+            <li><a href="relatorios.html">Relatórios</a></li>
+            <li><a href="graficos.html" class="active">Gráficos</a></li>
+        </ul></nav>
+    </header>
+
+    <main class="container">
+        <div class="card" style="height: 500px;">
+            <h2>Atividade Parlamentar Mensal (Geral)</h2>
+            <canvas id="chartGeral"></canvas>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
