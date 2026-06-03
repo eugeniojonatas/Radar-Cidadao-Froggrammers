@@ -4,8 +4,8 @@ import requests
 import os
 from dotenv import load_dotenv  # 1. Importa o load_dotenv
 
-# 2. Carrega as variáveis de ambiente do arquivo .env
-load_dotenv()
+# 2. Carrega as variáveis apontando para a pasta exata onde este arquivo está salvo
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 app = Flask(
     __name__,
