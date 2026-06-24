@@ -482,3 +482,129 @@ th {
         white-space: nowrap;
     }
 }
+/* =====================================================
+   RESPONSIVO (ALTERAÇÕES PERFEITAS PARA O MÓVEL)
+===================================================== */
+
+@media (max-width: 768px) {
+    /* Ajustes Gerais de Container */
+    .container {
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    /* Sobrescreve estilos inline de padding rígido em deputados.html */
+    main.container[style*="padding: 20px 5%"] {
+        padding: 15px !important;
+    }
+
+    /* Navbar Flexível e Empilhada */
+    .navbar {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        font-size: 0.95rem;
+        padding: 0;
+    }
+
+    /* Hero section da Home e espaçamentos */
+    section[style*="padding: 0 10%"] {
+        padding: 0 20px !important;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .grid[style*="margin-top: -60px"] {
+        margin-top: -30px !important;
+    }
+
+    /* Cards e Elementos de Formulário (Filtros Full Width) */
+    .card {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .card input,
+    .card select,
+    .card button {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+
+    /* Tabelas responsivas (com scroll horizontal sem quebrar o ecrã) */
+    table, .ranking-table {
+        display: block !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        width: 100% !important;
+        border-radius: 8px;
+    }
+
+    /* Toast (notificações) centralizado no ecrã do telemóvel */
+    .toast {
+        right: 50% !important;
+        transform: translateX(50%) !important;
+        width: 90% !important;
+        text-align: center;
+    }
+
+    /* Ranking */
+    .ranking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .ranking-info {
+        margin-left: 0;
+    }
+
+    .ranking-nota {
+        text-align: left;
+    }
+
+    .ranking-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ranking-filtros select,
+    .ranking-filtros button {
+        width: 100%;
+    }
+
+    /* ==========================================
+       CORREÇÕES INTELIGENTES PARA ESTILOS INLINE
+    ========================================== */
+
+    /* Força Grids estruturados diretamente no HTML para ficarem em 1 coluna (Perfil e Relatórios) */
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Barras de Filtro que utilizam flexbox em linha */
+    .filter-bar,
+    div[style*="display: flex; gap: 10px; align-items: center"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    /* Textos divididos na horizontal (ex: Total de gastos no Perfil) */
+    div[style*="justify-content:space-between"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+}
