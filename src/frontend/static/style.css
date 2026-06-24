@@ -450,220 +450,101 @@ th {
    RESPONSIVO
 ===================================================== */
 
-@media (max-width: 768px) {
-
-    .ranking-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .ranking-info {
-        margin-left: 0;
-    }
-
-    .ranking-nota {
-        text-align: left;
-    }
-
-    .ranking-filtros {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .ranking-filtros select,
-    .ranking-filtros button {
-        width: 100%;
-    }
-
-    .ranking-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-}
 /* =====================================================
-   OTIMIZAÇÃO DEFINITIVA PARA MOBILE (TODAS AS PÁGINAS)
+   RESPONSIVO MOBILE - CORRETO E ESTÁVEL
 ===================================================== */
-
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
     
-    /* ==========================================
-       1. CABEÇALHO E MENU (Global)
-    ========================================== */
+    /* 1. NAVEGAÇÃO */
     .navbar {
+        flex-direction: column !important;
         height: auto !important;
-        flex-direction: column !important;
         padding: 15px !important;
+        gap: 15px !important;
     }
-
+    
     .nav-links {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        padding: 0 !important;
         gap: 8px !important;
-        padding: 10px 0 0 0 !important;
     }
-
-    .nav-links li {
-        width: 100% !important;
-        text-align: center !important;
-    }
-
+    
     .nav-links a {
-        display: block !important;
-        padding: 12px !important;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 8px !important;
-        font-size: 15px !important;
+        padding: 8px 14px !important;
+        border-radius: 6px !important;
+        background: rgba(255,255,255,0.1);
+        display: inline-block;
     }
 
-    /* ==========================================
-       2. REGRAS GERAIS E CONTAINERS
-    ========================================== */
-    .container, main[style] {
+    /* 2. CONTAINERS E HERO (HOME) */
+    .container {
         padding: 15px !important;
         margin: 0 auto !important;
         width: 100% !important;
     }
+    
+    .hero {
+        padding: 40px 20px !important;
+        height: auto !important;
+        text-align: center !important;
+    }
+    
+    /* Remove margem negativa da Home */
+    .grid[style*="-60px"] {
+        margin-top: 10px !important;
+    }
 
-    /* Força todos os botões e inputs a terem tamanho para o dedo e ocuparem a tela */
+    /* 3. CONVERTE GRIDS E FLEXBOX INLINE PARA COLUNA */
+    /* Isso arruma a Home, Perfil e Relatórios automaticamente */
+    div[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    .filter-bar,
+    div[style*="display: flex; gap: 10px"],
+    .ranking-filtros {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    /* 4. BOTÕES E INPUTS (Tamanho p/ Toque) */
     input, select, button, .btn {
         width: 100% !important;
-        min-height: 48px !important;
-        margin: 0 0 10px 0 !important;
+        min-height: 44px !important;
+        margin: 0 !important;
         box-sizing: border-box !important;
     }
 
+    /* 5. TABELAS COM SCROLL LATERAL */
+    table, .ranking-table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        white-space: nowrap !important;
+    }
+
+    /* 6. PERFIL - DESCONGELA A FOTO */
+    aside .card {
+        position: relative !important;
+        top: 0 !important;
+    }
+
+    /* 7. NOTIFICAÇÕES E MODAL */
     .toast {
         width: 90% !important;
         left: 50% !important;
         right: auto !important;
         transform: translateX(-50%) !important;
-        top: 20px !important;
-        text-align: center !important;
     }
-
-    /* ==========================================
-       3. PÁGINA HOME (index.html)
-    ========================================== */
-    .hero, .hero[style] {
-        height: auto !important;
-        padding: 40px 20px !important;
-        text-align: center !important;
-    }
-
-    /* Conserta os 3 cards encavalados */
-    .grid {
-        display: flex !important;
-        flex-direction: column !important;
-        margin-top: 15px !important;
-        gap: 15px !important;
-    }
-
-    /* ==========================================
-       4. PÁGINA DE PERFIL (perfil.html)
-    ========================================== */
-    /* Ataca a div principal que divide a foto e os dados, ignorando as quebras de linha do HTML */
-    main.container > div[style] {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 20px !important;
-    }
-
-    /* Descongela a foto de perfil para a página poder rolar */
-    aside .card, aside .card[style] {
-        position: static !important; 
-    }
-
-    /* Empilha as linhas de informações (como totais de gastos) */
-    .card div[style] {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 10px !important;
-    }
-
-    /* ==========================================
-       5. DEPUTADOS E GRÁFICOS (Filtros e Buscas)
-    ========================================== */
-    .filter-bar, 
-    .filter-bar[style],
-    .container > .card[style] {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        padding: 15px !important;
-        gap: 5px !important;
-    }
-
-    /* ==========================================
-       6. RELATÓRIOS (relatorios.html)
-    ========================================== */
-    /* Garante que a correção anterior da página de relatórios se mantenha */
-    .card > div[style] {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-
-    /* ==========================================
-       7. RANKING (ranking.html)
-    ========================================== */
-    .ranking-filtros {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        padding: 15px !important;
-    }
-
-    .ranking-top3 {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 15px !important;
-    }
-
-    .ranking-item {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        padding: 20px 15px !important;
-    }
-
-    .ranking-info {
-        margin-left: 0 !important;
-        width: 100% !important;
-    }
-
-    .ranking-nota {
-        text-align: center !important;
-        width: 100% !important;
-        margin-top: 10px !important;
-        padding-top: 10px !important;
-        border-top: 1px solid #eee !important;
-    }
-
-    /* ==========================================
-       8. TABELAS (Todas as páginas)
-    ========================================== */
-    /* Cria a rolagem horizontal para não "amassar" a tabela */
-    table, .ranking-table {
-        display: block !important;
-        width: 100% !important;
-        overflow-x: auto !important;
-        white-space: nowrap !important;
-        -webkit-overflow-scrolling: touch !important;
-        background: white !important;
-        border-radius: 8px !important;
-    }
-
-    /* ==========================================
-       9. MODAIS POP-UP
-    ========================================== */
+    
     .modal-content {
         width: 95% !important;
-        margin: 20px auto !important;
         padding: 15px !important;
     }
 }
