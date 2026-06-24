@@ -483,128 +483,151 @@ th {
     }
 }
 /* =====================================================
-   RESPONSIVO (ALTERAÇÕES PERFEITAS PARA O MÓVEL)
+   OTIMIZAÇÃO PREMIUM PARA DISPOSITIVOS MÓVEIS
 ===================================================== */
 
-@media (max-width: 768px) {
-    /* Ajustes Gerais de Container */
-    .container {
-        margin: 20px auto;
-        padding: 0 15px;
-    }
-
-    /* Sobrescreve estilos inline de padding rígido em deputados.html */
-    main.container[style*="padding: 20px 5%"] {
-        padding: 15px !important;
-    }
-
-    /* Navbar Flexível e Empilhada */
+@media screen and (max-width: 768px) {
+    
+    /* 1. NAVEGAÇÃO E CABEÇALHO */
     .navbar {
+        height: auto !important;
         flex-direction: column;
-        height: auto;
-        padding: 15px;
-        gap: 12px;
+        padding: 15px 20px !important;
+        gap: 15px;
     }
 
     .nav-links {
         flex-wrap: wrap;
         justify-content: center;
-        gap: 12px;
-        font-size: 0.95rem;
-        padding: 0;
+        gap: 8px;
+        width: 100%;
     }
 
-    /* Hero section da Home e espaçamentos */
-    section[style*="padding: 0 10%"] {
-        padding: 0 20px !important;
+    .nav-links a {
+        padding: 8px 12px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+    }
+
+    /* 2. AJUSTE DE CONTAINERS E ESPAÇAMENTOS GERAIS */
+    .container {
+        padding: 15px !important;
+        margin: 10px auto !important;
+        width: 100%;
+    }
+
+    /* Corrige a Hero Section (Home) para o texto não vazar */
+    .hero {
+        padding: 40px 20px !important;
+        height: auto !important;
+        min-height: 350px;
         text-align: center;
-        justify-content: center;
     }
     
+    /* Remove a margem negativa dos cards na Home para não sobrepor o texto no celular */
     .grid[style*="margin-top: -60px"] {
-        margin-top: -30px !important;
+        margin-top: 10px !important;
     }
 
-    /* Cards e Elementos de Formulário (Filtros Full Width) */
-    .card {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
+    /* 3. CORREÇÃO CIRÚRGICA DOS GRIDS INLINE (O que quebrava o layout) */
+    
+    /* Página de Perfil: Coloca a foto em cima e os dados embaixo */
+    div[style*="grid-template-columns:320px 1fr"],
+    div[style*="grid-template-columns: 320px 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
     }
 
-    .card input,
-    .card select,
-    .card button {
-        width: 100%;
-        margin-right: 0;
-        margin-bottom: 5px;
+    /* Remove o efeito "colado" (sticky) da foto do perfil no celular para permitir a rolagem */
+    aside .card[style*="position:sticky"],
+    aside .card[style*="position: sticky"] {
+        position: relative !important;
+        top: 0 !important;
     }
 
-    /* Tabelas responsivas (com scroll horizontal sem quebrar o ecrã) */
-    table, .ranking-table {
-        display: block !important;
-        overflow-x: auto !important;
-        white-space: nowrap !important;
-        width: 100% !important;
-        border-radius: 8px;
-    }
-
-    /* Toast (notificações) centralizado no ecrã do telemóvel */
-    .toast {
-        right: 50% !important;
-        transform: translateX(50%) !important;
-        width: 90% !important;
-        text-align: center;
-    }
-
-    /* Ranking */
-    .ranking-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .ranking-info {
-        margin-left: 0;
-    }
-
-    .ranking-nota {
-        text-align: left;
-    }
-
-    .ranking-filtros {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .ranking-filtros select,
-    .ranking-filtros button {
-        width: 100%;
-    }
-
-    /* ==========================================
-       CORREÇÕES INTELIGENTES PARA ESTILOS INLINE
-    ========================================== */
-
-    /* Força Grids estruturados diretamente no HTML para ficarem em 1 coluna (Perfil e Relatórios) */
-    div[style*="grid-template-columns"] {
+    /* Página de Relatórios: Filtros lado a lado viram uma coluna empilhada */
+    div[style*="grid-template-columns: repeat(3, 1fr)"],
+    div[style*="grid-template-columns:repeat(3, 1fr)"] {
         grid-template-columns: 1fr !important;
         gap: 15px !important;
     }
 
-    /* Barras de Filtro que utilizam flexbox em linha */
-    .filter-bar,
+    /* 4. BARRA DE FILTROS E FORMULÁRIOS (Deputados e Ranking) */
+    .filter-bar, 
+    .ranking-filtros,
     div[style*="display: flex; gap: 10px; align-items: center"] {
         flex-direction: column !important;
         align-items: stretch !important;
-        gap: 10px !important;
+        gap: 12px !important;
     }
 
-    /* Textos divididos na horizontal (ex: Total de gastos no Perfil) */
-    div[style*="justify-content:space-between"] {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
+    .filter-bar input, 
+    .filter-bar select, 
+    .ranking-filtros select, 
+    .ranking-filtros button,
+    .card select,
+    .card button,
+    .card input {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-right: 0 !important;
+        min-height: 44px; /* Tamanho mínimo amigável para toque do dedo */
+    }
+
+    /* 5. TABELAS (Rolagem horizontal perfeita sem quebrar as bordas) */
+    table {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch; /* Rolagem suave no iPhone/iOS */
+        border-collapse: collapse !important;
+        white-space: nowrap !important; /* Impede que o texto esprema e crie linhas gigantes */
+    }
+
+    /* 6. MODAL (Pop-up de detalhes) */
+    .modal-content {
+        width: 95% !important;
+        padding: 15px !important;
+        margin: 20px auto;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* 7. NOTIFICAÇÕES (Toasts) */
+    .toast {
+        width: 90% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        text-align: center;
+        top: 10px !important;
+    }
+
+    /* 8. AJUSTES ESPECÍFICOS DO RANKING */
+    .ranking-top3 {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    .ranking-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        padding: 20px 15px;
+    }
+
+    .ranking-info {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .ranking-nota {
+        text-align: center;
+        width: 100%;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
     }
 }
