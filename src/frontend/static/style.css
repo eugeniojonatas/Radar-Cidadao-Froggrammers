@@ -447,104 +447,230 @@ th {
 }
 
 /* =====================================================
-   RESPONSIVO
+   MÓDULO DE ULTRA-OTIMIZAÇÃO MOBILE (APP DE ALTO NÍVEL)
 ===================================================== */
 
-/* =====================================================
-   RESPONSIVO MOBILE - CORRETO E ESTÁVEL
-===================================================== */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
     
-    /* 1. NAVEGAÇÃO */
-    .navbar {
-        flex-direction: column !important;
-        height: auto !important;
-        padding: 15px !important;
-        gap: 15px !important;
-    }
-    
-    .nav-links {
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        padding: 0 !important;
-        gap: 8px !important;
-    }
-    
-    .nav-links a {
-        padding: 8px 14px !important;
-        border-radius: 6px !important;
-        background: rgba(255,255,255,0.1);
-        display: inline-block;
+    /* 1. ESTRUTURA GLOBAL E DESIGN DE APP */
+    body {
+        background-color: #f4f6f9 !important;
     }
 
-    /* 2. CONTAINERS E HERO (HOME) */
     .container {
-        padding: 15px !important;
+        padding: 12px !important;
         margin: 0 auto !important;
         width: 100% !important;
     }
-    
-    .hero {
-        padding: 40px 20px !important;
-        height: auto !important;
-        text-align: center !important;
-    }
-    
-    /* Remove margem negativa da Home */
-    .grid[style*="-60px"] {
-        margin-top: 10px !important;
-    }
 
-    /* 3. CONVERTE GRIDS E FLEXBOX INLINE PARA COLUNA */
-    /* Isso arruma a Home, Perfil e Relatórios automaticamente */
-    div[style*="grid-template-columns"] {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-    }
-
-    .filter-bar,
-    div[style*="display: flex; gap: 10px"],
-    .ranking-filtros {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 10px !important;
-    }
-
-    /* 4. BOTÕES E INPUTS (Tamanho p/ Toque) */
+    /* Elementos de toque confortáveis (Padrão Apple/Google UX) */
     input, select, button, .btn {
         width: 100% !important;
-        min-height: 44px !important;
-        margin: 0 !important;
+        min-height: 45px !important;
+        margin: 0 0 8px 0 !important;
+        font-size: 14px !important;
         box-sizing: border-box !important;
     }
 
-    /* 5. TABELAS COM SCROLL LATERAL */
-    table, .ranking-table {
-        display: block !important;
+    /* 2. NAVBAR ESTILO APP BAR (Navegação por Abas Deslizantes) */
+    .navbar {
+        flex-direction: column !important;
+        height: auto !important;
+        padding: 12px 12px 6px 12px !important;
+        position: sticky !important;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+
+    .logo {
+        font-size: 1.25rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .navbar nav {
         width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
+        overflow-x: auto !important; /* Permite deslizar o menu de lado com o dedo */
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+    }
+
+    .navbar nav::-webkit-scrollbar {
+        display: none; /* Oculta a barra de rolagem para parecer nativo */
+    }
+
+    .nav-links {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 8px !important;
+        width: max-content !important; /* Mantém os itens em linha para o scroll */
+        padding: 0 4px !important;
+    }
+
+    .nav-links a {
+        padding: 6px 14px !important;
+        font-size: 13px !important;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 20px !important; /* Design pílula moderno */
         white-space: nowrap !important;
     }
 
-    /* 6. PERFIL - DESCONGELA A FOTO */
-    aside .card {
+    .nav-links a.active {
+        background: var(--secondary) !important;
+        color: white !important;
+    }
+
+    /* 3. HOME (index.html) - CORREÇÃO DE ACUMULO */
+    .hero {
+        height: auto !important;
+        min-height: 260px !important;
+        padding: 35px 16px !important;
+        text-align: center !important;
+    }
+
+    .hero h1 {
+        font-size: 1.7rem !important;
+    }
+
+    /* Corrige os cards sobrepostos na Home */
+    .container > .grid[style*="margin-top"],
+    .container > .grid {
+        margin-top: 12px !important;
+        grid-template-columns: 1fr !important; /* Cards conceituais em 1 coluna */
+        gap: 12px !important;
+    }
+
+    /* 4. VISIBILIDADE MÁXIMA DOS DEPUTADOS (deputados.html) */
+    /* Transforma a exibição em um Grid Premium de 2 Colunas */
+    .grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    .grid .card {
+        padding: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+    }
+
+    .grid img {
+        height: 150px !important; /* Altura ideal proporcional para telas menores */
+        border-radius: 6px !important;
+    }
+
+    .grid h3 {
+        font-size: 0.95rem !important;
+        margin: 8px 0 2px 0 !important;
+        line-height: 1.2;
+    }
+
+    .grid p {
+        font-size: 0.8rem !important;
+    }
+
+    .grid a {
+        width: 100% !important;
+        text-align: center;
+        padding: 6px !important;
+        font-size: 0.8rem !important;
+        margin-top: 6px !important;
+    }
+
+    /* Barra de busca/filtros superior */
+    .filter-bar, .ranking-filtros {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 12px !important;
+    }
+
+    /* 5. PERFIL PARLAMENTAR (perfil.html) */
+    main.container > div[style*="display:grid"],
+    main.container > div[style*="display: grid"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    aside {
+        width: 100% !important;
+    }
+
+    aside .card[style*="position:sticky"],
+    aside .card[style*="position: sticky"] {
         position: relative !important;
         top: 0 !important;
     }
 
-    /* 7. NOTIFICAÇÕES E MODAL */
+    #dep-foto {
+        width: 130px !important;
+        height: 175px !important;
+        margin: 0 auto !important;
+    }
+
+    /* Alinha blocos de valores lado a lado para coluna */
+    div[style*="justify-content:space-between"],
+    div[style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        text-align: center !important;
+    }
+
+    /* 6. RELATÓRIOS (relatorios.html) */
+    div[style*="grid-template-columns: repeat(3"],
+    div[style*="grid-template-columns:repeat(3"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    /* 7. RANKINGS (ranking.html) */
+    .ranking-top3 {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .ranking-item {
+        flex-direction: column !important;
+        text-align: center !important;
+        padding: 16px !important;
+    }
+
+    .ranking-info {
+        margin: 4px 0 !important;
+    }
+
+    .ranking-nota {
+        text-align: center !important;
+        width: 100% !important;
+        border-top: 1px solid #eee;
+        padding-top: 6px;
+    }
+
+    /* 8. TABELAS DE DADOS (Rolagem lateral fluida de proteção) */
+    table, .ranking-table {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 8px !important;
+    }
+
+    /* Gráficos responsivos */
+    main[style*="max-height: 90vh"] {
+        max-height: none !important;
+    }
+
+    /* 9. NOTIFICAÇÕES (Toast) */
     .toast {
         width: 90% !important;
         left: 50% !important;
-        right: auto !important;
         transform: translateX(-50%) !important;
-    }
-    
-    .modal-content {
-        width: 95% !important;
-        padding: 15px !important;
+        top: 12px !important;
+        right: auto !important;
     }
 }
