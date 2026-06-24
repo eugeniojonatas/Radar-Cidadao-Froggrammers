@@ -483,151 +483,208 @@ th {
     }
 }
 /* =====================================================
-   OTIMIZAÇÃO PREMIUM PARA DISPOSITIVOS MÓVEIS
+   OTIMIZAÇÃO PREMIUM PARA MOBILE (TODAS AS PÁGINAS)
 ===================================================== */
 
 @media screen and (max-width: 768px) {
     
-    /* 1. NAVEGAÇÃO E CABEÇALHO */
+    /* ==========================================
+       1. GLOBAL (Navegação, Containers e Toasts)
+    ========================================== */
     .navbar {
         height: auto !important;
-        flex-direction: column;
-        padding: 15px 20px !important;
-        gap: 15px;
+        flex-direction: column !important;
+        padding: 15px !important;
+        text-align: center;
     }
 
     .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        padding-top: 10px !important;
         width: 100%;
     }
 
     .nav-links a {
-        padding: 8px 12px;
-        font-size: 14px;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
         background: rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
+        border-radius: 8px;
+        display: block;
     }
 
-    /* 2. AJUSTE DE CONTAINERS E ESPAÇAMENTOS GERAIS */
-    .container {
+    .container, main[style*="padding"] {
         padding: 15px !important;
         margin: 10px auto !important;
-        width: 100%;
-    }
-
-    /* Corrige a Hero Section (Home) para o texto não vazar */
-    .hero {
-        padding: 40px 20px !important;
-        height: auto !important;
-        min-height: 350px;
-        text-align: center;
-    }
-    
-    /* Remove a margem negativa dos cards na Home para não sobrepor o texto no celular */
-    .grid[style*="margin-top: -60px"] {
-        margin-top: 10px !important;
-    }
-
-    /* 3. CORREÇÃO CIRÚRGICA DOS GRIDS INLINE (O que quebrava o layout) */
-    
-    /* Página de Perfil: Coloca a foto em cima e os dados embaixo */
-    div[style*="grid-template-columns:320px 1fr"],
-    div[style*="grid-template-columns: 320px 1fr"] {
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
-    }
-
-    /* Remove o efeito "colado" (sticky) da foto do perfil no celular para permitir a rolagem */
-    aside .card[style*="position:sticky"],
-    aside .card[style*="position: sticky"] {
-        position: relative !important;
-        top: 0 !important;
-    }
-
-    /* Página de Relatórios: Filtros lado a lado viram uma coluna empilhada */
-    div[style*="grid-template-columns: repeat(3, 1fr)"],
-    div[style*="grid-template-columns:repeat(3, 1fr)"] {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-    }
-
-    /* 4. BARRA DE FILTROS E FORMULÁRIOS (Deputados e Ranking) */
-    .filter-bar, 
-    .ranking-filtros,
-    div[style*="display: flex; gap: 10px; align-items: center"] {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 12px !important;
-    }
-
-    .filter-bar input, 
-    .filter-bar select, 
-    .ranking-filtros select, 
-    .ranking-filtros button,
-    .card select,
-    .card button,
-    .card input {
         width: 100% !important;
-        max-width: 100% !important;
-        margin-right: 0 !important;
-        min-height: 44px; /* Tamanho mínimo amigável para toque do dedo */
     }
 
-    /* 5. TABELAS (Rolagem horizontal perfeita sem quebrar as bordas) */
-    table {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch; /* Rolagem suave no iPhone/iOS */
-        border-collapse: collapse !important;
-        white-space: nowrap !important; /* Impede que o texto esprema e crie linhas gigantes */
-    }
-
-    /* 6. MODAL (Pop-up de detalhes) */
-    .modal-content {
-        width: 95% !important;
-        padding: 15px !important;
-        margin: 20px auto;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    /* 7. NOTIFICAÇÕES (Toasts) */
     .toast {
         width: 90% !important;
         left: 50% !important;
         right: auto !important;
         transform: translateX(-50%) !important;
-        text-align: center;
         top: 10px !important;
+        text-align: center !important;
+        border-radius: 8px !important;
     }
 
-    /* 8. AJUSTES ESPECÍFICOS DO RANKING */
+    /* Botões e Inputs mais fáceis de tocar (Padrão Apple/Google) */
+    input, select, button, .btn {
+        min-height: 48px !important;
+        border-radius: 8px !important;
+        font-size: 15px !important;
+    }
+
+    /* ==========================================
+       2. HOME (index.html)
+    ========================================== */
+    .hero {
+        padding: 40px 20px !important;
+        height: auto !important;
+        min-height: 350px !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+
+    .hero p {
+        margin: 15px auto 25px !important;
+        font-size: 1rem !important;
+    }
+
+    /* Remove a sobreposição quebrada dos cards na página inicial */
+    .grid[style*="margin-top: -60px"],
+    .grid[style*="-60px"] {
+        margin-top: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    /* ==========================================
+       3. PÁGINA DE DEPUTADOS (deputados.html)
+    ========================================== */
+    .filter-bar, 
+    div[style*="display: flex; gap: 10px"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        padding: 15px !important;
+    }
+
+    .filter-bar input, .filter-bar select {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* ==========================================
+       4. PÁGINA DE PERFIL (perfil.html)
+    ========================================== */
+    /* Transforma o layout duplo (Foto na esquerda, dados na direita) em uma coluna */
+    div[style*="grid-template-columns:320px"], 
+    div[style*="grid-template-columns: 320px"] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+
+    /* Descongela a foto de perfil para a página poder rolar */
+    aside .card {
+        position: relative !important;
+        top: 0 !important;
+    }
+
+    div[style*="justify-content:space-between"],
+    div[style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    /* ==========================================
+       5. PÁGINA DE RELATÓRIOS (relatorios.html)
+    ========================================== */
+    /* Empilha os filtros de 3 colunas para 1 coluna */
+    div[style*="grid-template-columns: repeat(3"],
+    div[style*="grid-template-columns:repeat(3"] {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    /* ==========================================
+       6. RANKING (ranking.html)
+    ========================================== */
+    .ranking-filtros {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 15px !important;
+    }
+
+    .ranking-filtros select, 
+    .ranking-filtros button {
+        width: 100% !important;
+    }
+
     .ranking-top3 {
         grid-template-columns: 1fr !important;
-        gap: 15px;
+        gap: 15px !important;
     }
 
     .ranking-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-        padding: 20px 15px;
+        flex-direction: column !important;
+        text-align: center !important;
+        padding: 20px 15px !important;
+        gap: 12px !important;
     }
 
     .ranking-info {
-        margin-left: 0;
-        width: 100%;
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 
     .ranking-nota {
-        text-align: center;
-        width: 100%;
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #eee;
+        text-align: center !important;
+        width: 100% !important;
+        padding-top: 12px !important;
+        border-top: 1px solid #eee !important;
+    }
+
+    /* ==========================================
+       7. TABELAS INTELIGENTES (Todas as páginas)
+    ========================================== */
+    table, .ranking-table {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important; /* Deslize suave no celular */
+        border-collapse: collapse !important;
+        white-space: nowrap !important; /* Impede que o texto esmague e fique feio */
+        background: white !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+    }
+
+    th, td {
+        padding: 12px 15px !important;
+        font-size: 14px !important;
+    }
+
+    /* ==========================================
+       8. MODAIS POP-UP (Ex: detalhes do deputado)
+    ========================================== */
+    .modal {
+        padding: 10px !important;
+    }
+
+    .modal-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 20px 15px !important;
+        border-radius: 12px !important;
+        margin: 0 !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
     }
 }
